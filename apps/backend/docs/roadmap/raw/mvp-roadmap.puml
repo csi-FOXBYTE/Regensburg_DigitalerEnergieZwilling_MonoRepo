@@ -1,0 +1,50 @@
+@startuml
+!theme plain
+
+title DEZ-MVP-Fahrplan - Ist-Stand und Planung
+top to bottom direction
+
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam rectangle {
+  RoundCorner 12
+  BorderColor #1F2937
+}
+skinparam ArrowColor #1F2937
+
+rectangle "Release 1\n02.03.2026 - 15.03.2026\n---\nPlattformaufbau\nCIVITAS/CORE-Basis\nDienste\nDatenpipeline + Vorverarbeitung\nMasterPortal-Verlinkung" as R1 #DCEBFF
+
+rectangle "Release 2\n16.03.2026 - 12.04.2026\n---\nHauptzielgruppe\nÖffentlicher 3D-Client\nGebäudeauswahl + Berechnung\nIst-Zustand + Plausibilitätsprüfung\nBackend-CRUD" as R2 #DFF7E2
+
+rectangle "Release 3\n13.04.2026 - 10.05.2026\n---\nIst-Stand\nRechen-/Energiekern\nSanierungslogik\nErgebnis + PDF/Export\nAdmin/Systempflege\nUX-Texte + Testvorbereitung" as R3 #FFEFD6
+
+rectangle "Release 4\n11.05.2026 - 18.06.2026\n---\nIst-Stand\nIntegration + Stabilisierung\nAdmin-Backend/Authentifizierung\nDatenpipeline + Anreicherung\nFörderprogramm-Anbindung\nTests + Fragebögen" as R4 #F3F4F6
+
+rectangle "Release 5\nSprint 13 + Sprint 14\nAbschluss 06.07.2026\n---\nIst-Stand\nAnreicherung aktualisieren + Fehlerbehebung\nFrontend aktualisieren + Fehlerbehebung\nSystempflege aktualisieren + Fehlerbehebung\nSprint 14: Nutzertests" as R5 #EDE9FE
+
+rectangle "Release 6\nSprint 15 + Sprint 16\n07.07.2026 - 03.08.2026\n---\nIst-Stand\nEntwicklung fortgeführt\nSystemübergreifend stabilisiert\nRegression + Konsistenz geprüft\nMatomo nicht umgesetzt\nBKI-Zugang weiter offen" as R6 #FFF4BF
+
+rectangle "Release 7\nSprint 17\n04.08.2026 - 17.08.2026\n---\nIst-Stand\nNutzertests auswerten\nArbeitspakete bewerten + bearbeiten\nGeothermie integriert\nStabilisierung\nCIVITAS/CORE-Staging-Bereitstellung" as R7 #E5E7EB
+
+rectangle "Entwicklung + Inbetriebnahme\nSprint 18 + Sprint 19\n18.08.2026 - vorauss. 21.09.2026\n---\nPlan\nSprint 18: Entwicklung fortführen\nSprint 19: Bugfixing\nVerdichtete Inbetriebnahme\nGeordnete Inbetriebnahme durch\nzeitliche Verlängerung ohne Mehrumfang" as IB #DFF7E2
+
+R1 --> R2 : baut auf
+R2 --> R3 : erweitert
+R3 --> R4 : erweitert
+R4 --> R5 : plant weiter
+R5 --> R6 : wird fortgeführt
+R6 --> R7 : führt zur Auswertung
+R7 --> IB : führt zu Sprint 18/19
+
+legend right
+  Quelle: docs/roadmap/mvp-definition.md
+  Stand: 2026-09-02
+endlegend
+
+@enduml
+
+
+
+
+
+

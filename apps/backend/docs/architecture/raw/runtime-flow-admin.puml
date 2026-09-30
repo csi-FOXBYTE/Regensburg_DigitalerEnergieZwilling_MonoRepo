@@ -1,0 +1,62 @@
+@startuml
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam sequence {
+  ParticipantBorderColor #444444
+  ParticipantBackgroundColor #F7F7F7
+  LifeLineBorderColor #444444
+  ArrowColor #444444
+  NoteBorderColor #444444
+  NoteBackgroundColor #F7F7F7
+}
+
+title Ablauf - Stadtverwaltung/Fachpersonal (Admin)
+
+actor Admin as admin
+participant "Admin-Frontend\n(separate Astro/nginx-Bereitstellung)" as client
+participant "APISIX" as gateway
+participant "Keycloak" as keycloak
+participant "Backend-Authentifizierungs-Middleware" as auth
+participant "Backend-API" as api
+participant "Konfigurationsdienst" as config
+participant "Einreichungsdienst" as submissions
+database "PostgreSQL" as db
+
+admin -> client: Öffnet die Admin-Anwendung
+client -> gateway: OIDC-Anmeldung / Tokenabruf
+gateway -> keycloak: Authentifizieren
+keycloak --> client: Zugriffstoken
+
+admin -> client: Konfiguration laden oder bearbeiten
+client -> gateway: GET/POST/PATCH /api/admin/config + Token
+gateway -> gateway: OIDC-Vorprüfung und Routenregeln
+gateway -> api: Geschützte Anfrage weiterleiten
+api -> auth: Token validieren
+auth -> keycloak: JWKS laden (zwischengespeichert)
+keycloak --> auth: Öffentliche Schlüssel
+auth -> auth: RS256 und Rollen prüfen
+auth --> api: Autorisierter Benutzer
+api -> config: Konfigurationsoperation ausführen
+config -> db: Version lesen/schreiben
+db --> config: Ergebnis
+config --> api: Ergebnis
+api --> client: API-Antwort
+
+admin -> client: Einreichungen sichten / triagieren
+client -> gateway: /api/admin/submissions/* + Token
+gateway -> gateway: OIDC-Vorprüfung und Routenregeln
+gateway -> api: Geschützte Anfrage weiterleiten
+api -> auth: Token und Rollen validieren
+auth --> api: Kontext mit Rolle manager/admin
+api -> submissions: Auflisten, zuweisen, akzeptieren, ablehnen oder löschen
+submissions -> db: Einreichung und Historie lesen/schreiben
+db --> submissions: Ergebnis
+submissions --> api: Ergebnis
+api --> client: API-Antwort
+
+alt Token ungültig oder Rolle fehlt
+  auth --> api: 401/403
+  api --> client: Abgelehnt
+end
+
+@enduml

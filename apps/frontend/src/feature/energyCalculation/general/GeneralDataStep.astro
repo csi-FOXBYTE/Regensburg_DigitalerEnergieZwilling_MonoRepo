@@ -1,0 +1,28 @@
+---
+import ContentContainer from '@/components/layouts/ContentContainer.astro';
+import EnergyCalculationPage from '@/components/layouts/EnergyCalculationPage.astro';
+import { Callout } from '@/components/ui/callout';
+import { Typography } from '@/components/ui/typography';
+import i18next from 'i18next';
+import BuildingAddress from '../BuildingAddress';
+import GeneralDataButtonBar from './GeneralDataButtonBar';
+import GeneralDataStepForm from './GeneralDataStepForm';
+---
+
+<EnergyCalculationPage step={2}>
+  <ContentContainer>
+    <Typography as="h1" variant="h2">
+      {i18next.t('energyCalculation:generalData.title')}
+    </Typography>
+    <BuildingAddress client:only="react" />
+    <Callout variant="info" className="mt-4">
+      <Typography variant="small">
+        {i18next.t('energyCalculation:generalData.dataSourceRemark')}
+      </Typography>
+    </Callout>
+  </ContentContainer>
+  <ContentContainer class="mt-8">
+    <GeneralDataStepForm client:only="react" />
+    <GeneralDataButtonBar className="mt-8" client:load />
+  </ContentContainer>
+</EnergyCalculationPage>

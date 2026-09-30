@@ -1,0 +1,68 @@
+# Application release model
+
+`Release Regensburg prototype` is manually dispatched on `main`, selecting patch,
+minor or major. The first application version defaults to **0.1.0** in config.json.
+All releases are marked **prerelease** and use distinct `regensburg-web-prototype-*`
+GHCR image names. This default is not a production version allocation.
+
+The independent identities are:
+
+- application semantic version: the coherent selection in `release/manifest.json`;
+- each image's `build-<run_id>-<attempt>` identity and original source SHA;
+- the core's npm/API version, currently 0.20.2, unchanged by app release selection.
+
+The schema-2 manifest binds frontend, adminfrontend and backend to repository,
+immutable digest, build ID, artifact source, input fingerprint, platform, resolved
+Node and runtime base digests, and a CycloneDX SBOM path/hash/build/source.
+The SBOM lives at `/usr/share/regensburg/SBOM.cdx.json` inside the immutable image.
+BuildKit also emits image SBOM and provenance attestations. Package inventory
+includes dependencies bundled into static apps; it is not limited to the final
+nginx filesystem. The embedded SBOM is scoped application/build evidence; BuildKit
+SBOMs additionally inventory the final OS. Licensing coverage still needs the
+review described in the prior release-readiness audit.
+
+## Reuse and freshness
+
+A completed tagged release is the baseline, never a workflow cache. No changed
+inputs means no release and no version bump. A reused artifact keeps its original
+build, source and SBOM. The planner verifies its continued availability and SBOM
+integrity. `isBuildInput` is shared between fingerprinting and Git context export.
+Core source, all workspace manifests, lockfile, scripts, patches, own application
+files, Dockerfile and release policy invalidate the affected images. File deletion,
+rename and executable mode count. Both base digests, platform and `refreshEpoch`
+also count. Increment `refreshEpoch` to refresh externally changing OS/build inputs.
+Generated files, environment files, dependency/cache directories and the release
+manifest are never build inputs. Update the allowlist if a new shared input is added.
+
+## Publication and recovery
+
+Publication is serialized with cancel-in-progress disabled. The dispatch SHA is
+pinned. If `main` advances before publication, the run fails without app-version
+publication. A draft GitHub release stores the exact selection before retagging.
+Other runs stop while this journal exists. Rerun the **original workflow run** to
+recover. Recovery rechecks image labels, digests and SBOM bytes, never moving tags.
+Matching existing version tags may be reused; conflicting ones fail. The release
+metadata commit and Git tag are pushed atomically without force. Once publication
+has started, metadata may be appended to a newer main tip while retaining the
+original reviewed source. Completion of an already completed run is a no-op.
+
+Build/check failures prevent completion; unique build tags may remain. Do not edit
+or delete a draft journal to bypass recovery. Retain images, manifests and SBOMs
+for the supported rollback lifetime. App-version tags have one serialized writer;
+manually racing registry mutations are outside this workflow's guarantees.
+
+The private target repo uses its automatic GITHUB_TOKEN for normal CI/release
+operations. An organization policy blocking package creation or branch writes is
+reported as a failed check; it must not silently substitute production packages.
+
+## Local checks
+
+`pnpm test:release` simulates GitHub, registry and Git operations. It tests per-app
+and shared invalidation, unchanged reuse, base/policy changes, stale source,
+conflicts, missing images/SBOMs and interruptions before/after Git publication.
+It does not publish. Local Docker builds validate execution; a real Actions run
+is separately recorded in docs/verification.md.
+
+No fake successful manifest is committed. Example manifests exist only in clearly
+marked test fixtures. The addon consumes the completed release journal and exact
+tagged manifest through `scripts/deploy/select-release.mjs`.

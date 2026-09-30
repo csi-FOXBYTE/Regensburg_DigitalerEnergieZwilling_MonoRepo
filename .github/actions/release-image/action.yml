@@ -1,0 +1,64 @@
+name: Build Regensburg prototype release image
+description: Build a fingerprinted context and push a unique GHCR build tag.
+inputs:
+  component:
+    required: true
+    description: frontend, adminfrontend or backend
+  image:
+    required: true
+    description: GHCR image repository
+  base-image:
+    required: true
+    description: Resolved base reference including digest
+  runtime-base-image:
+    required: true
+    description: Pinned runtime base image
+  platform:
+    required: true
+    description: Target platform
+  refresh-epoch:
+    required: true
+    description: Explicit external dependency refresh revision
+  context:
+    required: true
+    description: Exported build context
+  username:
+    required: true
+    description: GitHub actor
+  token:
+    required: true
+    description: Workflow GITHUB_TOKEN with packages write access
+outputs:
+  digest:
+    description: Pushed registry digest
+    value: ${{ steps.build.outputs.digest }}
+runs:
+  using: composite
+  steps:
+    - uses: docker/setup-buildx-action@v3
+    - uses: docker/login-action@v3
+      with:
+        registry: ghcr.io
+        username: ${{ inputs.username }}
+        password: ${{ inputs.token }}
+    - uses: docker/build-push-action@v6
+      id: build
+      with:
+        context: ${{ inputs.context }}
+        file: ${{ inputs.context }}/apps/${{ inputs.component }}/Dockerfile
+        platforms: ${{ inputs.platform }}
+        push: true
+        sbom: true
+        provenance: mode=max
+        tags: ${{ inputs.image }}:build-${{ github.run_id }}-${{ github.run_attempt }}
+        build-args: |
+          NODE_BASE_IMAGE=${{ inputs.base-image }}
+          RUNTIME_BASE_IMAGE=${{ inputs.runtime-base-image }}
+          BUILD_ID=${{ github.run_id }}-${{ github.run_attempt }}
+          SOURCE_COMMIT=${{ github.sha }}
+          RELEASE_REFRESH=${{ inputs.refresh-epoch }}
+        labels: |
+          org.opencontainers.image.source=https://github.com/csi-FOXBYTE/Regensburg_DigitalerEnergieZwilling_MonoRepo
+          org.opencontainers.image.revision=${{ github.sha }}
+        cache-from: type=gha,scope=regensburg-prototype-${{ inputs.component }}-${{ inputs.refresh-epoch }}
+        cache-to: type=gha,mode=max,scope=regensburg-prototype-${{ inputs.component }}-${{ inputs.refresh-epoch }}

@@ -1,0 +1,39 @@
+{
+  "titleVariations": [
+    "How energy efficient is your building?",
+    "How much can you save with a renovation?",
+    "Which efficiency league is your property really in?",
+    "How much potential is hidden behind your year of construction?",
+    "Do you know which renovation has the biggest leverage for your house type?",
+    "How independent can your house become from the next energy crisis?",
+    "How can you face the next energy crisis with more peace of mind?",
+    "Do you know the levers to defuse the next energy crisis?",
+    "Do you know which renovation best protects you from the next energy crisis?"
+  ],
+  "aboutText": "Find out: Free and non-binding.",
+  "startButton": "Get started",
+  "remarkTitle": "Important note",
+  "remarkContent": "The results are not energy consultancy, but a calculation-based orientation. All calculations are based on simplified assumptions and publicly available data.",
+  "features": [
+    {
+      "icon": "MapPin",
+      "title": "Select building",
+      "description": "Select your building on the map, check the existing information and add further details."
+    },
+    {
+      "icon": "Calculator",
+      "title": "Energy calculation",
+      "description": "The Digital Energy Twin calculates a first estimate of energy requirements, costs and CO₂ emissions transparently and without waiting time."
+    },
+    {
+      "icon": "Wrench",
+      "title": "Plan renovation measures",
+      "description": "Heating system replacement, insulation and renewable energy: Select proposals for suitable renovation measures and understand their impact on the efficiency of your building."
+    },
+    {
+      "icon": "FileText",
+      "title": "PDF report and next steps",
+      "description": "No registration required: Get a clear overview and specific recommendations as a basis for your next steps."
+    }
+  ]
+}

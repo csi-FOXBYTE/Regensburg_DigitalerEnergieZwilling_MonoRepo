@@ -1,0 +1,12 @@
+node_modules
+.pnpm-store
+.astro
+dist
+.git
+.gitignore
+.vscode
+.devcontainer
+workspace
+*.log
+coverage
+public/cesium

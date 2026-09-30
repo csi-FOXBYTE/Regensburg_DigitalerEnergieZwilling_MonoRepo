@@ -1,0 +1,49 @@
+{
+  "name": "Regensburg",
+  "administration": {
+    "name": "City of Regensburg",
+    "genericName": "city administration"
+  },
+  "dataSubmission": {
+    "server": "city server"
+  },
+  "energyAdvice": {
+    "providerName": "Regensburg Energy Agency"
+  },
+  "buildingData": {
+    "municipalityKey": "09362000",
+    "publisher": "the Bavarian State Office for Digitisation, Broadband and Surveying, or Bavarian Surveying Administration",
+    "sourceLinkLabel": "product and metadata page of the Bavarian Surveying Administration",
+    "updateFrequency": "weekly"
+  },
+  "imprint": {
+    "contactIntro": "For general questions about the city administration, please contact:",
+    "contact": {
+      "email": "stadt_regensburg@regensburg.de",
+      "phone": "(0941) 507-0",
+      "fax": "(0941) 507-1199",
+      "address": "Stadt Regensburg\nPostfach 11 06 43\n93019 Regensburg"
+    },
+    "publisher": {
+      "title": "Publisher (pursuant to § 5 TMG; § 55 II RStV)",
+      "address": "Stadt Regensburg\nAltes Rathaus\nRathausplatz 1\n93047 Regensburg",
+      "email": "pressestelle@regensburg.de",
+      "website": "www.regensburg.de",
+      "legalForm": "The City of Regensburg is a public corporation. It is represented by Lord Mayor Dr. Thomas Burger.",
+      "vatId": "VAT identification number pursuant to § 27 a UStG: DE 133714341"
+    },
+    "responsible": {
+      "title": "Responsible for content (pursuant to § 55 II RStV)",
+      "address": "Stadt Regensburg | Amt für Stadtentwicklung | Abteilung Entwicklungsplanung\nRalf Lehmann\nD.-Martin-Luther-Straße 1\n93047 Regensburg",
+      "email": "stadtentwickung@regensburg.de",
+      "website": "www.regensburg.de"
+    },
+    "administration": {
+      "title": "System administration and development",
+      "address": "Business Unit FOXBYTE\ncsi Verwaltungs GmbH\nRobert-Mayer-Straße 10\n74172 Neckarsulm",
+      "email": "info@csi-online.de",
+      "website": "www.foxbyte.de",
+      "vatId": "VAT identification number pursuant to § 27 a UStG: DE 253 142 674"
+    }
+  }
+}

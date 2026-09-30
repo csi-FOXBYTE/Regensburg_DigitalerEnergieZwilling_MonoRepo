@@ -1,0 +1,88 @@
+---
+import MapSection from '@/feature/map/MapSection.astro';
+import type { GetStaticPaths } from 'astro';
+import DETLayout from '@/components/layouts/DETLayout.astro';
+import { buildStaticPaths } from '@/i18n/routing';
+import LandingPage from '@/feature/landingPage/LandingPage.astro';
+import GeneralDataStep from '@/feature/energyCalculation/general/GeneralDataStep.astro';
+import OuterPartsStep from '@/feature/energyCalculation/outer/OuterPartsStep.astro';
+import HeatStep from '@/feature/energyCalculation/heat/HeatStep.astro';
+import ElectricityStep from '@/feature/energyCalculation/electricity/ElectricityStep.astro';
+import RenovationStep from '@/feature/energyCalculation/renovation/RenovationStep.astro';
+import Result from '@/feature/energyCalculation/result/Result.astro';
+import DevPanel from '@/dev/DevPanel';
+import SessionResumeDialog from '@/feature/map/SessionResumeDialog';
+
+export const getStaticPaths = (() => {
+  return buildStaticPaths();
+}) satisfies GetStaticPaths;
+---
+
+<script>
+  import '@/lib/state/session/auto-save';
+  import { $calculatorReady } from '@/lib/consent/dialog-state';
+  import {
+    $step,
+    setStep,
+    navigateToStep,
+    Step,
+  } from '@/lib/state/ui/progress';
+  import {
+    loadSessionFromData,
+    markLinkRestoreError,
+    markRestoredFromLink,
+  } from '@/lib/state/session';
+  import { decodeSessionRestore } from '@/lib/state/session/restore-codec';
+  import { initializeExternalBuildingTarget } from '@/lib/state/external-building-target';
+
+  const _fragmentParams = new URLSearchParams(window.location.hash.slice(1));
+  const _hasRestorePayload = _fragmentParams.has('restore');
+  const _restorePayload = _fragmentParams.get('restore');
+  let _restoredFromLink = false;
+  if (_hasRestorePayload) {
+    _fragmentParams.delete('restore');
+    const _remainingFragment = _fragmentParams.toString();
+    history.replaceState(
+      history.state,
+      '',
+      `${window.location.pathname}${window.location.search}${_remainingFragment ? `#${_remainingFragment}` : ''}`,
+    );
+    try {
+      const _session = decodeSessionRestore(_restorePayload ?? '');
+      loadSessionFromData(_session);
+      markRestoredFromLink();
+      _restoredFromLink = true;
+    } catch {
+      markLinkRestoreError();
+    }
+  }
+  initializeExternalBuildingTarget(_fragmentParams, _restoredFromLink);
+  $calculatorReady.set(true);
+
+  document.addEventListener('click', (e) => {
+    if ((e.target as Element).closest('[data-next-step]')) {
+      navigateToStep($step.get() + 1);
+    }
+  });
+  window.addEventListener('popstate', (e) => {
+    const prevStep = $step.get();
+    const step: Step = e.state?.step ?? Step.Welcome;
+    if (prevStep !== step) setStep(step);
+    if (prevStep >= Step.GeneralData && step < Step.GeneralData) {
+      history.pushState({ step }, '');
+    }
+  });
+</script>
+
+<DETLayout>
+  <LandingPage />
+  <MapSection />
+  <GeneralDataStep />
+  <OuterPartsStep />
+  <HeatStep />
+  <ElectricityStep />
+  <RenovationStep />
+  <Result />
+  <SessionResumeDialog client:only="react" />
+  {import.meta.env.DEV && <DevPanel client:load />}
+</DETLayout>

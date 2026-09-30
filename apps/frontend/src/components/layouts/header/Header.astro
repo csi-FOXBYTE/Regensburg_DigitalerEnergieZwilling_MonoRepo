@@ -1,0 +1,15 @@
+---
+import DesktopHeader from './DesktopHeader.astro';
+import MobileHeader from './MobileHeader.astro';
+---
+
+<div class="block md:hidden">
+  <MobileHeader>
+    <slot />
+  </MobileHeader>
+</div>
+<div class="hidden md:block">
+  <DesktopHeader>
+    <slot />
+  </DesktopHeader>
+</div>

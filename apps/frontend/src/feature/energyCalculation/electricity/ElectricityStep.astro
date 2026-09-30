@@ -1,0 +1,30 @@
+---
+import ContentContainer from '@/components/layouts/ContentContainer.astro';
+import EnergyCalculationPage from '@/components/layouts/EnergyCalculationPage.astro';
+import StickyContainer from '@/components/layouts/StickyContainer.astro';
+import { Typography } from '@/components/ui/typography';
+import i18next from 'i18next';
+import BuildingAddress from '../BuildingAddress';
+import ButtonBar from '../ButtonBar';
+import CurrentStats from '../CurrentStats';
+import ElectricityStepForm from './ElectricityStepForm';
+---
+
+<EnergyCalculationPage step={5}>
+  <ContentContainer>
+    <Typography as="h1" variant="h2">
+      {i18next.t('energyCalculation:electricity.title')}
+    </Typography>
+    <BuildingAddress client:only="react" />
+  </ContentContainer>
+  <StickyContainer compactWhenStuck>
+    <CurrentStats client:only="react" />
+    <Fragment slot="compact">
+      <CurrentStats compact client:only="react" />
+    </Fragment>
+  </StickyContainer>
+  <ContentContainer>
+    <ElectricityStepForm client:only="react" />
+    <ButtonBar backTextKey="backButton" className="mt-8" client:load />
+  </ContentContainer>
+</EnergyCalculationPage>

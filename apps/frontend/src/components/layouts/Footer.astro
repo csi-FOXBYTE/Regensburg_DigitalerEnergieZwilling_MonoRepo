@@ -1,0 +1,77 @@
+---
+import { footerPartners } from '@/config/footerPartners';
+import { getVersionString } from '@/lib/version';
+import { getRelativeLocaleUrl } from 'astro:i18n';
+import i18n from 'i18next';
+import { resolveLocale } from '@/i18n/config';
+import FeedbackButton from './FeedbackButton';
+import ConsentDialog from '@/feature/consent/ConsentDialog';
+
+interface Props {
+  autoPromptConsent?: boolean;
+}
+const { autoPromptConsent = false } = Astro.props;
+
+const locale = resolveLocale(Astro.currentLocale);
+const imprintHref = getRelativeLocaleUrl(locale, 'imprint');
+const privacyHref = getRelativeLocaleUrl(locale, 'privacy');
+---
+
+<footer class="bg-footer text-footer-foreground relative shrink-0 px-5 md:px-7">
+  <div
+    class="max-w-content mx-auto flex flex-col-reverse items-center gap-4 pt-15 pb-6 md:flex-row md:pt-5 md:pb-6"
+  >
+    <nav aria-label={i18n.t('common:footer.navigationLabel')}>
+      <ul
+        class="flex flex-col items-center gap-2 md:shrink-0 md:flex-row md:gap-6"
+      >
+        <li>
+          <a href={imprintHref} class="hover:text-primary transition-colors"
+            >{i18n.t('common:footer.imprint')}</a
+          >
+        </li>
+        <li>
+          <a href={privacyHref} class="hover:text-primary transition-colors"
+            >{i18n.t('common:footer.privacy')}</a
+          >
+        </li>
+        <li>
+          <ConsentDialog
+            client:load
+            autoPrompt={autoPromptConsent}
+            locale={locale}
+          />
+        </li>
+      </ul>
+    </nav>
+    <hr class="border-footer-foreground/20 my-4 w-full md:hidden" />
+    <div class="flex w-full flex-col items-center gap-4 md:grow md:items-end">
+      <FeedbackButton client:load />
+    </div>
+  </div>
+  <div
+    class="max-w-content mx-auto flex flex-col items-center justify-center gap-4 pb-10 md:flex-row md:gap-6"
+  >
+    {
+      footerPartners.map((partner) => (
+        <img
+          src={partner.src}
+          alt={partner.alt}
+          class="rounded-surface h-32 w-64 max-w-full object-contain md:h-37.5 md:w-0 md:min-w-0 md:flex-1"
+        />
+      ))
+    }
+  </div>
+  <span class="absolute right-5 bottom-2 text-[11px] opacity-60 md:right-7"
+    ><span data-app-version>App — / </span>{getVersionString()}</span
+  >
+</footer>
+
+<script>
+  fetch('/release.json', { cache: 'no-store' }).then(response => response.json()).then(({ appVersion }) => {
+    if (typeof appVersion !== 'string' || !appVersion) return;
+    document.querySelectorAll('[data-app-version]').forEach(element => {
+      element.textContent = `App v${appVersion} / `;
+    });
+  }).catch(() => {});
+</script>

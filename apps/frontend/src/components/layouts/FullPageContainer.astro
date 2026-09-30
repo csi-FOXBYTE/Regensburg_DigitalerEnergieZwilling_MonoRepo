@@ -1,0 +1,8 @@
+---
+// components/PageFull.astro
+const { class: className = '' } = Astro.props;
+---
+
+<section class={`flex h-full min-h-0 flex-col ${className}`}>
+  <slot />
+</section>

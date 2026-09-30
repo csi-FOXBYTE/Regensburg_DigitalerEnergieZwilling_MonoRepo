@@ -1,0 +1,23 @@
+{
+  "initialVersion": "0.1.0",
+  "prerelease": true,
+  "platform": "linux/amd64",
+  "refreshEpoch": 0,
+  "images": {
+    "frontend": {
+      "repository": "ghcr.io/csi-foxbyte/regensburg-web-prototype-frontend",
+      "base": "node:24.21.0-bookworm-slim",
+      "runtimeBase": "nginxinc/nginx-unprivileged:1.30.4-alpine"
+    },
+    "adminfrontend": {
+      "repository": "ghcr.io/csi-foxbyte/regensburg-web-prototype-adminfrontend",
+      "base": "node:24.21.0-bookworm-slim",
+      "runtimeBase": "nginxinc/nginx-unprivileged:1.30.4-alpine"
+    },
+    "backend": {
+      "repository": "ghcr.io/csi-foxbyte/regensburg-web-prototype-backend",
+      "base": "node:24.21.0-bookworm-slim",
+      "runtimeBase": "node:24.21.0-bookworm-slim"
+    }
+  }
+}

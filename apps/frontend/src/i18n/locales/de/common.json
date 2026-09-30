@@ -1,0 +1,121 @@
+{
+  "hw": "Hallo Welt!",
+  "yes": "Ja",
+  "no": "Nein",
+  "close": "Schließen",
+  "clearInput": "Eingabe löschen",
+  "showMoreInformation": "Weitere Informationen anzeigen",
+  "yearRange": {
+    "between": "{{from}} bis {{to}}",
+    "upTo": "bis {{year}}",
+    "from": "ab {{year}}"
+  },
+  "units": {
+    "kilowattHoursPerYear": "kWh/Jahr",
+    "kilowattHoursPerSquareMeterPerYear": "kWh/(m²·Jahr)",
+    "eurosPerYear": "€/Jahr",
+    "eurosPerUnit": "€/{{unit}}",
+    "tonsCo2PerYear": "t CO₂/Jahr"
+  },
+  "footer": {
+    "navigationLabel": "Rechtliche Hinweise und Einstellungen",
+    "imprint": "Impressum",
+    "privacy": "Datenschutz",
+    "cookieSettings": "Datenschutzeinstellungen",
+    "feedback": "Feedback"
+  },
+  "feedback": {
+    "title": "Feedback geben",
+    "subtitle": "Helfen Sie uns, das Tool zu verbessern",
+    "category": {
+      "label": "Kategorie",
+      "placeholder": "Bitte wählen Sie eine Kategorie",
+      "options": {
+        "bug": "Fehler melden",
+        "suggestion": "Verbesserungsvorschlag",
+        "feedback": "Allgemeines Feedback"
+      }
+    },
+    "message": {
+      "label": "Ihre Nachricht",
+      "placeholder": "Beschreiben Sie Ihr Anliegen..."
+    },
+    "email": {
+      "label": "E-Mail-Adresse",
+      "optional": "(optional)",
+      "placeholder": "ihre.email@beispiel.de",
+      "hint": "Falls Sie eine Rückmeldung wünschen"
+    },
+    "privacyNotice": "Ihr Feedback wird vertraulich behandelt und nur zur Verbesserung des Tools verwendet. Weitere Informationen finden Sie in unserer Datenschutzerklärung.",
+    "submit": "Feedback senden",
+    "error": "Das Feedback konnte nicht übermittelt werden. Bitte versuchen Sie es erneut.",
+    "success": {
+      "title": "Vielen Dank!",
+      "message": "Ihr Feedback wurde erfolgreich übermittelt und hilft uns, das Tool zu verbessern."
+    },
+    "bubble": {
+      "cta": "Geben Sie Feedback"
+    }
+  },
+  "privacy": {
+    "title": "Datenschutzhinweis",
+    "placeholder": "Der Datenschutzhinweis wird hier ergänzt."
+  },
+  "imprint": {
+    "title": "Impressum",
+    "contactIntro": "$t(municipality:imprint.contactIntro)",
+    "labels": {
+      "email": "E-Mail",
+      "phone": "Telefon",
+      "fax": "Fax",
+      "internet": "Internet"
+    },
+    "contact": {
+      "email": "$t(municipality:imprint.contact.email)",
+      "phone": "$t(municipality:imprint.contact.phone)",
+      "fax": "$t(municipality:imprint.contact.fax)",
+      "address": "$t(municipality:imprint.contact.address)"
+    },
+    "publisher": {
+      "title": "$t(municipality:imprint.publisher.title)",
+      "address": "$t(municipality:imprint.publisher.address)",
+      "email": "$t(municipality:imprint.publisher.email)",
+      "website": "$t(municipality:imprint.publisher.website)",
+      "legalForm": "$t(municipality:imprint.publisher.legalForm)",
+      "vatId": "$t(municipality:imprint.publisher.vatId)"
+    },
+    "responsible": {
+      "title": "$t(municipality:imprint.responsible.title)",
+      "address": "$t(municipality:imprint.responsible.address)",
+      "email": "$t(municipality:imprint.responsible.email)",
+      "website": "$t(municipality:imprint.responsible.website)"
+    },
+    "administration": {
+      "title": "$t(municipality:imprint.administration.title)",
+      "address": "$t(municipality:imprint.administration.address)",
+      "email": "$t(municipality:imprint.administration.email)",
+      "website": "$t(municipality:imprint.administration.website)",
+      "vatId": "$t(municipality:imprint.administration.vatId)"
+    }
+  },
+  "consent": {
+    "title": "Ihre Daten. Ihre Entscheidung.",
+    "description": "Wir können Ihre Gebäudeauswahl, Eingaben und Einstellungen in Ihrem Browser speichern. So bleibt Ihr Fortschritt auf diesem Gerät erhalten.",
+    "support": "Sie entscheiden. Die Berechnung funktioniert auch ohne optionale Speicherung.",
+    "allow": "Alle erlauben",
+    "decline": "Optionale ablehnen",
+    "settings": "Einstellungen",
+    "settingsTitle": "Datenschutzeinstellungen",
+    "settingsDescription": "Entscheiden Sie über die lokale Speicherung. Ihre Auswahl können Sie später jederzeit ändern.",
+    "necessary": "Technisch notwendig",
+    "alwaysActive": "Immer aktiv",
+    "necessaryDescription": "Speichert Ihre ausdrücklich bestätigte Datenschutzentscheidung für 180 Tage.",
+    "functional": "Fortschritt & Einstellungen",
+    "functionalDescription": "Speichert Ihre Gebäudeauswahl, Eingaben, Sanierungsmaßnahmen und bereits gesehene Hinweise lokal auf diesem Gerät. Fortschritt bleibt für 90 Tage seit der letzten Speicherung oder ausdrücklichen Wiederaufnahme erhalten. Hinweise werden für 90 Tage gespeichert.",
+    "memoryOnly": "Ohne optionale Speicherung bleibt Ihr Fortschritt nur auf der geöffneten Seite erhalten. Beim Neuladen oder Schließen gehen Ihre Eingaben verloren.",
+    "save": "Auswahl speichern",
+    "storageError": "Ihr Browser konnte Ihre Auswahl oder Ihren Fortschritt nicht für spätere Besuche speichern oder gespeicherte Daten nicht löschen. Ihre Auswahl gilt auf dieser geöffneten Seite; Sie können weiterrechnen.",
+    "privacy": "Datenschutz",
+    "imprint": "Impressum"
+  }
+}

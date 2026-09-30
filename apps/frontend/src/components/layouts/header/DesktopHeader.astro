@@ -1,0 +1,27 @@
+---
+import { getRelativeLocaleUrl } from 'astro:i18n';
+import { brand } from '@/config/brand';
+import { resolveLocale } from '@/i18n/config';
+
+const homeHref = getRelativeLocaleUrl(resolveLocale(Astro.currentLocale));
+---
+
+<header
+  class="bg-background px-gutter shadow-paper-2 absolute top-0 right-0 left-0 z-50 shrink-0 border-b border-neutral-200"
+>
+  <div
+    class="max-w-content mx-auto flex h-(--title-height) items-center justify-between"
+  >
+    <a
+      href={homeHref}
+      class="text-primary cursor-pointer text-[24px] leading-[32px] font-semibold"
+    >
+      {brand.applicationName}
+    </a>
+
+    <a href={brand.municipalityWebsite}>
+      <img src={brand.logo.src} alt={brand.logo.alt} class="h-[60px] w-auto" />
+    </a>
+  </div>
+  <slot />
+</header>

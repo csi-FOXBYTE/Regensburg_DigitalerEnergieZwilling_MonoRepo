@@ -1,0 +1,16 @@
+---
+interface Props {
+  step: number | number[];
+  class?: string;
+}
+const { step, class: className = '' } = Astro.props;
+const stepGate = Array.isArray(step) ? step.join(',') : String(step);
+---
+
+<section
+  data-step-gate={stepGate}
+  style="display:none"
+  class={`bg-background z-20 flex min-h-full flex-col pt-8 pb-12 ${className}`}
+>
+  <slot />
+</section>

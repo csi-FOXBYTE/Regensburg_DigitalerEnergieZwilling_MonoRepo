@@ -1,0 +1,53 @@
+name: Workspace CI
+on:
+  push:
+    branches: [main, 'prototype/**']
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/check
+      - run: pnpm run sbom
+      - uses: actions/upload-artifact@v4
+        with:
+          name: workspace-sboms
+          path: |
+            apps/*/SBOM.cdx.json
+            packages/*/SBOM.cdx.json
+  images:
+    needs: check
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        component: [frontend, adminfrontend, backend]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+      - uses: docker/setup-buildx-action@v3
+      - name: Export exact tracked build inputs
+        env:
+          COMPONENT: ${{ matrix.component }}
+        run: node scripts/release/context.mjs "$COMPONENT" "$RUNNER_TEMP/context" --worktree
+      - uses: docker/build-push-action@v6
+        with:
+          context: ${{ runner.temp }}/context
+          file: ${{ runner.temp }}/context/apps/${{ matrix.component }}/Dockerfile
+          push: false
+          build-args: |
+            BUILD_ID=${{ github.run_id }}-${{ github.run_attempt }}
+            SOURCE_COMMIT=${{ github.sha }}
+          cache-from: type=gha,scope=ci-${{ matrix.component }}
+          cache-to: type=gha,mode=max,scope=ci-${{ matrix.component }}

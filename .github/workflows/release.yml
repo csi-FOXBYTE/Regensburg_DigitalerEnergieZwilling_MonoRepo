@@ -1,0 +1,173 @@
+name: Release Regensburg prototype
+run-name: Release Regensburg prototype (${{ inputs.bump }})
+
+on:
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: Version increment (the first release is always 0.1.0)
+        type: choice
+        required: true
+        options: [patch, minor, major]
+
+permissions:
+  contents: read
+
+# Publication is serialized, including recovery of a partially published release.
+concurrency:
+  group: release-regensburg-prototype
+  cancel-in-progress: false
+
+env:
+  RELEASE_DIR: .local/release-work
+
+jobs:
+  plan:
+    name: Plan release
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    # Reading our private draft publication journals requires write access.
+    permissions:
+      contents: write
+      packages: read
+    outputs:
+      mode: ${{ steps.plan.outputs.mode }}
+      matrix: ${{ steps.plan.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+      - name: Test release logic
+        run: node --test scripts/release/*.test.mjs scripts/deploy/*.test.mjs
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+      - name: Select source, fingerprints and images
+        id: plan
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_BUMP: ${{ inputs.bump }}
+        run: node scripts/release/plan.mjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-plan
+          path: ${{ env.RELEASE_DIR }}/plan.json
+          include-hidden-files: true
+          if-no-files-found: error
+          overwrite: true
+          retention-days: 90
+
+  checks:
+    name: Check workspace
+    needs: plan
+    if: needs.plan.outputs.mode == 'build'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+      - uses: ./.github/actions/check
+
+  images:
+    name: Build ${{ matrix.component }}
+    permissions:
+      contents: read
+      packages: write
+    needs: [plan, checks]
+    if: needs.plan.outputs.mode == 'build'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.plan.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-plan
+          path: ${{ env.RELEASE_DIR }}
+      - name: Export the fingerprinted build context
+        env:
+          COMPONENT: ${{ matrix.component }}
+        run: node scripts/release/context.mjs "$COMPONENT" "$RUNNER_TEMP/regensburg-prototype-context"
+      - uses: ./.github/actions/release-image
+        id: image
+        with:
+          component: ${{ matrix.component }}
+          image: ${{ matrix.image }}
+          base-image: ${{ matrix.baseImage }}
+          runtime-base-image: ${{ matrix.runtimeBaseImage }}
+          platform: ${{ matrix.platform }}
+          refresh-epoch: ${{ matrix.refreshEpoch }}
+          context: ${{ runner.temp }}/regensburg-prototype-context
+          username: ${{ github.actor }}
+          token: ${{ github.token }}
+      - name: Verify and record pushed image
+        env:
+          COMPONENT: ${{ matrix.component }}
+          IMAGE_DIGEST: ${{ steps.image.outputs.digest }}
+          BUILD_ID: ${{ github.run_id }}-${{ github.run_attempt }}
+        run: node scripts/release/record-image.mjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-image-${{ matrix.component }}
+          path: ${{ env.RELEASE_DIR }}/images/${{ matrix.component }}.json
+          include-hidden-files: true
+          if-no-files-found: error
+          overwrite: true
+          retention-days: 90
+
+  publish:
+    name: Publish application release
+    needs: [plan, checks, images]
+    if: >-
+      !cancelled() && needs.plan.result == 'success' &&
+      (needs.plan.outputs.mode == 'resume' ||
+       (needs.plan.outputs.mode == 'build' && needs.checks.result == 'success' && needs.images.result == 'success'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-plan
+          path: ${{ env.RELEASE_DIR }}
+      - uses: actions/download-artifact@v4
+        if: needs.plan.outputs.mode == 'build'
+        with:
+          pattern: release-image-*
+          path: ${{ env.RELEASE_DIR }}/images
+          merge-multiple: true
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+      - name: Tag images, commit manifest, tag Git and publish GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node scripts/release/publish.mjs

@@ -1,0 +1,134 @@
+{
+  "deleteConfirmationDialog": {
+    "title": "Really delete data?",
+    "description": "This will permanently delete your submitted building data from the $t(municipality:dataSubmission.server). Your local session and the downloaded PDF report will be kept.",
+    "confirmButton": "Yes, delete data",
+    "deletingButton": "Deleting…",
+    "cancelButton": "Cancel",
+    "checkingTitle": "Checking deletion link",
+    "checkingDescription": "Please wait while we check whether the submitted data is still available.",
+    "unavailableTitle": "Deletion link unavailable",
+    "unavailableDescription": "This link is no longer valid or the submitted data is no longer available.",
+    "deletedTitle": "Data deleted",
+    "deletedDescription": "Your submitted data has been permanently deleted from the $t(municipality:dataSubmission.server).",
+    "receiptDescription": "Keep this deletion receipt secure. The complete receipt is required to prove the deletion of this specific submission later.",
+    "downloadReceipt": "Download deletion receipt",
+    "cancelledTitle": "Deletion cancelled",
+    "cancelledDescription": "Your submitted data has not been deleted.",
+    "serviceErrorTitle": "Service temporarily unavailable",
+    "serviceErrorDescription": "The deletion status could not be determined. Please try again.",
+    "retryButton": "Try again",
+    "openApplication": "Open application"
+  },
+  "sessionResumeDialog": {
+    "title": "Open Session",
+    "description": "You have an open session. Would you like to continue?",
+    "continueButton": "Continue",
+    "dismissButton": "Dismiss",
+    "linkRestoreError": "The recovery link is invalid or is not supported. You can still continue a locally saved session."
+  },
+  "startOverConfirmDialog": {
+    "title": "Reset session?",
+    "description": "Are you sure? All saved data for this building will be deleted.",
+    "confirmButton": "Yes, start over",
+    "cancelButton": "Cancel"
+  },
+  "invalidBuildingConfirmDialog": {
+    "title": "Select this building anyway?",
+    "description": "According to the available data, this building is not intended for the renovation tool. The calculation may therefore produce unsuitable or incomplete results. Would you still like to select it?",
+    "confirmButton": "Select anyway",
+    "cancelButton": "Cancel"
+  },
+  "externalBuildingLink": {
+    "invalidWarning": "The external building link is incomplete or invalid.",
+    "notFoundWarning": "The requested building could not be found. If it is visible, you can select it manually."
+  },
+  "renovationPotentialInfoDialog": {
+    "title": "How is this estimate determined?",
+    "description": "The initial estimate is based exclusively on the known construction year. Buildings constructed through 1983 are assigned high potential, buildings from 1984 through 1994 moderate potential, and newer buildings a tendency toward lower renovation potential. The possible heritage-protection notice is shown when the construction year is unknown or is 1948 or earlier. In the following steps, you can review and supplement the building data. This estimate replaces neither professional energy advice nor verification of heritage status."
+  },
+  "renovationPotential": {
+    "title": "Estimated Renovation Potential",
+    "levels": {
+      "high": "High",
+      "moderate": "Moderate",
+      "lower": "Tends to be lower",
+      "unknown": "Not yet assessable"
+    },
+    "descriptions": {
+      "high": "Based on the known construction year, the building is expected to have high energy-renovation potential.",
+      "moderate": "Based on the known construction year, the building is expected to have moderate energy-renovation potential.",
+      "lower": "Based on the known construction year, the building is expected to have low energy-renovation potential.",
+      "unknown": "No construction year is known for this building. Its energy-renovation potential can only be shown in a subsequent step."
+    },
+    "basis": "Initial estimate based on the construction year {{year}}.",
+    "assumption": "The estimate is based on the assumption that no extensive renovation has taken place in the meantime.",
+    "infoLink": "How is this estimate determined?",
+    "heritageWarning": {
+      "title": "Possible heritage protection",
+      "description": "Special requirements may apply to older buildings. Before planning, please verify whether the building has protected heritage status."
+    }
+  },
+  "buildingWindow": {
+    "title": "Initial Energy Assessment",
+    "subtitle": "Initial energy estimate based on public data and model assumptions. In the next step, you can review, supplement, or modify the building data.",
+    "continueButton": "Determine renovation proposal now",
+    "sessionContinueButton": "Continue where I left off",
+    "startOverButton": "Start over",
+    "closeButton": "Close building view",
+    "processingTime": "Processing takes approximately 10 minutes to complete"
+  },
+  "map": {
+    "stepTitle": "Select building",
+    "loading": "Loading application...",
+    "loadErrorTitle": "Map could not be loaded",
+    "loadErrorMessage": "The map data is unreachable. Please check your internet connection.",
+    "retry": "Try again"
+  },
+  "addressSearch": {
+    "placeHolder": "Search address in $t(municipality:name)...",
+    "noResults": "Address not found",
+    "loadError": "Address search is currently unavailable. Please check your internet connection and reload the page.",
+    "chooseBuilding": "Select building: ",
+    "infoText": "Enter an address or click directly on a building on the map.",
+    "ariaFormLabel": "Search building address",
+    "ariaInputLabel": "Enter address",
+    "ariaDismissLabel": "Dismiss hint"
+  },
+  "mapNav": {
+    "navigationLabel": "Map controls",
+    "help": "Help",
+    "viewMode": "View",
+    "alighToNorth": "Align North",
+    "navigation": "Navigation",
+    "zoom": "Zoom",
+    "ariaLabelSwitchToPerspective": "Switch to perspective view",
+    "ariaLabelSwitchToTopDown": "Switch to top-down view",
+    "ariaLabelNorth": "Align to north",
+    "ariaLabelPanUp": "Move up",
+    "ariaLabelPanLeft": "Move left",
+    "ariaLabelPanRight": "Move right",
+    "ariaLabelPanDown": "Move down",
+    "ariaLabelZoomIn": "Zoom in",
+    "ariaLabelZoomOut": "Zoom out"
+  },
+  "mapHelp": {
+    "mapControls": "Map Controls",
+    "ariaLabelButton": "Show map controls",
+    "viewMode": "Change view",
+    "viewModePerspectiveExplain": "Perspective view is active. Use the view button to switch to a top-down map.",
+    "viewModeTopDownExplain": "Top-down view is active. Use the view button to switch to perspective.",
+    "chooseBuilding": "Select building",
+    "chooseBuildingExplain": "Left-click on a building.",
+    "chooseBuildingMobileExplain": "Tap a building with one finger.",
+    "moveMap": "Move map",
+    "moveMapExplain": "Move the map by holding the left mouse button and dragging.",
+    "moveMapMobileExplain": "Move the map with one finger.",
+    "tiltView": "Rotate and tilt view",
+    "tiltViewExplain": "Rotate and tilt the view by holding the middle mouse button and dragging.",
+    "tiltViewMobileExplain": "Rotate or tilt the view with two fingers.",
+    "zoom": "Zoom",
+    "zoomExplain": "Zoom with the scroll wheel or the +/- buttons.",
+    "zoomMobileExplain": "Zoom with two fingers."
+  }
+}

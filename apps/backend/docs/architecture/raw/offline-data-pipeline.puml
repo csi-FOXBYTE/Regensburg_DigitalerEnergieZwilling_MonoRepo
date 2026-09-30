@@ -1,0 +1,62 @@
+@startuml
+left to right direction
+skinparam rectangle {
+  BackgroundColor #F7F7F7
+  BorderColor #444444
+}
+
+title Offline-Datenpipeline
+
+rectangle "LoD2-Daten\n(CityGML, inkl. Adressen)" as lod2
+rectangle "Solarpotenziale\n(3D Tiles + Textur)" as solar
+rectangle "Geothermiepotenziale\n(vom Auftraggeber bereitgestellt; Metadaten offen)" as geo
+rectangle "Vegetation (Bäume)\n(3D Tiles)" as trees
+
+rectangle "Externer Datendienst\n(S3-kompatibel)" as s3
+rectangle "CIVITAS/CORE\n(Airflow-Orchestrierung)" as airflow
+rectangle "Extraktions-Container\nZIP-Datei entpacken" as extract
+rectangle "Konvertierungs-Container (Add-on)\nCityGML -> CityJSON" as convert
+rectangle "Anreicherungs-Container (Add-on)\nAnreicherung von CityJSON\nSolar (PV) + Geothermie\n+ optionale Kennwerte" as enrich
+rectangle "Berechnungskern (optional)\nKennwerte für CityJSON" as calc
+rectangle "Export-Container A\nCityJSON -> 3D Tiles" as export_tiles
+rectangle "Export-Container B\nCityJSON -> CityGML" as export_gml
+
+rectangle "APISIX\n(Web-/API-Gateway)" as apisix
+rectangle "Externer Kacheldienst\n(TILES_URL)" as tiles_service
+rectangle "Öffentlicher Client" as client
+
+lod2 --> s3
+solar --> s3
+geo --> s3
+trees --> s3
+
+airflow ..> convert : orchestriert
+airflow ..> extract : orchestriert
+airflow ..> enrich : orchestriert
+airflow ..> calc : orchestriert (optional)
+airflow ..> export_tiles : orchestriert
+airflow ..> export_gml : orchestriert
+s3 --> extract : Eingabe-ZIP herunterladen
+extract --> convert : entpackte Dateien
+convert --> s3 : cityjson/ hochladen
+s3 --> enrich : cityjson/ herunterladen
+enrich --> s3 : cityjson_enriched/ hochladen
+s3 --> calc : cityjson_enriched/ herunterladen
+calc --> s3 : cityjson_enriched/ hochladen (aktualisiert)
+s3 --> export_tiles : cityjson_enriched/ herunterladen
+export_tiles --> s3 : tiles/ hochladen
+s3 --> export_gml : cityjson_enriched/ herunterladen
+export_gml --> s3 : citygml/ hochladen
+
+s3 --> tiles_service : veröffentlichte Kacheln
+client --> apisix : GET /api/public/tiles/*
+apisix --> client : Weiterleitungsantwort des Backends
+client --> tiles_service : Weiterleitung folgen / Kacheln laden
+
+note right of enrich
+Jeder Lauf verwendet einen aktuellen LoD2-Datensatz.
+Optionale Eingaben werden nur bei Verfügbarkeit verarbeitet.
+Kein update_scope und keine Wiederverwendung angereicherter Ergebnisse.
+end note
+
+@enduml

@@ -1,0 +1,27 @@
+{
+  "@context": {
+    "DETBuildingEnergyProfile": "https://raw.githubusercontent.com/csi-FOXBYTE/Regensburg_DigitalerEnergieZwilling_EnergyCalculationCore/main/generated/det-building-energy-profile/context.jsonld#DETBuildingEnergyProfile",
+    "annualCarrierHeatingEnergyDemand": "https://raw.githubusercontent.com/csi-FOXBYTE/Regensburg_DigitalerEnergieZwilling_EnergyCalculationCore/main/generated/det-building-energy-profile/context.jsonld#annualCarrierHeatingEnergyDemand",
+    "annualCo2EmissionsTonnes": "https://raw.githubusercontent.com/csi-FOXBYTE/Regensburg_DigitalerEnergieZwilling_EnergyCalculationCore/main/generated/det-building-energy-profile/context.jsonld#annualCo2EmissionsTonnes",
+    "annualElectricalHeatingEnergyDemand": "https://raw.githubusercontent.com/csi-FOXBYTE/Regensburg_DigitalerEnergieZwilling_EnergyCalculationCore/main/generated/det-building-energy-profile/context.jsonld#annualElectricalHeatingEnergyDemand",
+    "annualElectricalPrimaryEnergyDemand": "https://raw.githubusercontent.com/csi-FOXBYTE/Regensburg_DigitalerEnergieZwilling_EnergyCalculationCore/main/generated/det-building-energy-profile/context.jsonld#annualElectricalPrimaryEnergyDemand",
+    "annualEnergyCarrierHeatingCost": "https://raw.githubusercontent.com/csi-FOXBYTE/Regensburg_DigitalerEnergieZwilling_EnergyCalculationCore/main/generated/det-building-energy-profile/context.jsonld#annualEnergyCarrierHeatingCost",
+    "annualEnergyCarrierPrimaryDemand": "https://raw.githubusercontent.com/csi-FOXBYTE/Regensburg_DigitalerEnergieZwilling_EnergyCalculationCore/main/generated/det-building-energy-profile/context.jsonld#annualEnergyCarrierPrimaryDemand",
+    "annualHeatingEnergyDemand": "https://raw.githubusercontent.com/csi-FOXBYTE/Regensburg_DigitalerEnergieZwilling_EnergyCalculationCore/main/generated/det-building-energy-profile/context.jsonld#annualHeatingEnergyDemand",
+    "annualHouseholdElectricalEnergyCost": "https://raw.githubusercontent.com/csi-FOXBYTE/Regensburg_DigitalerEnergieZwilling_EnergyCalculationCore/main/generated/det-building-energy-profile/context.jsonld#annualHouseholdElectricalEnergyCost",
+    "annualHouseholdElectricalEnergyDemand": "https://raw.githubusercontent.com/csi-FOXBYTE/Regensburg_DigitalerEnergieZwilling_EnergyCalculationCore/main/generated/det-building-energy-profile/context.jsonld#annualHouseholdElectricalEnergyDemand",
+    "annualPrimaryEnergyDemand": "https://raw.githubusercontent.com/csi-FOXBYTE/Regensburg_DigitalerEnergieZwilling_EnergyCalculationCore/main/generated/det-building-energy-profile/context.jsonld#annualPrimaryEnergyDemand",
+    "annualTotalCost": "https://raw.githubusercontent.com/csi-FOXBYTE/Regensburg_DigitalerEnergieZwilling_EnergyCalculationCore/main/generated/det-building-energy-profile/context.jsonld#annualTotalCost",
+    "annualTotalElectricalEnergyDemand": "https://raw.githubusercontent.com/csi-FOXBYTE/Regensburg_DigitalerEnergieZwilling_EnergyCalculationCore/main/generated/det-building-energy-profile/context.jsonld#annualTotalElectricalEnergyDemand",
+    "annualTotalEnergyDemand": "https://raw.githubusercontent.com/csi-FOXBYTE/Regensburg_DigitalerEnergieZwilling_EnergyCalculationCore/main/generated/det-building-energy-profile/context.jsonld#annualTotalEnergyDemand",
+    "annualTotalHeatingCost": "https://raw.githubusercontent.com/csi-FOXBYTE/Regensburg_DigitalerEnergieZwilling_EnergyCalculationCore/main/generated/det-building-energy-profile/context.jsonld#annualTotalHeatingCost",
+    "currency": "https://raw.githubusercontent.com/csi-FOXBYTE/Regensburg_DigitalerEnergieZwilling_EnergyCalculationCore/main/generated/det-building-energy-profile/context.jsonld#currency",
+    "electricityBaseRate": "https://raw.githubusercontent.com/csi-FOXBYTE/Regensburg_DigitalerEnergieZwilling_EnergyCalculationCore/main/generated/det-building-energy-profile/context.jsonld#electricityBaseRate",
+    "electricityUnitRate": "https://raw.githubusercontent.com/csi-FOXBYTE/Regensburg_DigitalerEnergieZwilling_EnergyCalculationCore/main/generated/det-building-energy-profile/context.jsonld#electricityUnitRate",
+    "energyCarrierBaseRate": "https://raw.githubusercontent.com/csi-FOXBYTE/Regensburg_DigitalerEnergieZwilling_EnergyCalculationCore/main/generated/det-building-energy-profile/context.jsonld#energyCarrierBaseRate",
+    "energyCarrierType": "https://raw.githubusercontent.com/csi-FOXBYTE/Regensburg_DigitalerEnergieZwilling_EnergyCalculationCore/main/generated/det-building-energy-profile/context.jsonld#energyCarrierType",
+    "energyCarrierUnit": "https://raw.githubusercontent.com/csi-FOXBYTE/Regensburg_DigitalerEnergieZwilling_EnergyCalculationCore/main/generated/det-building-energy-profile/context.jsonld#energyCarrierUnit",
+    "energyCarrierUnitRate": "https://raw.githubusercontent.com/csi-FOXBYTE/Regensburg_DigitalerEnergieZwilling_EnergyCalculationCore/main/generated/det-building-energy-profile/context.jsonld#energyCarrierUnitRate",
+    "heatingSystemType": "https://raw.githubusercontent.com/csi-FOXBYTE/Regensburg_DigitalerEnergieZwilling_EnergyCalculationCore/main/generated/det-building-energy-profile/context.jsonld#heatingSystemType"
+  }
+}

@@ -1,0 +1,63 @@
+@startuml
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+HIDE_STEREOTYPE()
+
+title Digitaler Energie Zwilling (DEZ) - C4-Komponentendiagramm (Backend)
+
+Person(admin, "Stadtverwaltung/Fachpersonal")
+
+System_Boundary(civitas, "CIVITAS/CORE-Plattform") {
+  Container(gateway, "APISIX-Web-/API-Gateway", "API-Gateway und Reverse-Proxy", "Externer Routenschutz")
+
+  Container_Boundary(backend, "Backend-API", "Node.js und Fastify") {
+    Component(apiControllers, "OpenAPI-Controller", "fastify-toab", "Öffentliche und administrative REST-Endpunkte; OpenAPI 3.0 oder höher")
+    Component(auth, "Authentifizierungsdienst und Middleware", "jose + Keycloak JWKS", "Validiert RS256-Token und wertet die Rollen manager/maintainer/admin aus")
+    Component(configService, "Konfigurationsdienst", "TypeScript", "Validiert und verwaltet Berechnungskonfigurationen")
+    Component(submissions, "Einreichungsdienst", "TypeScript", "Persistiert, prüft, weist zu, akzeptiert, lehnt ab und löscht Einreichungen")
+    Component(calcCore, "Berechnungskern-Integration", "JavaScript-Modulpaket", "Validiert Konfigurationen und berechnet eingereichte Ergebnisse neu")
+    Component(tilesRedirect, "Controller für Kachelweiterleitungen", "Fastify", "Leitet /api/public/tiles/* zu TILES_URL weiter")
+    Component(databaseService, "Datenbankdienst", "ZenStack ORM + pg", "Stellt die Verbindung zu PostgreSQL her")
+    Component(telemetry, "Beobachtbarkeit", "OpenTelemetry + Pino", "Tracing und strukturierte Protokollierung")
+  }
+
+  ContainerDb(db, "DEZ-Datenbank", "PostgreSQL", "Speichert Benutzer, Gebäude, Einreichungen, Historie und Konfiguration")
+  Container(idp, "Keycloak", "OIDC-Identitätsanbieter", "Stellt Zugriffstoken und JWKS bereit")
+}
+
+Container_Ext(frontendPublic, "Öffentliches Frontend", "Separate Astro/nginx-Bereitstellung", "Öffentlicher Client")
+Container_Ext(frontendAdmin, "Admin-Frontend", "Separate Astro/nginx-Bereitstellung", "Admin-Client")
+System_Ext(tilesService, "Externer Kacheldienst", "Bei der Bereitstellung vorgegebene, als TILES_URL konfigurierte URL")
+
+Rel(admin, gateway, "nutzt", "HTTPS")
+Rel(gateway, apiControllers, "leitet die API weiter", "GET/POST /api")
+Rel(frontendPublic, apiControllers, "lädt die Konfiguration und sendet optionale Einreichungen", "REST über APISIX")
+Rel(frontendAdmin, apiControllers, "triagiert Einreichungen und verwaltet die Konfiguration", "REST über APISIX")
+
+Rel(apiControllers, auth, "authentifiziert Admin-Anfragen")
+Rel(auth, idp, "lädt Prüfschlüssel", "JWKS")
+Rel(apiControllers, submissions, "delegiert Einreichungsabläufe")
+Rel(apiControllers, configService, "delegiert Konfigurationsabläufe")
+Rel(apiControllers, tilesRedirect, "delegiert Kachelanfragen")
+Rel(submissions, calcCore, "validiert und berechnet neu")
+Rel(configService, calcCore, "validiert Konfigurationen")
+Rel(submissions, databaseService, "liest und schreibt")
+Rel(configService, databaseService, "liest und schreibt")
+Rel(auth, databaseService, "legt authentifizierte Benutzer an oder aktualisiert sie")
+Rel(databaseService, db, "SQL")
+Rel(tilesRedirect, tilesService, "Ziel der HTTP-Weiterleitung")
+
+Rel(telemetry, apiControllers, "instrumentiert")
+Rel(telemetry, submissions, "instrumentiert")
+Rel(telemetry, configService, "instrumentiert")
+
+note right of auth
+Produktion: RS256-Prüfung über KEYCLOAK_JWKS_URI.
+Tokenquelle: X-Access-Token oder Authorization Bearer.
+end note
+
+note right of tilesRedirect
+Das Backend überträgt keine Kachelinhalte.
+Es antwortet mit einer Weiterleitung zur konfigurierten externen URL.
+end note
+
+@enduml

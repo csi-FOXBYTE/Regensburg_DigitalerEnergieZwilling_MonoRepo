@@ -1,0 +1,83 @@
+﻿@startuml
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam sequence {
+  ParticipantBorderColor #444444
+  ParticipantBackgroundColor #F7F7F7
+  LifeLineBorderColor #444444
+  ArrowColor #444444
+  NoteBorderColor #444444
+  NoteBackgroundColor #F7F7F7
+}
+
+title Ablauf - Bürger/Eigentümer/Vermieter (öffentlich)
+
+actor "Bürger/Eigentümer/Vermieter" as user
+participant "Öffentlicher Client" as client
+participant "APISIX (Web-/API-Gateway)" as gateway
+participant "Öffentliches nginx-Frontend" as public_static
+participant "Backend-Kachelweiterleitung" as tiles_redirect
+participant "Externer Kacheldienst" as tiles
+participant "Berechnungskern (Browser)" as calc
+participant "Altcha-Widget" as altcha
+participant "Backend-API" as api
+database "Datenbank" as db
+
+user -> client: Öffnet die Anwendung
+client -> gateway: GET /
+gateway -> gateway: TLS und API-Regeln erzwingen
+gateway -> public_static: Lade HTML/Assets
+public_static --> gateway: HTML/Assets
+gateway --> client: HTML/Assets
+
+client -> gateway: GET /config/versioned.json
+gateway -> public_static: Konfigurations-Snapshot laden
+public_static --> gateway: Konfigurations-Snapshot
+gateway --> client: Konfigurations-Snapshot
+
+client -> gateway: GET /api/public/tiles/*
+gateway -> tiles_redirect: Anfrage weiterleiten
+tiles_redirect --> client: HTTP-Weiterleitung zu TILES_URL/*
+client -> tiles: Weiterleitung folgen
+tiles --> client: 3D Tiles
+
+client -> calc: Berechnung lokal ausführen
+
+alt Konfiguration oder Kacheln fehlen
+  client --> user: Fehler anzeigen (erneut versuchen)
+end
+
+alt Optional: Ergebnisse übermitteln
+  client -> altcha: Aufgabe anfordern
+  altcha --> client: Aufgabe
+  client -> altcha: Aufgabe lösen
+  altcha --> client: Token
+  client -> gateway: POST /api/public/inputs + Token
+  gateway -> gateway: Altcha-Token, Ratenbegrenzung und API-Regeln prüfen
+  gateway -> api: Geprüfte Anfrage weiterleiten
+  api -> api: Eingabebereiche prüfen (Konfiguration)
+  api -> calc: Neuberechnung auf dem Server
+  calc --> api: Ergebnis
+  api -> db: Eingaben/Ergebnisse speichern
+  api -> api: Audit-Ereignis schreiben
+  db --> api: Gespeichert
+  api --> gateway: Angenommen/Abgelehnt
+  gateway --> client: Angenommen/Abgelehnt
+
+  alt Altcha oder Rate Limit fehlgeschlagen
+    gateway --> client: Abgelehnt (Gateway-Regel)
+  end
+
+  alt Validierung fehlgeschlagen
+    api --> gateway: Abgelehnt (Validierung)
+    gateway --> client: Abgelehnt (Validierung)
+  end
+
+  alt Server-Recompute abweichend
+    api --> gateway: Abgelehnt (Abweichung)
+    gateway --> client: Abgelehnt (Abweichung)
+  end
+end
+
+@enduml
+

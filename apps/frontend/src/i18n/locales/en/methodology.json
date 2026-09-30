@@ -1,0 +1,142 @@
+{
+  "trigger": "Information",
+  "title": "Information about the data basis and calculation",
+  "description": "How building data, assumptions and your input affect the indicative result.",
+  "draft": {
+    "badge": "DRAFT",
+    "openPoint": "Still to be added",
+    "title": "Technical working draft",
+    "description": "The following content has been derived from the project's technical and calculation documentation. It still requires final technical and editorial approval before publication. Missing metadata is explicitly identified."
+  },
+  "demo": {
+    "title": "How automatically determined values and your own input work",
+    "description": "Try the field below. This demonstration is completely separate from your actual calculation and starts over whenever the dialog is opened.",
+    "automaticValueLabel": "Automatically determined living area",
+    "automaticValueHint": "Depending on the input, automatic values may be derived from building data or determined using default assumptions. The living area of 140 m² shown here is only an example.",
+    "inputExplanationTitle": "Example: Check and correct the living area",
+    "inputExplanationText": "In this example, the tool has automatically determined a living area of 140 m². Check this value and correct it if you know the actual living area.",
+    "inputLabel": "Living area",
+    "infoDialog": {
+      "title": "What does living area mean?",
+      "description": "[EXAMPLE CONTENT] In this example, living area refers to the heated area of the building. An information hint like this explains what the respective input represents and where you may be able to find the relevant value."
+    },
+    "automaticExplanation": "If you know the actual living area, you can enter it in the field. Your input will then replace the automatically determined 140 m² for the subsequent calculation. Use the reset button to remove your input again.",
+    "userValueExplanation": "The living area you entered is now used instead of the automatically determined 140 m² for the subsequent calculation. Use the reset button to remove your input and return to the automatically determined value.",
+    "explanation": "The same principle applies to the other editable values: your own input takes precedence over automatically derived values and default assumptions. Resetting only removes your override; the calculation then uses the automatically determined baseline value again."
+  },
+  "sectionsTitle": "Topics covered by this information page",
+  "sectionsDescription": "The basis, assumptions and limitations of the displayed results.",
+  "sections": {
+    "scope": {
+      "title": "Guidance or professional energy advice?",
+      "intro": "The Digital Energy Twin provides an indicative, model-based initial assessment. Its results are intended to help classify the possible energy performance of a building and compare renovation options.",
+      "providesTitle": "The tool provides",
+      "providesOrientation": "an approximate energy-demand estimate based on the available data and assumptions,",
+      "providesComparison": "a comparison between the current model state and selected renovation measures,",
+      "providesNextSteps": "suggestions for possible next steps and a basis for discussions with qualified professionals.",
+      "notProvidesTitle": "The tool does not replace",
+      "notProvidesConsulting": "individual on-site energy advice,",
+      "notProvidesCertificate": "an energy performance certificate or any other standards-compliant or legally binding evidence,",
+      "notProvidesPlanning": "technical planning, building-component inspection or a reliable profitability calculation,",
+      "notProvidesFunding": "an eligibility assessment or confirmation of funding.",
+      "conclusion": "Use the results for orientation. Have the actual building condition and any planned investment checked by qualified professionals before making a decision.",
+      "resultsPageHint": "Further information on points of contact and next steps can be found on the results page."
+    },
+    "data": {
+      "title": "LoD2, geometry and building data",
+      "sourcePrefix": "The geometry is based on official LoD2 building data for the municipality of $t(municipality:name), municipality key $t(municipality:buildingData.municipalityKey). The publisher is $t(municipality:buildingData.publisher). The source distribution is updated $t(municipality:buildingData.updateFrequency). Further details are available on the",
+      "sourceLink": "$t(municipality:buildingData.sourceLinkLabel)",
+      "sourceSuffix": ".",
+      "processing": "A processing pipeline calculates geometry metrics from the source data. The resulting data is then provided as 3D Tiles for the map and as baseline values for the calculation.",
+      "derivedTitle": "Values derived from geometry",
+      "derivedGround": "ground area and bottom-floor area from ground surfaces,",
+      "derivedWalls": "external wall area and wall areas shared with neighbouring buildings,",
+      "derivedRoof": "roof area from roof surfaces,",
+      "derivedHeight": "building height from the difference between the lowest ground and highest roof elevation,",
+      "derivedLivingArea": "number of storeys and living area indirectly from building height, ground area and configured conversion factors.",
+      "buildingPartsTitle": "One building may consist of several digital building bodies",
+      "buildingParts": "The source data may represent one physically connected building as several objects or so-called BuildingParts, for example for extensions or sections of different heights. Enrichment calculates metrics for each Building or BuildingPart object. The areas and heights of a selected digital object may therefore differ from what is perceived on site as the whole building. Check automatically adopted values particularly carefully.",
+      "notContainedTitle": "What LoD2 does not describe",
+      "notContained": "LoD2 primarily represents the external building shape using ground, wall and roof surfaces. It does not provide reliable information about floor plans, heated zones, insulation, windows, component assemblies, heating systems or actual consumption. These values are derived from additional data, catalogues and defaults or supplied by you.",
+      "constructionYear": "A prefilled construction year does not come from the LoD2 dataset. It may be assigned from a separate building-age-class dataset using the centre of the building footprint. If no assignment is available, the published calculation configuration uses default values.",
+      "dataStatusOpen": "The actual date of the LoD2 and supplementary data delivered by this application must be obtained from the published release manifest. The weekly update frequency of the source is not the same as the date on which data was imported into the application."
+    },
+    "inputs": {
+      "title": "Automatic values, defaults and your own input",
+      "intro": "The application can calculate without complete user input. Missing values are filled along a continuous input-depth spectrum using building data, catalogue values and configured defaults.",
+      "priorityTitle": "Value priority — lowest to highest",
+      "priorityDefault": "Technical placeholder or predefined default value.",
+      "priorityAutomatic": "Baseline value automatically derived from LoD2 geometry, building age class or other building data.",
+      "priorityManual": "Your own input. It takes precedence for the respective field.",
+      "reset": "Resetting a field removes your input. The calculation then returns to the currently resolved baseline value from building data, a catalogue or a default assumption.",
+      "originTitle": "Meaning of the value origin",
+      "originAutomatic": "Automatic: adopted directly or calculated from available building data.",
+      "originEstimated": "Estimated: determined using building age, building type, reference tables or defaults.",
+      "originManual": "Manual: entered by you and not independently verified by the tool.",
+      "livingAreaExample": "Living-area example: if you do not provide a value, the calculation core derives living area from the ground area, building height or number of storeys and configured area factors. Your input replaces this derived value."
+    },
+    "model": {
+      "title": "Calculation model and reference tables",
+      "intro": "The calculation core is a simplified, deterministic building model. Identical inputs and assumptions produce the same result. The calculation runs in the browser and does not require infrastructure or a database.",
+      "chainTitle": "Simplified calculation path",
+      "chainGeometry": "Ground area, height and number of storeys are used to derive heated volume, usable area and living area.",
+      "chainEnvelope": "Areas, U-values and correction factors for roof, external wall, windows and upper and lower floors are combined into transmission heat losses.",
+      "chainVentilation": "Ventilation heat losses are estimated using volume, heating degree days and predefined ventilation parameters.",
+      "chainHeating": "Space heating and hot water are combined with efficiency and performance factors for heat generation and distribution.",
+      "chainTotals": "This produces final energy, primary energy, CO₂ emissions, energy-carrier quantities, costs and an energy-efficiency class.",
+      "referencesTitle": "Reference tables",
+      "references": "The calculation uses reference tables for building-age classes and U-values, heating-system performance values, heat-emitter adjustments, primary-energy factors, CO₂ factors, calorific values and price models.",
+      "referencesOpen": "For complete attribution, each table value used still needs to be linked to a technical source, edition or reference year and scope. This information must be added before publication."
+    },
+    "energy": {
+      "title": "Final and primary energy demand",
+      "finalTitle": "Final energy",
+      "final": "Here, final energy means the energy supplied to the building as fuel, heat or electricity. It differs from the space-heating demand because losses and heating-system performance are included.",
+      "finalCalculation": "The calculation core defines total annual final energy demand as the sum of thermal energy-carrier demand and total electricity demand. Electricity includes household use and, depending on the heating system, electricity for heat generation. The area-specific value is divided by the calculated usable floor area.",
+      "primaryTitle": "Primary energy",
+      "primary": "Primary energy additionally accounts for upstream extraction, conversion and delivery of the relevant energy carrier. The same final-energy demand can therefore produce different primary-energy demand depending on the carrier.",
+      "primaryCalculation": "The final-energy shares for heat and electricity are multiplied by their respective primary-energy factors. Both shares are added to give annual primary-energy demand.",
+      "emissionsTitle": "CO₂ emissions and efficiency class",
+      "emissions": "CO₂ emissions are calculated separately for the thermal energy carrier and electricity: final energy demand in kWh multiplied by the respective emission factor in g CO₂/kWh. Both shares are added and reported in tonnes per year.",
+      "display": "The energy metric currently displayed in kWh/(m²·year) is based on total annual energy demand per calculated usable floor area. The energy-efficiency class is also derived from this area-specific value.",
+      "interpretation": "These metrics are model results. They are neither measured consumption nor automatically equivalent to metrics from a standards-compliant energy performance certificate."
+    },
+    "assumptions": {
+      "title": "Energy carrier, cost and emission assumptions",
+      "intro": "The following tables show the numerical factors used by the calculation core for energy carriers, electricity, emissions and costs. Your own price input can override the listed unit and base prices in your personal calculation.",
+      "carrierTitle": "Thermal energy carriers",
+      "carrierCaption": "Factors and price assumptions for thermal energy carriers",
+      "electricityTitle": "Electricity supply",
+      "electricityCaption": "Factors and price assumptions for electricity types",
+      "columns": {
+        "carrier": "Energy carrier",
+        "electricityType": "Electricity type",
+        "energyContent": "Energy content",
+        "co2": "Emission factor",
+        "primaryFactor": "Primary-energy factor",
+        "unitRate": "Unit price",
+        "electricityRate": "Electricity price",
+        "baseRate": "Base price",
+        "source": "Source",
+        "date": "As of"
+      },
+      "electricHeating": "Electric heating systems are assessed through their electrical energy share. The emission and primary-energy factors of the selected electricity type apply, so electricity does not appear as an additional thermal carrier in the first table.",
+      "calculation": "Energy-carrier consumption is calculated as thermal energy demand divided by energy content per unit. Costs are consumption multiplied by unit price plus the base price. Primary energy and CO₂ are calculated directly from final energy demand and the respective factors.",
+      "sourcesOpen": "The technical source, reference year, price basis and geographical scope are not yet fully documented for each factor. These details must be added and technically approved before publication."
+    },
+    "limits": {
+      "title": "Data quality and model limits",
+      "intro": "The result is a model estimate. Differences from the real building and actual bills should be expected for the following reasons in particular:",
+      "geometry": "LoD2 simplifies building geometry; building parts, extensions, roof details and shared walls may be represented differently from the situation on site.",
+      "condition": "Actual materials, layer assemblies, thermal bridges, airtightness, moisture, damage and workmanship are only represented typologically or by broad assumptions unless you provide details.",
+      "usage": "Room temperatures, occupancy, ventilation behaviour, hot-water demand, vacancies and household electricity may differ substantially from the model assumptions.",
+      "weather": "The calculation uses configured heating degree days and is not a building-specific dynamic simulation of a particular weather year.",
+      "system": "Efficiency, controls, hydraulic balancing, distribution losses and the actual condition of the heating system can only be represented in simplified form without an on-site inspection.",
+      "costs": "Unit and base prices are assumptions or user inputs. They are not tariff information, a quotation or a forecast of future prices.",
+      "renewables": "PV systems and solar thermal energy are currently not part of the calculation path. Solar potential can only be considered reliably after technical data approval and complete integration.",
+      "inputDepth": "Reliable building and consumption input reduces reliance on defaults, but it does not remove the model's fundamental simplifications.",
+      "conclusion": "A qualified energy adviser or specialist planner is required for an energy performance certificate, funding application, detailed design, investment decision or proof of statutory compliance."
+    }
+  },
+  "footer": "Draft information page — outstanding metadata and technical approvals are identified."
+}

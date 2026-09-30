@@ -1,0 +1,16 @@
+{
+  "steps": {
+    "0": "Your renovation proposal in 7 steps",
+    "1": "Select building",
+    "2": "General data",
+    "3": "Building Envelope",
+    "4": "Heat Supply",
+    "5": "Electricity & Renewable Energy",
+    "6": "Renovation Measures",
+    "7": "Results"
+  },
+  "mobileStepsIndicator": "Step {{step}} of {{maxSteps}}",
+  "navigationLabel": "Calculation progress",
+  "backToPreviousStep": "Go back to the previous step",
+  "goToStep": "Go to step {{step}}: {{label}}"
+}

@@ -1,0 +1,11 @@
+---
+import MapIsland from './MapIsland';
+---
+
+<script>
+  import * as Cesium from 'cesium';
+  // @ts-ignore
+  window.Cesium = Cesium;
+</script>
+
+<MapIsland client:only="react" />

@@ -1,0 +1,39 @@
+@startuml
+left to right direction
+skinparam rectangle {
+  BackgroundColor #F7F7F7
+  BorderColor #444444
+}
+
+title Bereitstellung - CIVITAS/CORE
+
+rectangle "CIVITAS/CORE-Plattform" as civitas {
+  rectangle "APISIX\n(Web-/API-Gateway)" as gateway
+  rectangle "Backend Add-on\n(Container)" as backend
+  rectangle "Airflow-Orchestrierung" as airflow
+  rectangle "Konvertierungs-Container" as convert
+  rectangle "Anreicherungs-Container" as enrich
+  rectangle "Öffentliches Frontend\n(Astro/nginx)" as public_frontend
+  rectangle "Admin-Frontend\n(Astro/nginx)" as admin_frontend
+  database "PostgreSQL" as db
+  rectangle "Keycloak (OIDC)" as keycloak
+}
+
+rectangle "Externer Kacheldienst\n(TILES_URL)" as tiles
+rectangle "Externer Datendienst\n(S3-kompatibel / Artefakte)" as s3
+
+gateway --> public_frontend
+gateway --> admin_frontend
+gateway --> backend
+backend --> tiles : Weiterleitung /api/public/tiles/*
+
+backend --> db
+backend --> keycloak : JWKS
+tiles --> s3 : liest veröffentlichte Kacheln
+
+airflow ..> convert : orchestriert
+airflow ..> enrich : orchestriert
+convert --> s3 : Lesen/Schreiben
+enrich --> s3 : Lesen/Schreiben
+
+@enduml

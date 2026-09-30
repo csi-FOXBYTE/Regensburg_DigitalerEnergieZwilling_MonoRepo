@@ -1,0 +1,67 @@
+﻿@startuml
+left to right direction
+skinparam rectangle {
+  BackgroundColor #F7F7F7
+  BorderColor #444444
+}
+
+title Backend-Architektur
+
+rectangle "CIVITAS/CORE-Plattform" as civitas {
+  rectangle "Orchestrierung" as orchestrator
+  rectangle "APISIX-Regeln\n(Routenschutz, Altcha + Ratenbegrenzung)" as protect
+
+  rectangle "Backend Add-on\n(Container)" as backend {
+    rectangle "Öffentliche API" as public_api
+    rectangle "Admin-API" as admin_api
+    rectangle "Authentifizierungs-Middleware\n(RS256/JWKS + Rollen)" as auth
+    rectangle "Konfigurationsdienst" as config
+    rectangle "Nutzerdatendienst" as user_data
+    rectangle "Triage-/Berichtsdienst" as triage
+    rectangle "Berechnungsservice" as calc
+    rectangle "Export des Konfigurations-Snapshots" as export
+    rectangle "Kachelweiterleitung\n/api/public/tiles/* → TILES_URL" as tiles_redirect
+  }
+
+  database "PostgreSQL" as db
+  rectangle "Keycloak (OIDC)" as keycloak
+}
+
+rectangle "Externer Kacheldienst" as tiles
+
+orchestrator ..> backend : orchestriert
+
+protect --> public_api
+public_api --> user_data
+public_api --> calc
+public_api --> tiles_redirect
+tiles_redirect --> tiles : HTTP-Weiterleitung
+admin_api --> auth
+auth --> config
+auth --> triage
+auth --> user_data
+config --> export
+config --> db
+user_data --> db
+triage --> db
+calc --> config
+auth -right-> keycloak : JWKS / RS256
+
+note right of protect
+Schutz öffentlicher Schreibzugriffe:
+Altcha + Ratenbegrenzung in APISIX
+end note
+
+note right of auth
+Das Backend validiert Zugriffstoken über RS256/JWKS
+und erzwingt die Rollen manager/maintainer/admin.
+end note
+
+note right of db
+PostgreSQL ist nicht öffentlich erreichbar.
+Schreibzugriffe erfolgen nur über Backend-Dienste.
+end note
+
+@enduml
+
+

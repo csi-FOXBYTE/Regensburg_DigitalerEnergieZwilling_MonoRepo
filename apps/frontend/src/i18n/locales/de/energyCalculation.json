@@ -1,0 +1,565 @@
+{
+  "scrollToTop": "Nach oben scrollen",
+  "common": {
+    "resetTooltip": "Setzt diese Angabe auf den automatisch abgeleiteten Ausgangswert zurück"
+  },
+  "stats": {
+    "energyDemand": "Energiebedarf",
+    "energyEfficiency": "Energieeffizienz",
+    "annualCosts": "Jährliche Kosten",
+    "co2Emissions": "CO₂-Emissionen",
+    "beforeRenovation": "Vor Sanierung",
+    "afterRenovation": "Nach Sanierung",
+    "energyEfficiencyValue": "Klasse {{value}}",
+    "energyDemandBreakdown": {
+      "carrierHeating": "Heizenergie ({{carrier}})",
+      "electricalHeating": "Heizenergie (elektrisch)",
+      "householdElectricity": "Haushaltsstrom",
+      "details": "Mehr",
+      "less": "Weniger",
+      "expand": "Aufschlüsselung des Energiebedarfs anzeigen",
+      "collapse": "Aufschlüsselung des Energiebedarfs ausblenden"
+    },
+    "energyDemandLow": "Niedriger Energieverbrauch",
+    "energyDemandModerate": "Moderater Energieverbrauch",
+    "energyDemandHigh": "Hoher Energieverbrauch",
+    "energyDemandVeryHigh": "Sehr hoher Energieverbrauch",
+    "efficiencyVeryGood": "Sehr gute Effizienz",
+    "efficiencyGood": "Gute Effizienz",
+    "efficiencySatisfactory": "Befriedigende Effizienz",
+    "efficiencyPoor": "Mäßige Effizienz",
+    "efficiencyVeryPoor": "Schlechte Effizienz",
+    "co2Low": "Geringe Klimabelastung",
+    "co2Moderate": "Moderate Klimabelastung",
+    "co2Elevated": "Erhöhte Klimabelastung",
+    "co2High": "Hohe Klimabelastung"
+  },
+  "generalData": {
+    "title": "Allgemeine Daten zu Ihrem Gebäude",
+    "dataSourceRemark": "Alle Angaben zum Gebäude wurden automatisch aus amtlichen 3D-Gebäudedaten und Topologien abgeleitet. Sie können jede Angabe prüfen und bei Bedarf anpassen.",
+    "statsRemark": "Diese Werte aktualisieren sich automatisch bei Änderung der Gebäudedaten",
+    "fields": {
+      "buildingType": "Ist das Gebäude ein Ein- oder Mehrfamilienhaus?",
+      "numberOfFloors": "Wie viele Stockwerke hat Ihr Gebäude, ohne Keller und Dachraum?",
+      "livingArea": "Wie groß ist Ihre Wohnfläche?",
+      "hasBasement": "Hat Ihr Gebäude einen Keller?",
+      "constructionYear": "Wann wurde Ihr Gebäude gebaut?"
+    },
+    "buildingType": {
+      "singleFamily": "Einfamilienhaus",
+      "multiFamily": "Mehrfamilienhaus"
+    },
+    "tooltips": {
+      "constructionYear": "Geben Sie das ursprüngliche Baujahr des Gebäudes an. Größere Sanierungen können später ergänzt werden. Ältere Gebäude sind oft schlechter gedämmt und verbrauchen mehr Heizenergie.",
+      "buildingType": "Die Gebäudeart beeinflusst die Berechnung. Für Ein- und Mehrfamilienhäuser werden unterschiedliche Standardwerte verwendet, zum Beispiel für die Flächennutzung und den Energiebedarf.",
+      "numberOfFloors": "Zählen Sie nur Stockwerke ohne Keller und nicht ausgebaute Dachräume. Ein Haus mit Erdgeschoss und Obergeschoss hat zum Beispiel 2 Stockwerke.",
+      "livingArea": "Die Wohnfläche ist die beheizte Fläche in Ihrem Gebäude. Bei Mehrparteienhäusern geben Sie bitte die gesamte Wohnfläche aller Parteien an."
+    },
+    "errors": {
+      "livingAreaMustBePositive": "Die Wohnfläche muss größer als 0 sein."
+    }
+  },
+  "outerParts": {
+    "title": "Außenbauteile des Gebäudes",
+    "sectionNavigationLabel": "Abschnitte der Außenbauteile",
+    "insulation": "Dämmung",
+    "roof": {
+      "roof": "Dach",
+      "area": "Wie groß ist die gesamte Dachfläche Ihres Gebäudes?",
+      "constructionType": "Welche Bauweise hat Ihr Dach?",
+      "hasAttic": "Hat Ihr Gebäude einen Dachraum?",
+      "hasInsulation": "Ist Ihr Dach gedämmt?",
+      "insulationThickness": "Welche Dicke hat die aktuelle Dämmung?",
+      "insulationType": "Welche Art der Dämmung wurde verbaut?",
+      "insulationTypes": {
+        "betweenRafter": "Zwischensparren",
+        "aboveRafter": "Aufdachdämmung"
+      },
+      "isAtticHeated": "Wird Ihr Dachraum beheizt?",
+      "year": "Wann wurde Ihr Dach zuletzt wesentlich neu aufgebaut oder konstruktiv verändert?",
+      "tooltips": {
+        "year": "Gemeint ist, ob das Dach neu aufgebaut oder mit anderen Materialien erneuert wurde, zum Beispiel durch eine neue Dachkonstruktion oder einen Austausch wichtiger Schichten. Eine nachträgliche Dämmung wird separat abgefragt und soll hier nicht berücksichtigt werden.",
+        "area": "Geben Sie die gesamte Fläche Ihres Dachs an, ohne Abzug von Fensterflächen. Je größer die Fläche, desto wichtiger ist eine gute Dämmung.",
+        "constructionTypeTitle": "Dachformen",
+        "constructionTypeContent": "Ein Flachdach ist nahezu eben oder nur leicht geneigt. Ein Schrägdach besitzt eine deutlich sichtbare Dachneigung, z. B. ein Satteldach oder Walmdach. Die Dachform beeinflusst sowohl die Dachfläche als auch den Wärmeverlust eines Gebäudes: Flachdächer (typisch massive Bauweise) haben bei gleicher Grundfläche eine geringere Fläche als Schrägdächer (typisch Holzbauweise) und damit andere energetische Eigenschaften.",
+        "constructionTypeGabledRoof": "Schrägdach",
+        "constructionTypeFlatRoof": "Flachdach",
+        "hasAttic": "Geben Sie an, ob Ihr Gebäude einen zugänglichen Dachraum (Dachboden) hat. Ein vorhandener Dachraum beeinflusst die Dämmung der obersten Geschossdecke und damit den Wärmeverlust des Gebäudes nach oben.",
+        "isAtticHeated": "Geben Sie an, ob der Raum direkt unter dem Dach (Dachboden) beheizt wird.",
+        "hasInsulation": "Eine vorhandene Dämmung reduziert den Wärmeverlust erheblich. Ohne Dämmung gehen über das Dach bis zu 30 % der Heizwärme verloren.",
+        "insulationThickness": "Eine dickere Dämmschicht erhöht die energetische Effizienz des Gebäudes. Je nach Alter der Dämmung sind zwischen 6 cm und 20 cm üblich.",
+        "insulationTypeTitle": "Art der Dachdämmung",
+        "insulationTypeContent": "Bei der Aufdachdämmung wird die Dämmung oberhalb der Dachsparren angebracht. Sie bietet den besten Wärmeschutz, da keine Wärmebrücken durch die Sparren entstehen. Bei der Zwischensparrendämmung wird der Dämmstoff zwischen den Sparren eingebracht. Diese Variante ist kostengünstiger, bietet aber durch die Sparren als Wärmebrücken einen etwas geringeren Schutz."
+      },
+      "info": {
+        "title": "Dach",
+        "description": "Das Dach schließt das Gebäude nach oben ab und grenzt an die Außenluft. In der Grafik ist der Bauteil rot hervorgehoben.",
+        "imageAlt": "Schematisches Gebäude mit rot hervorgehobenem Dach"
+      }
+    },
+    "roofWindows": {
+      "roofWindows": "Dachfenster",
+      "area": "Wie groß ist die gesamte Dachfensterfläche Ihres Gebäudes?",
+      "windowType": "Welche Art von Dachfenstern sind verbaut?",
+      "uValue": "Welchen U-Wert (Wärmedurchgangskoeffizienten) haben Ihre Dachfenster?",
+      "year": "Wann wurden Ihre Dachfenster zuletzt energetisch verändert?",
+      "tooltips": {
+        "year": "Gemeint ist zum Beispiel der Austausch gegen besser gedämmte Dachfenster oder eine Verbesserung von Verglasung, Rahmen oder Anschluss. Nicht gemeint sind reine Reparaturen, neue Farbe oder der Austausch einzelner Beschläge.",
+        "area": "Geben Sie die gesamte Fläche aller Dachfenster an. Die Gesamtfläche aller Dachfenster beeinflusst den Wärmeverlust.",
+        "windowType": "Holz- und Kunststoffrahmen dämmen gut. Aluminium- und Stahlrahmen leiten Kälte stärker und sind weniger energieeffizient.",
+        "uValue": "Der U-Wert gibt Auskunft darüber, wie viel Wärme durch ein Bauteil an die Umgebung verloren gehen kann. Niedrigere Werte bedeuten bessere Dämmung. Alte Einfachfenster haben etwa 5,0 W/m²K. Moderne Dreifachfenster liegen bei etwa 0,7 W/m²K. Den U-Wert finden Sie in den Unterlagen Ihrer Fenster oder auf dem Typenschild."
+      },
+      "errors": {
+        "areaExceedsRoofArea": "Die Dachfensterfläche darf nicht größer als die Dachfläche sein."
+      },
+      "info": {
+        "title": "Dachfenster",
+        "description": "Dachfenster sind die in der Dachfläche eingebauten Fenster. Nicht damit gemeint sind Fenster in der Außenwand, z. B. im Giebel. In der Grafik sind die Bauteile rot hervorgehoben.",
+        "imageAlt": "Schematisches Gebäude mit rot hervorgehobenen Dachfenstern"
+      }
+    },
+    "topFloor": {
+      "topFloor": "Oberste Geschossdecke",
+      "year": "Wann wurde Ihre oberste Geschossdecke zuletzt wesentlich neu aufgebaut oder konstruktiv verändert?",
+      "area": "Wie groß ist die Fläche der Decke unter Ihrem Dachraum?",
+      "type": "Welche Bauweise hat die Decke zu Ihrem Dachboden?",
+      "hasInsulation": "Ist die Decke unter Ihrem Dachraum gedämmt?",
+      "insulationThickness": "Welche Dicke hat die aktuelle Dämmung?",
+      "tooltips": {
+        "year": "Gemeint ist zum Beispiel eine nachträgliche Dämmung der Decke zum unbeheizten Dachraum. Nicht gemeint sind reine Bodenbeläge, Reparaturen oder Nutzungsänderungen im Dachraum ohne Dämmung.",
+        "area": "Geben Sie die Fläche der Decke zwischen Wohnbereich und Dachraum in m² an. Die Fläche der Decke zum Dachraum bestimmt, wie viel Wärme aus Ihrer Wohnung in den (meist unbeheizten) Dachraum entweichen kann.",
+        "type": "In älteren Gebäuden (vor etwa 1965) sind häufig Holzbalkendecken verbaut, in neueren Gebäuden (ab etwa 1965) sind zumeist massive Decken verbaut.",
+        "hasInsulation": "Eine Dämmung der Decke unter dem Dachraum verhindert, dass Wärme aus Ihrer Wohnung nach oben entweicht. Das kann bis zu 15 % der Heizkosten sparen.",
+        "insulationThickness": "Eine dickere Dämmschicht erhöht die energetische Effizienz des Gebäudes. Je nach Alter der Dämmung sind zwischen 10 cm und 24 cm üblich."
+      },
+      "errors": {
+        "areaExceedsRoofArea": "Die Fläche der obersten Geschossdecke darf nicht größer als die Dachfläche sein."
+      },
+      "info": {
+        "title": "Obere Geschossdecke",
+        "description": "Die obere Geschossdecke trennt den beheizten Wohnraum vom unbeheizten Dachraum. In der Grafik ist der Bauteil rot hervorgehoben.",
+        "imageAlt": "Schematisches Gebäude mit rot hervorgehobener oberer Geschossdecke"
+      }
+    },
+    "outerWall": {
+      "outerWall": "Außenwand",
+      "year": "Wann wurde Ihre Außenwand zuletzt wesentlich neu aufgebaut oder konstruktiv verändert?",
+      "area": "Wie groß ist die Fläche Ihrer beheizten, freistehenden Außenwand?",
+      "constructionType": "Welche Bauweise hat Ihre Außenwand?",
+      "hasInsulation": "Ist Ihre Außenwand gedämmt?",
+      "insulationThickness": "Welche Dicke hat die aktuelle Dämmung?",
+      "adjacentWallArea": "Wie groß ist die Wandfläche, die direkt an benachbarte Gebäude grenzt?",
+      "tooltips": {
+        "year": "Gemeint ist, ob die Wand selbst konstruktiv verändert oder mit anderen Materialien neu aufgebaut wurde, zum Beispiel durch eine neue Wandkonstruktion. Neue Farbe, neuer Putz oder eine nachträgliche Dämmung zählen hier nicht dazu.",
+        "area": "Geben Sie die freistehenden Wandfläche aller oberirdischen beheizten Geschosse an, einschließlich Fensterflächen. Wänden, die mit Nachbargebäuden geteilt werden gehören nicht dazu. Dachraumwände zählen nur bei beheiztem Dachraum dazu. Eine manuelle Eingabe ersetzt die geschätzte Fläche.",
+        "constructionType": "Massivwände (z. B. Ziegel oder Beton) speichern Wärme gut.",
+        "hasInsulation": "Durch ungedämmte Außenwände gehen bis zu 40 % der Heizwärme verloren. Eine Dämmung senkt die Heizkosten erheblich.",
+        "insulationThickness": "Eine dickere Dämmschicht erhöht die energetische Effizienz des Gebäudes. Je nach Alter der Dämmung sind zwischen 4 cm und 14 cm üblich.",
+        "adjacentWallArea": "Gemeint ist die Wandfläche, die direkt an benachbarte Gebäude anschließt, einschließlich der Wände eines unbeheizten Dachraums. Bei der automatisch geschätzten Außenwandfläche sind diese Flächen bereits abgezogen. Eine manuelle Änderung dieser Angabe beeinflusst die Berechnung derzeit nicht."
+      },
+      "errors": {
+        "adjacentAreaExceedsWallArea": "Die angrenzende Wandfläche darf nicht größer als die gesamte Wandfläche des Gebäudes einschließlich der Dachraumwände sein."
+      },
+      "info": {
+        "title": "Außenwand",
+        "description": "Die Außenwände umschließen den beheizten Bereich des Gebäudes und grenzen an die Außenluft. In der Grafik sind die Bauteile rot hervorgehoben.",
+        "imageAlt": "Schematisches Gebäude mit rot hervorgehobenen Außenwänden"
+      }
+    },
+    "windows": {
+      "windows": "Fenster",
+      "area": "Wie groß ist die gesamte Fläche Ihrer Außenwandfenster?",
+      "windowType": "Welche Art von Fenstern sind verbaut?",
+      "uValue": "Welchen U-Wert (Wärmedurchgangskoeffizienten) haben Ihre Fenster?",
+      "year": "Wann wurden Ihre Fenster zuletzt energetisch verändert?",
+      "tooltips": {
+        "year": "Gemeint ist zum Beispiel der Austausch gegen besser gedämmte Fenster oder eine Verbesserung von Verglasung, Rahmen oder Einbauanschluss. Nicht gemeint sind neue Farbe, neue Griffe, Reparaturen oder der Austausch einzelner Beschläge.",
+        "area": "Geben Sie die Gesamtfläche aller Fenster an. Die Gesamtfläche aller Fenster beeinflusst den Wärmeverlust durch die Gebäudehülle.",
+        "windowType": "Holz- und Kunststoffrahmen dämmen gut. Aluminium- und Stahlrahmen leiten Kälte stärker und sind weniger energieeffizient.",
+        "uValue": "Der U-Wert gibt Auskunft darüber, wie viel Wärme durch ein Bauteil an die Umgebung verloren gehen kann. Niedrigere Werte bedeuten bessere Dämmung. Alte Einfachfenster haben etwa 5,0 W/m²K. Moderne Dreifachfenster liegen bei etwa 0,7 W/m²K. Den U-Wert finden Sie in den Unterlagen Ihrer Fenster oder auf dem Typenschild."
+      },
+      "errors": {
+        "areaExceedsAvailableWallArea": "Die Fensterfläche darf nicht größer als die Wandfläche der beheizten Geschosse sein."
+      },
+      "info": {
+        "title": "Fenster",
+        "description": "Zu den Fenstern zählen alle verglasten Flächen sowie die Außentüren in den Außenwänden. Nicht damit gemeints sind Fenster in der Dachfläche.In der Grafik sind die Bauteile rot hervorgehoben.",
+        "imageAlt": "Schematisches Gebäude mit rot hervorgehobenen Fenstern und Außentür"
+      }
+    },
+    "bottomFloor": {
+      "bottomFloor": "Unterste Geschossdecke",
+      "tooltips": {
+        "hasBasement": "Geben Sie an, ob Ihr Gebäude einen Keller hat. Ein Keller unter den Wohnräumen beeinflusst die Wärmedämmung und damit Ihren Energiebedarf, besonders wenn er unbeheizt ist.",
+        "isBasementHeated": "Bei einem unbeheizten Keller ist die Dämmung der Kellerdecke besonders sinnvoll, damit keine Kälte in die Wohnräume aufsteigt.",
+        "area": {
+          "default": "Geben Sie die Fläche der Kellerdecke an. Die Fläche beeinflusst, wie viel Wärme über den unteren Gebäudeabschluss verloren gehen kann.",
+          "heated": "Geben Sie die Fläche des Kellerbodens an. Die Fläche beeinflusst, wie viel Wärme über den unteren Gebäudeabschluss verloren gehen kann.",
+          "noBasement": "Geben Sie die Fläche des Bodens an. Die Fläche beeinflusst, wie viel Wärme über den unteren Gebäudeabschluss verloren gehen kann."
+        },
+        "year": {
+          "default": "Gemeint ist, ob die Decke zum Keller, Erdreich oder zu unbeheizten Bereichen konstruktiv erneuert oder mit anderen Materialien neu aufgebaut wurde. Neue Bodenbeläge oder eine zusätzliche Dämmung werden hier nicht berücksichtigt.",
+          "heated": "Gemeint ist, ob die Decke zum Keller, Erdreich oder zu unbeheizten Bereichen konstruktiv erneuert oder mit anderen Materialien neu aufgebaut wurde. Neue Bodenbeläge oder eine zusätzliche Dämmung werden hier nicht berücksichtigt.",
+          "noBasement": "Gemeint ist, ob die Decke zum Keller, Erdreich oder zu unbeheizten Bereichen konstruktiv erneuert oder mit anderen Materialien neu aufgebaut wurde. Neue Bodenbeläge oder eine zusätzliche Dämmung werden hier nicht berücksichtigt."
+        },
+        "constructionType": {
+          "default": "Massive Betondecken lassen sich gut dämmen und speichern Wärme besser. Holzbalkendecken haben schlechtere Dämmeigenschaften.",
+          "heated": "Massive Betonböden lassen sich gut dämmen und speichern Wärme besser. Holzbalkenböden haben schlechtere Dämmeigenschaften.",
+          "noBasement": "Massive Betonböden lassen sich gut dämmen und speichern Wärme besser. Holzbalkenböden haben schlechtere Dämmeigenschaften."
+        },
+        "hasInsulation": {
+          "default": "Eine Dämmung der Kellerdecke hilft, Wärme im Gebäude zu halten. Dadurch bleiben Fußböden wärmer und Heizkosten können reduziert werden.",
+          "heated": "Eine Dämmung des Kellerbodens hilft, Wärme im Gebäude zu halten. Dadurch bleiben Fußböden wärmer und Heizkosten können reduziert werden.",
+          "noBasement": "Eine Dämmung des Bodens hilft, Wärme im Gebäude zu halten. Dadurch bleiben Fußböden wärmer und Heizkosten können reduziert werden."
+        },
+        "insulationThickness": "Eine dickere Dämmschicht erhöht die energetische Effizienz des Gebäudes. Je nach Alter der Dämmung sind zwischen 4 cm und 12 cm üblich."
+      },
+      "area": {
+        "default": "Wie groß ist die Fläche Ihrer Kellerdecke?",
+        "heated": "Wie groß ist die Fläche Ihres Kellerbodens?",
+        "noBasement": "Wie groß ist die Fläche Ihres Bodens?"
+      },
+      "year": {
+        "default": "Wann wurde Ihre Kellerdecke zuletzt wesentlich neu aufgebaut oder konstruktiv verändert?",
+        "heated": "Wann wurde Ihr Kellerboden zuletzt wesentlich neu aufgebaut oder konstruktiv verändert?",
+        "noBasement": "Wann wurde der unterste Boden in Ihrem Gebäude zuletzt wesentlich neu aufgebaut oder konstruktiv verändert?"
+      },
+      "hasBasement": "Hat Ihr Gebäude einen Keller?",
+      "isBasementHeated": "Wird Ihr Keller beheizt?",
+      "constructionType": {
+        "default": "Welche Bauweise hat Ihre Kellerdecke?",
+        "heated": "Welche Bauweise hat Ihr Kellerboden?",
+        "noBasement": "Welche Bauweise hat Ihr Boden?"
+      },
+      "hasInsulation": {
+        "default": "Ist Ihre Kellerdecke gedämmt?",
+        "heated": "Ist Ihr Kellerboden gedämmt?",
+        "noBasement": "Ist Ihr Boden gedämmt?"
+      },
+      "insulationThickness": "Welche Dicke hat die aktuelle Dämmung?",
+      "info": {
+        "title": "Untere Geschossdecke",
+        "description": {
+          "default": "Bei einem unbeheizten Keller ist die Kellerdecke der untere Abschluss des beheizten Bereichs. In der Grafik ist der Bauteil rot hervorgehoben.",
+          "heated": "Bei einem beheizten Keller ist der Kellerboden der untere Abschluss des beheizten Bereichs und grenzt an das Erdreich. In der Grafik ist der Bauteil rot hervorgehoben.",
+          "noBasement": "Bei einem Gebäude ohne Keller ist der Boden des Erdgeschosses der untere Abschluss des beheizten Bereichs und grenzt an das Erdreich. In der Grafik ist der Bauteil rot hervorgehoben."
+        },
+        "imageAlt": {
+          "default": "Schematisches Gebäude mit rot hervorgehobener Kellerdecke über dem unbeheizten Keller",
+          "heated": "Schematisches Gebäude mit rot hervorgehobenem Kellerboden des beheizten Kellers",
+          "noBasement": "Schematisches Gebäude ohne Keller mit rot hervorgehobenem Boden des Erdgeschosses"
+        }
+      }
+    }
+  },
+  "heat": {
+    "title": "Wärmeversorgung",
+    "supply": {
+      "title": "Versorgung",
+      "hasGasSupply": "Gibt es einen Gasanschluss in Ihrem Gebäude?",
+      "hasStorage": "Ist eine Lagerfläche für Brennstoffe wie Öl oder Pellets vorhanden?",
+      "tooltips": {
+        "hasGasSupply": "Ein Gasanschluss ermöglicht die Nutzung gasbetriebener Heizsysteme.",
+        "hasStorage": "Für Öl- oder Pelletheizungen wird ausreichend Lagerfläche benötigt."
+      }
+    },
+    "heating": {
+      "title": "Heizung",
+      "constructionYear": "Wann wurde Ihre Heizung eingebaut oder zuletzt erneuert?",
+      "primaryEnergyCarrier": "Welchen Energieträger nutzen Sie für Ihre Heizung?",
+      "heatingSystemType": "Welche Art von Heizung nutzen Sie?",
+      "heatingSurfaceType": "Wie wird die Wärme im Raum verteilt?",
+      "tooltips": {
+        "constructionYear": "Geben Sie das Jahr an, in dem Ihre aktuelle Heizungsanlage eingebaut wurde. Ältere Anlagen arbeiten oft weniger effizient und verbrauchen mehr Energie.",
+        "primaryEnergyCarrier": "Wählen Sie den Brennstoff Ihrer Heizung, z. B. zum Beispiel Erdgas, Heizöl oder Strom für eine Wärmepumpe.",
+        "heatingSystemType": "Gemeint ist das Gerät, das die Wärme erzeugt, z. B. ein Brennwertkessel oder eine Wärmepumpe. Modernere Geräte verbrauchen in der Regel weniger Energie.",
+        "heatingSurfaceType": "Heizkörper sind die klassischen Radiatoren an der Wand. Eine Flächenheizung verteilt die Wärme über Boden, Wand oder Decke und arbeitet besonders effizient bei niedrigen Temperaturen."
+      }
+    },
+    "bills": {
+      "title": "Kosten",
+      "consumption": "Wie hoch sind Ihre jährlichen Heizkosten?",
+      "unitRate": "Wie hoch ist Ihr Arbeitspreis?",
+      "baseRate": "Wie hoch ist Ihr jährlicher Grundpreis?",
+      "tooltips": {
+        "consumption": "Geben Sie die gesamten Heizkosten an, die Ihnen pro Jahr entstehen. Dazu zählen in der Regel Grundpreis und Verbrauchskosten. Den Wert finden Sie in Ihrer letzten Jahresabrechnung.",
+        "unitRate": "Der Arbeitspreis gibt an, wie viel Sie pro verbrauchter Einheit Energie bezahlen (z. B. €/kWh, €/L oder €/kg). Sie finden ihn in Ihrer Jahresabrechnung oder Ihrem Energieliefervertrag.",
+        "baseRate": "Der Grundpreis ist der feste Betrag, den Sie unabhängig vom tatsächlichen Energieverbrauch bezahlen. Sie finden ihn in Ihrer Jahresabrechnung oder Ihrem Energieliefervertrag."
+      },
+      "errors": {
+        "baseRateExceedsTotal": "Der jährliche Grundpreis kann nicht höher sein als Ihre jährlichen Heizkosten.",
+        "unitRateMustBePositive": "Der Arbeitspreis muss größer als 0 sein, wenn Sie jährliche Heizkosten angeben."
+      }
+    }
+  },
+  "electricity": {
+    "title": "Strom und erneuerbare Energien",
+    "electricity": "Strom",
+    "type": "Welche Stromart beziehen Sie?",
+    "consumption": "Wie hoch ist Ihr jährlicher Stromverbrauch?",
+    "unitRate": "Wie hoch ist der Arbeitspreis Ihrer Stromversorgung?",
+    "baseRate": "Wie hoch ist der jährliche Grundpreis Ihrer Stromversorgung?",
+    "tooltips": {
+      "type": "Mix-Strom enthält Strom aus verschiedenen Quellen, auch aus fossiler Energie. Erneuerbarer Strom stammt aus Wind, Sonne oder Wasser und hat eine deutlich bessere CO₂-Bilanz.",
+      "consumption": "Tragen Sie Ihren jährlichen Stromverbrauch in kWh ein. Den Wert finden Sie auf Ihrer Jahresabrechnung. Bei Mehrparteienhäusern geben Sie bitte den gesamten Verbrauch aller Parteien an.",
+      "unitRate": "Der Arbeitspreis gibt an, wie viel Sie pro Kilowattstunde (kWh) Strom zahlen. Sie finden ihn in Ihrer Jahresabrechnung oder Ihrem Energieliefervertrag.",
+      "baseRate": "Der Grundpreis ist der feste Betrag, den Sie unabhängig vom tatsächlichen Energieverbrauch bezahlen. Sie finden ihn in Ihrer Jahresabrechnung oder Ihrem Energieliefervertrag."
+    }
+  },
+  "renovation": {
+    "title": "Sanierungsmaßnahmen",
+    "subtitle": "Wählen Sie die Maßnahmen aus, die Sie vergleichen möchten:",
+    "insulation": {
+      "title": "Dämmung",
+      "roof": "Dachdämmung",
+      "topFloor": "Oberste Geschossdecke",
+      "bottomFloor": "Kellerdecke",
+      "outerWalls": "Außenwanddämmung",
+      "outerWindows": "Fensteraustausch (Außenwand)",
+      "roofWindows": "Fensteraustausch (Dachfenster)"
+    },
+    "heating": {
+      "title": "Heizung",
+      "renewal": "Heizungserneuerung"
+    },
+    "heatingSurface": {
+      "title": "Heizflächen"
+    },
+    "table": {
+      "measure": "Maßnahme",
+      "energyPotential": "Energiepotenzial",
+      "savings": "Sparpotenzial",
+      "sortBy": "Nach {{column}} sortieren",
+      "selection": "Auswahl",
+      "total": "Gesamt",
+      "noMeasure": "Keine Maßnahme"
+    },
+    "recommended": "Empfohlen",
+    "selectRecommended": "Empfohlene Maßnahmen auswählen",
+    "summary": {
+      "trigger": "Auswahl anzeigen",
+      "title": "Gewählte Sanierungsmaßnahmen",
+      "description": "Ihre Auswahl aus Schritt 6.",
+      "hint": "Ändern können Sie die Auswahl im vorherigen Schritt.",
+      "noMeasure": "Keine Maßnahme ausgewählt"
+    },
+    "tooltips": {
+      "envelope_roof": "Eine Dachdämmung reduziert Wärmeverluste über das Dach deutlich und verbessert den Hitzeschutz im Sommer. Besonders bei ausgebauten Dachgeschossen ist die Maßnahme sehr wirkungsvoll. Die Berechnung wird nur berücksichtigt, wenn der Dachraum beheizt ist.",
+      "envelope_topFloor": "Über die oberste Geschossdecke geht oft viel Heizwärme verloren. Eine Dämmung dieser Fläche zählt zu den einfachsten und wirtschaftlichsten Sanierungsmaßnahmen. Die Berechnung wird nur berücksichtigt, wenn der Dachraum unbeheizt ist.",
+      "envelope_bottomFloor": "Eine ungedämmte Kellerdecke kann zu kalten Fußböden und Wärmeverlusten führen. Die Dämmung ist vergleichsweise kostengünstig und meist mit geringem Aufwand umsetzbar.",
+      "envelope_outerWalls": "Die Außenwände machen einen großen Teil der Gebäudehülle aus. Eine Dämmung reduziert Wärmeverluste deutlich und verbessert den Wohnkomfort.",
+      "envelope_outerWindows": "Ältere Fenster verursachen häufig hohe Wärmeverluste und Zugluft. Moderne Wärmeschutzfenster mit Mehrfach-Verglasung verbessern die Energieeffizienz und den Wohnkomfort deutlich.",
+      "envelope_roofWindows": "Ältere Dachfenster weisen oft hohe Wärmeverluste auf. Moderne Dachfenster mit Wärmeschutzverglasung reduzieren Zugluft und verbessern den Wohnkomfort im Dachgeschoss. Die Berechnung wird nur berücksichtigt, wenn der Dachraum beheizt ist.",
+      "heat_renew": "Die bestehende Heizung wird durch ein moderneres und effizienteres System des gleichen Typs ersetzt. Dadurch können Energieverbrauch und Heizkosten reduziert werden.",
+      "heat_none_air_source_heat_pump_lt_40": "Eine Luftwärmepumpe nutzt die Außenluft zum Heizen. Sie arbeitet besonders effizient in gut gedämmten Gebäuden und reduziert den Bedarf an fossilen Brennstoffen.",
+      "heat_none_ground_source_heat_pump_lt_40": "Eine Erdwärmepumpe nutzt die Wärme aus dem Erdreich. Sie arbeitet sehr effizient, benötigt jedoch ausreichend Platz und ist mit höheren Investitionskosten verbunden.",
+      "heat_wood_pellets_standard_boiler_70_55": "Holzpellets sind ein erneuerbarer Brennstoff aus gepresstem Holzabfall. Ein Pelletkessel verbrennt die Pellets effizient und bietet eine günstigere Alternative zu fossil beheizten Systemen.",
+      "heat_natural_gas_improved_condensing_boiler_55_45": "Ein moderner Gasbrennwertkessel nutzt die im Abgas enthaltene Wärme und erreicht dadurch eine deutlich höhere Effizienz als herkömmliche Gasheizungen.",
+      "heat_bio_gas_improved_condensing_boiler_55_45": "Biogas wird aus organischen Materialien gewonnen und ist eine erneuerbare Alternative zu fossilem Erdgas. Ein Biogaskessel reduziert die CO₂-Bilanz der Heizung erheblich.",
+      "heat_district_heating_district_heating_all_temperatures": "Fernwärme versorgt das Gebäude über das bestehende kommunale Wärmenetz mit Heizenergie. Eine eigene Heizungsanlage im Gebäude ist dabei meist nicht mehr erforderlich. Sofern ein Anschluss möglich ist, kann das Gebäude über das Fernwärmenetz versorgt werden.",
+      "surface_radiant_surface_heating": "Statt einzelner Heizkörper erwärmt eine Flächenheizung Boden, Wand oder Decke in Wohnräumen gleichmäßiger. Dadurch kann die Heizung oft mit niedrigeren Temperaturen arbeiten und verbraucht meist weniger Energie.",
+      "noMeasureHeating": "Die bestehende Heizungsanlage bleibt unverändert."
+    }
+  },
+  "subsidy": {
+    "sectionTitle": "Förderprogramme",
+    "disclaimer": "Die angezeigten Förderprogramme erheben keinen Anspruch auf Vollständigkeit oder Aktualität. Nicht alle Förderprogramme sind kombinierbar oder dauerhaft verfügbar.",
+    "benefitUpTo": "Bis zu",
+    "benefitMax": "max.",
+    "financingLoan": "Kredit",
+    "financingGrant": "Zuschuss",
+    "moreInfo": "Mehr anzeigen",
+    "expandDetails": "Details zu {{title}} anzeigen",
+    "collapseDetails": "Details zu {{title}} ausblenden",
+    "loadError": "Die Förderprogramme konnten nicht geladen werden. Bitte laden Sie die Seite neu."
+  },
+  "result": {
+    "title": "Ihre Ergebnisse im Überblick",
+    "energyEfficiencyClass": "Energieeffizienzklasse",
+    "energyClassImprovement": "Ihr Gebäude verbessert sich von Klasse <bold>{{from}}</bold> auf Klasse <bold>{{to}}</bold>.",
+    "energyClassUnchanged": "Ihr Gebäude hat die Energieklasse <bold>{{class}}</bold>.",
+    "classTooltip": "Klasse {{cls}}: {{range}}",
+    "classTooltipAfterRenovation": "Klasse {{cls}}: {{range}} (Nach Sanierung)",
+    "classTooltipCurrentState": "Klasse {{cls}}: {{range}} (Ihr aktueller Stand)"
+  },
+  "export": {
+    "consentTitle": "Helfen Sie $t(municipality:name) bei der Wärmeplanung",
+    "consentDescription": "Wenn Sie zustimmen, werden nur die für die Gebäudedatenspende und Wärmeplanung technisch notwendigen Daten an die $t(municipality:administration.genericName) übermittelt. Dazu gehören insbesondere die vollständige Gebäudeadresse, die Gebäudekoordinaten, die Gebäude-ID sowie die freigegebenen Eingabe- und Berechnungsergebnisse. Wegen des Gebäudebezugs sind diese Daten nicht anonym. Eine Registrierung oder die Angabe von Namen und Kontaktdaten ist nicht erforderlich.\n\nDie Einreichung ist mit dem Download des PDF-Berichts verbunden und erfolgt, sobald Sie den Bericht anfordern. Der Bericht enthält außerdem einen zufällig erzeugten Löschlink, über den Sie die übermittelten Daten nach einem Bestätigungsdialog löschen können.",
+    "consentLabel": "Ja, ich möchte die technisch notwendigen Gebäude-, Eingabe- und Berechnungsdaten freiwillig zur Verfügung stellen und damit einen Beitrag zum Klimaschutz in $t(municipality:name) leisten.",
+    "privacyNote": "Datenschutz gemäß DSGVO Art. 6 Abs. 1 lit. a: Ihre Einwilligung ist freiwillig und jederzeit widerrufbar. Übermittelt werden insbesondere die vollständige Gebäudeadresse und die Gebäudekoordinaten; Namen, Benutzerkonto und Kontaktdaten werden nicht benötigt.",
+    "downloadTitle": "PDF-Bericht herunterladen",
+    "downloadIntro": "Laden Sie Ihre Ergebnisse als praktische PDF-Zusammenfassung herunter. Darin enthalten sind:",
+    "downloadItems": {
+      "recoveryLink": "Wiederherstellungslink zu Ihrer Gebäudekonfiguration",
+      "dataDonation": "Wenn Sie Ihre Gebäudedaten der $t(municipality:administration.name) zur Verfügung gestellt haben: der auf den Einreichungsumfang reduzierte Datensatz als maschinenlesbare Datei (JSON) sowie Ihr Löschlink",
+      "buildingData": "Die Bestandsdaten zu Ihrem Gebäude",
+      "scenario": "Ihr gewähltes Sanierungsszenario",
+      "nextSteps": "Tipps zu den nächsten Schritten",
+      "subsidyLinks": "Links zu Förderprogrammen"
+    },
+    "downloadButton": "PDF-Bericht herunterladen",
+    "reportTitle": "Energiebericht",
+    "documentTitle": "Ihr Sanierungsvorschlag",
+    "documentSubtitle": "Energetische Sanierung – Digitaler Energie Zwilling",
+    "building": "Gebäude",
+    "reportDate": "Berichtsdatum",
+    "pageOf": "Seite {{page}} von {{total}}",
+    "inputSummaryTitle": "Ihre Gebäudedaten",
+    "sectionGeneral": "Allgemeine Daten",
+    "sectionOuterParts": "Außenbauteile",
+    "heatBillsTitle": "Kosten und Verbrauch",
+    "labels": {
+      "general": {
+        "constructionYear": "Baujahr",
+        "buildingType": "Gebäudetyp",
+        "numberOfFloors": "Stockwerke",
+        "livingArea": "Wohnfläche"
+      },
+      "roof": {
+        "year": "Letzte wesentliche Erneuerung",
+        "area": "Dachfläche",
+        "constructionType": "Bauweise",
+        "hasAttic": "Dachraum vorhanden",
+        "isAtticHeated": "Dachraum beheizt",
+        "hasInsulation": "Zusätzliche Dämmung vorhanden",
+        "insulationThickness": "Dämmstärke",
+        "insulationType": "Dämmungsart"
+      },
+      "topFloor": {
+        "year": "Letzte wesentliche Erneuerung",
+        "area": "Deckenfläche",
+        "type": "Bauweise",
+        "hasInsulation": "Zusätzliche Dämmung vorhanden",
+        "insulationThickness": "Dämmstärke"
+      },
+      "roofWindows": {
+        "year": "Letzte wesentliche Erneuerung",
+        "area": "Dachfensterfläche",
+        "windowType": "Fensterart",
+        "uValue": "U-Wert"
+      },
+      "outerWall": {
+        "year": "Letzte wesentliche Erneuerung",
+        "area": "Wandfläche",
+        "adjacentWallArea": "Angrenzende Wandfläche",
+        "constructionType": "Bauweise",
+        "hasInsulation": "Zusätzliche Dämmung vorhanden",
+        "insulationThickness": "Dämmstärke"
+      },
+      "windows": {
+        "year": "Letzte wesentliche Erneuerung",
+        "area": "Fensterfläche",
+        "windowType": "Fensterart",
+        "uValue": "U-Wert"
+      },
+      "bottomFloor": {
+        "hasBasement": "Keller vorhanden",
+        "isBasementHeated": "Keller beheizt",
+        "constructionType": "Bauweise",
+        "hasInsulation": "Zusätzliche Dämmung vorhanden",
+        "insulationThickness": "Dämmstärke",
+        "year": {
+          "default": "Kellerdecke – letzte wesentliche Erneuerung",
+          "heated": "Kellerboden – letzte wesentliche Erneuerung",
+          "noBasement": "Boden – letzte wesentliche Erneuerung"
+        },
+        "area": {
+          "default": "Kellerdeckenfläche",
+          "heated": "Kellerbodenfläche",
+          "noBasement": "Bodenfläche"
+        }
+      },
+      "heat": {
+        "hasGasSupply": "Gasanschluss",
+        "hasStorage": "Lagerfläche vorhanden",
+        "hasGeothermalAvailability": "Geothermie verfügbar",
+        "constructionYear": "Einbaujahr Heizung",
+        "primaryEnergyCarrier": "Energieträger",
+        "heatingSystemType": "Heizungsart",
+        "heatingSurfaceType": "Wärmeverteilung",
+        "heatingDemand": "Wärmebedarf",
+        "carrierDemand": "Brennstoffbedarf",
+        "totalCost": "Jährliche Heizkosten",
+        "unitRate": "Arbeitspreis",
+        "baseRate": "Grundpreis"
+      },
+      "electricity": {
+        "type": "Stromart",
+        "consumption": "Jahresstromverbrauch",
+        "unitRate": "Arbeitspreis",
+        "baseRate": "Grundpreis",
+        "totalDemand": "Gesamter Strombedarf",
+        "householdDemand": "Haushaltsstrom",
+        "heatingDemand": "Heizstrom",
+        "householdCost": "Haushaltsstromkosten"
+      }
+    },
+    "sectionEnergyEfficiency": "Zusammenfassung der Energieeffizienz-Analyse",
+    "renovationScenariosTitle": "Sanierungsszenarien",
+    "energySavings": "Energieeinsparung",
+    "costSavings": "Kostenersparnis",
+    "columnYear": "Jahr",
+    "columnMonth": "Monat",
+    "savingsYear": "Ersparnis Jahr",
+    "savingsMonth": "Ersparnis Monat",
+    "categoryInsulation": "Dämmung",
+    "categoryHeating": "Heizung",
+    "categoryHeatingSurface": "Heizungsfläche",
+    "categoryLabel": "Kategorie",
+    "subsidyColumnTitle": "Titel",
+    "subsidyColumnLink": "Link",
+    "submissionSuccess": "Daten wurden erfolgreich übermittelt.",
+    "submissionError": "Daten konnten nicht übermittelt werden. Der PDF-Bericht wird trotzdem heruntergeladen.",
+    "downloadError": "Der PDF-Bericht konnte nicht erstellt werden. Bitte versuchen Sie es erneut.",
+    "recoveryLinkError": "Der portable Wiederherstellungslink konnte nicht erstellt werden. Bitte laden Sie den Bericht erneut herunter.",
+    "dataLinksTitle": "Ihre Datenverwaltung",
+    "recoveryLinkLabel": "Wiederherstellungslink – Gebäudedaten in der App erneut laden",
+    "recoveryLinkText": "Sitzung wiederherstellen",
+    "deletionLinkLabel": "Löschlink – eingereichte Daten beim $t(municipality:dataSubmission.server) löschen",
+    "deletionLinkText": "Eingereichte Daten löschen",
+    "jsonLinkLabel": "JSON-Download – Rohdaten für eigene Einreichung herunterladen",
+    "jsonLinkText": "JSON-Datei herunterladen",
+    "informationLinksTitle": "Datenschutz- und Berechnungshinweise",
+    "methodologyLinkText": "Hinweise zur Datengrundlage und Berechnung",
+    "privacyLinkText": "Datenschutzhinweis"
+  },
+  "nextSteps": {
+    "sectionTitle": "So geht's weiter",
+    "step1": {
+      "title": "Energieberatung einholen",
+      "description": "Nutzen Sie diesen Bericht als Grundlage für eine professionelle Energieberatung. Eine kostenlose Erstberatung bietet die $t(municipality:energyAdvice.providerName) an. Dort erhalten Sie Unterstützung zu Sanierungsmaßnahmen, Kosten und passenden Fördermöglichkeiten.\nWeitere Informationen:"
+    },
+    "step2": {
+      "title": "Fördermittel beantragen",
+      "description": "Informieren Sie sich frühzeitig über passende Förderprogramme und die jeweiligen Voraussetzungen. Förderanträge müssen häufig vor Beginn der Maßnahmen gestellt und bewilligt werden. Wird eine Maßnahme zu früh begonnen, kann die Förderung entfallen."
+    },
+    "step3": {
+      "title": "Angebote vergleichen",
+      "description": "Holen Sie mindestens drei Angebote von qualifizierten Fachbetrieben ein. Achten Sie auf Referenzen, Gewährleistung und die Einhaltung der Förderauflagen."
+    },
+    "step4": {
+      "title": "Sanierung umsetzen",
+      "description": "Planen Sie die Reihenfolge der Maßnahmen sinnvoll – idealerweise zuerst die Gebäudehülle, dann die Anlagentechnik. So dimensionieren Sie die neue Heizung optimal."
+    }
+  },
+  "buildingData": {
+    "trigger": "Gebäudedaten anzeigen",
+    "title": "Gebäudedaten",
+    "description": "Ihre Angaben zum Ist-Zustand des Gebäudes aus den Schritten 1 bis 5.",
+    "hint": "Diese Übersicht zeigt die Werte, mit denen aktuell gerechnet wird. Anpassen können Sie sie im jeweiligen Schritt.",
+    "labels": {
+      "street": "Straße und Hausnummer",
+      "city": "Postleitzahl und Ort"
+    }
+  },
+  "booleanLabels": {
+    "insulated": "Gedämmt",
+    "notInsulated": "Nicht gedämmt",
+    "heated": "Beheizt",
+    "notHeated": "Nicht beheizt"
+  },
+  "continueButton": "Weiter",
+  "backButton": "Zurück",
+  "resultsButton": "Ergebnis anzeigen",
+  "backFromResults": "Zurück zur Maßnahmenauswahl"
+}

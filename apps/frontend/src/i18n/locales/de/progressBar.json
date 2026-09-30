@@ -1,0 +1,16 @@
+{
+  "steps": {
+    "0": "In 7 Schritten zu Ihrem Sanierungsvorschlag",
+    "1": "Gebäude auswählen",
+    "2": "Allgemeine Daten",
+    "3": "Außenbauteile des Gebäudes",
+    "4": "Wärmeversorgung",
+    "5": "Strom & erneuerbare Energien",
+    "6": "Sanierungsmaßnahmen",
+    "7": "Ergebnisse"
+  },
+  "mobileStepsIndicator": "Schritt {{step}} von {{maxSteps}}",
+  "navigationLabel": "Fortschritt der Berechnung",
+  "backToPreviousStep": "Zum vorherigen Schritt zurück",
+  "goToStep": "Zu Schritt {{step}} wechseln: {{label}}"
+}

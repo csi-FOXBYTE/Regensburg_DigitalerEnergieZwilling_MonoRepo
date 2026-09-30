@@ -1,0 +1,105 @@
+{
+  "id": "urn:ngsi-ld:DETBuildingEnergyProfile:example-001",
+  "type": "DETBuildingEnergyProfile",
+  "@context": [
+    "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld",
+    "https://raw.githubusercontent.com/csi-FOXBYTE/Regensburg_DigitalerEnergieZwilling_EnergyCalculationCore/main/generated/det-building-energy-profile/context.jsonld"
+  ],
+  "annualCarrierHeatingEnergyDemand": {
+    "type": "Property",
+    "value": 9000,
+    "unitCode": "KWH"
+  },
+  "annualCo2EmissionsTonnes": {
+    "type": "Property",
+    "value": 3.2
+  },
+  "annualElectricalHeatingEnergyDemand": {
+    "type": "Property",
+    "value": 0,
+    "unitCode": "KWH"
+  },
+  "annualElectricalPrimaryEnergyDemand": {
+    "type": "Property",
+    "value": 5400,
+    "unitCode": "KWH"
+  },
+  "annualEnergyCarrierHeatingCost": {
+    "type": "Property",
+    "value": 533.04
+  },
+  "annualEnergyCarrierPrimaryDemand": {
+    "type": "Property",
+    "value": 9900,
+    "unitCode": "KWH"
+  },
+  "annualHeatingEnergyDemand": {
+    "type": "Property",
+    "value": 9000,
+    "unitCode": "KWH"
+  },
+  "annualHouseholdElectricalEnergyCost": {
+    "type": "Property",
+    "value": 576
+  },
+  "annualHouseholdElectricalEnergyDemand": {
+    "type": "Property",
+    "value": 3000,
+    "unitCode": "KWH"
+  },
+  "annualPrimaryEnergyDemand": {
+    "type": "Property",
+    "value": 14000,
+    "unitCode": "KWH"
+  },
+  "annualTotalCost": {
+    "type": "Property",
+    "value": 2500
+  },
+  "annualTotalElectricalEnergyDemand": {
+    "type": "Property",
+    "value": 3000,
+    "unitCode": "KWH"
+  },
+  "annualTotalEnergyDemand": {
+    "type": "Property",
+    "value": 12000,
+    "unitCode": "KWH"
+  },
+  "annualTotalHeatingCost": {
+    "type": "Property",
+    "value": 1800
+  },
+  "currency": {
+    "type": "Property",
+    "value": "EUR"
+  },
+  "electricityBaseRate": {
+    "type": "Property",
+    "value": 50
+  },
+  "electricityUnitRate": {
+    "type": "Property",
+    "value": 0.192
+  },
+  "energyCarrierBaseRate": {
+    "type": "Property",
+    "value": 0
+  },
+  "energyCarrierType": {
+    "type": "Property",
+    "value": "heating_oil"
+  },
+  "energyCarrierUnit": {
+    "type": "Property",
+    "value": "L"
+  },
+  "energyCarrierUnitRate": {
+    "type": "Property",
+    "value": 0.597
+  },
+  "heatingSystemType": {
+    "type": "Property",
+    "value": "standard_boiler_70_55"
+  }
+}

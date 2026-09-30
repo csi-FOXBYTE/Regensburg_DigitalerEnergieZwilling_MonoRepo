@@ -1,0 +1,53 @@
+@startuml
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+HIDE_STEREOTYPE()
+
+title Digitaler Energie Zwilling (DEZ) - C4-Kontextdiagramm
+
+Person(citizen, "Bürger/Eigentümer/Vermieter", "Nutzt den öffentlichen 3D-Client")
+Person(admin, "Stadtverwaltung/Fachpersonal", "Nutzt den separaten Admin-Client")
+
+System_Boundary(civitas, "CIVITAS/CORE-Plattform") {
+  System(gateway, "APISIX", "Externer Web-/API-Einstiegspunkt und Routenschutz")
+  System(det, "Digitaler Energie Zwilling (DEZ)", "Separate öffentliche und administrative Frontends, Backend-API und PostgreSQL-Persistenz")
+  System(pipeline, "DEZ-Offline-Datenpipeline", "Separates Airflow-Add-on für LoD2-Konvertierung, Anreicherung und Export")
+  System(idp, "Keycloak", "OIDC-Identitätsanbieter und JWKS-Quelle")
+  System(stellio, "Stellio-Kontextbroker", "Empfängt veröffentlichte statische NGSI-LD-Entitäten")
+}
+
+System_Ext(masterportal, "MasterPortal", "Einstiegspunkt mit Verknüpfung zum öffentlichen DEZ-Client")
+System_Ext(geo, "Städtische Geodienste", "WMS- und WMTS-Basiskarten")
+System_Ext(citygml, "CityGML-LoD2-Quelle", "Pflichteingabe einschließlich Adressen")
+System_Ext(solar, "Solarpotenzialquelle", "Optionale Eingabe nach Datenfreigabe")
+System_Ext(geothermal, "Geothermiequelle", "Vom Auftraggeber bereitgestellte Daten; Metadaten noch offen")
+System_Ext(tiles, "Externer Kacheldienst", "Bei der Bereitstellung vorgegebene, als TILES_URL konfigurierte URL")
+
+Rel(citizen, gateway, "nutzt den öffentlichen Client", "HTTPS")
+Rel(admin, gateway, "nutzt den Admin-Client", "HTTPS")
+Rel(masterportal, gateway, "verknüpft den öffentlichen Einstieg", "HTTPS")
+Rel(gateway, det, "leitet Frontends und API weiter", "HTTPS")
+Rel(det, idp, "validiert Admin-Zugriffstoken", "OIDC/JWKS")
+Rel(det, geo, "lädt Basiskarten", "WMS/WMTS")
+Rel(det, tiles, "leitet /api/public/tiles/* weiter", "HTTPS")
+
+Rel(citygml, pipeline, "liefert aktuelle LoD2-Daten mit Adressen")
+Rel(solar, pipeline, "liefert optionale Solardaten")
+Rel(geothermal, pipeline, "liefert Geothermiedaten")
+Rel(pipeline, tiles, "veröffentlicht erzeugte Kachelartefakte")
+Rel(pipeline, stellio, "veröffentlicht statische Gebäude-/Potenzialentitäten", "NGSI-LD")
+
+note right of det
+Implementierungsbasis:
+- Öffentliches und Admin-Frontend sind separate Astro/nginx-Bereitstellungen
+- Das Backend persistiert in PostgreSQL
+- OpenAPI 3.0 oder höher (aktuell 3.1.0)
+- Statusendpunkt: GET /health
+end note
+
+note right of pipeline
+Jeder Lauf verarbeitet einen aktuellen LoD2-Datensatz vollständig.
+Optionale Eingaben werden nur bei Verfügbarkeit verarbeitet; kein update_scope,
+keine Teilaktualisierung und keine Wiederverwendung angereicherter Ergebnisse.
+end note
+
+@enduml

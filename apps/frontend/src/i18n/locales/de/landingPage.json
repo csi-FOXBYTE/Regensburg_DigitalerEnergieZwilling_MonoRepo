@@ -1,0 +1,39 @@
+{
+  "titleVariations": [
+    "Wie energieeffizient ist Ihr Gebäude?",
+    "Wieviel können Sie mit einer Sanierung einsparen?",
+    "In welcher Effizienz-Liga spielt Ihre Immobilie wirklich?",
+    "Wie viel Potenzial versteckt sich hinter Ihrem Baujahr?",
+    "Wissen Sie, welche Sanierung bei Ihrem Haustyp den größten Hebel hat?",
+    "Wie unabhängig kann Ihr Haus von der nächsten Energiekrise werden?",
+    "Wie können Sie die nächste Energiekrise mit mehr Gelassenheit erwarten?",
+    "Kennen Sie die Hebel, mit denen Sie die nächste Energiekrise entschärfen?",
+    "Wissen Sie, welche Sanierung Sie am besten vor der nächsten Energiekrise schützt?"
+  ],
+  "aboutText": "Finden Sie es heraus: Kostenlos und unverbindlich.",
+  "startButton": "Jetzt starten",
+  "remarkTitle": "Wichtiger Hinweis",
+  "remarkContent": "Die Ergebnisse sind keine Energieberatung, sondern eine berechnungsbasierte Orientierung. Alle Berechnungen basieren auf vereinfachten Annahmen und öffentlich verfügbaren Daten.",
+  "features": [
+    {
+      "icon": "MapPin",
+      "title": "Gebäude auswählen",
+      "description": "Wählen Sie Ihr Gebäude auf der Karte aus, prüfen Sie die vorhandenen Angaben und ergänzen Sie weitere Informationen."
+    },
+    {
+      "icon": "Calculator",
+      "title": "Energetische Berechnung",
+      "description": "Der Digitale Energie-Zwilling berechnet transparent und ohne Wartezeit eine erste Einschätzung zu Energiebedarf, Kosten und CO₂-Ausstoß."
+    },
+    {
+      "icon": "Wrench",
+      "title": "Sanierungsmaßnahmen planen",
+      "description": "Heizungswechsel, Dämmung und erneuerbare Energien: Wählen Sie Vorschläge zu passenden Sanierungsmaßnahmen aus und verstehen Sie deren Einfluss auf die Effizienz Ihres Gebäudes."
+    },
+    {
+      "icon": "FileText",
+      "title": "PDF-Bericht und nächste Schritte",
+      "description": "Keine Anmeldung nötig: Erhalten Sie eine verständliche Übersicht und konkrete Handlungsempfehlungen als Grundlage für Ihre nächsten Schritte."
+    }
+  ]
+}

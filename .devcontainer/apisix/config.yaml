@@ -1,0 +1,25 @@
+apisix:
+  node_listen: 9080
+  enable_admin: true
+
+nginx_config:
+  # Nginx error messages can include request URLs and have no field serializer.
+  # Keep failures observable through status/timing in the safe access log.
+  error_log: /dev/null
+  http:
+    enable_access_log: true
+    access_log: /dev/stdout
+    access_log_format_escape: json
+    access_log_format: '{"event":"gateway_request_completed","time":"$time_iso8601","status":"$status","duration":"$request_time","upstream_status":"$upstream_status"}'
+
+deployment:
+  role: data_plane
+  role_data_plane:
+    config_provider: yaml
+
+admin:
+  admin_key:
+    -
+      name: local-admin
+      key: local-dev-admin-key-change-me
+      role: admin

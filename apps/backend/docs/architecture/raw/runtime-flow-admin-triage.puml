@@ -1,0 +1,96 @@
+@startuml
+title Ablauf: Admin-Triage
+
+actor Admin
+participant "Admin-Bereich" as ui
+participant "APISIX (Web-/API-Gateway)" as gateway
+participant "Backend-API" as api
+participant "Triage-Dienst" as triage
+database "Datenbank" as db
+
+Admin -> ui : Admin-Bereich öffnen
+ui -> gateway : GET /admin/triage\nAdresse/Status/Prüfer, Sortierung, Seitennavigation
+gateway -> api : Anfrage weiterleiten
+api -> api : RBAC prüfen
+api -> triage : Einträge auflisten
+triage -> db : Einträge abfragen
+db --> triage : Einträge
+triage --> api : Listenantwort
+api --> gateway : Liste + Status
+gateway --> ui : Liste + Status
+
+Admin -> ui : Gebäudedetails öffnen
+ui -> gateway : GET /admin/buildings/{id}/entries
+gateway -> api : Anfrage weiterleiten
+api -> api : RBAC prüfen
+api -> triage : Einträge laden
+triage -> db : Einträge + Audit-Protokoll abrufen
+db --> triage : Einträge + Audit-Protokoll
+triage --> api : Detailantwort
+api --> gateway : Gruppierte zugehörige Einträge
+gateway --> ui : Zugehörige Einträge nacheinander anzeigen
+
+Admin -> ui : Als plausibel oder abgelehnt markieren\nNotiz hinzufügen
+ui -> gateway : POST /admin/entries/{id}/status
+gateway -> api : Anfrage weiterleiten
+api -> api : RBAC prüfen
+api -> triage : Validieren und Status setzen
+triage -> triage : Zulässigen Statusübergang erzwingen
+alt Gültiger Übergang
+  triage -> db : Status + Audit-Protokoll aktualisieren
+  db --> triage : OK
+  triage --> api : OK
+  api --> gateway : Bestätigung
+  gateway --> ui : Bestätigung
+else Ungültiger Übergang
+  triage --> api : Fehler (ungültiger Übergang)
+  api --> gateway : Fehler
+  gateway --> ui : Fehler
+end
+
+Admin -> ui : Einzelnen Eintrag oder vollständige Gebäudegruppe löschen
+alt Einzelnen Eintrag löschen
+  ui -> gateway : DELETE /admin/entries/{id}
+  gateway -> api : Anfrage weiterleiten
+  api -> api : RBAC prüfen
+  api -> triage : Einzelnen Eintrag löschen
+  triage -> db : Ausgewählten Eintrag löschen + Audit-Protokoll
+  db --> triage : Gelöscht
+  triage --> api : OK
+  api --> gateway : Bestätigung
+  gateway --> ui : Bestätigung
+else Vollständige Gebäudegruppe löschen
+  ui -> gateway : DELETE /admin/buildings/{id}/entries
+  gateway -> api : Anfrage weiterleiten
+  api -> api : RBAC prüfen
+  api -> triage : Gruppierte Einträge löschen
+  triage -> db : Atomar prüfen, ob alle Einträge abgelehnt sind,\nund vollständige Gruppe löschen + Audit-Protokoll
+  alt Gruppe gelöscht
+    db --> triage : Gelöscht
+    triage --> api : OK
+    api --> gateway : Bestätigung
+    gateway --> ui : Bestätigung
+  else Mindestens ein Eintrag nicht abgelehnt
+    db --> triage : Bedingung nicht erfüllt; nichts gelöscht
+    triage --> api : Ohne Teillöschung ablehnen
+    api --> gateway : Konflikt
+    gateway --> ui : Gruppenlöschung nicht verfügbar
+  end
+end
+
+note right of triage
+Die Vollständigkeit wird vor der Admin-Triage sichergestellt
+und ist keine Filterdimension.
+Zugehörige Einträge werden nacheinander geprüft;
+es gibt keinen direkten Seiten- oder Differenzvergleich.
+
+Die Aktion "Datensatz abgelehnt" verwendet
+abgelehnt (DECLINED) als Endstatus.
+Die physische Löschung ist kein Triage-Status.
+Einzelne Einträge können gezielt gelöscht werden.
+Für die Gruppenlöschung müssen alle Einträge der
+Gebäude-ID abgelehnt sein.
+Freigegebene Einträge können intern analysiert werden.
+end note
+
+@enduml

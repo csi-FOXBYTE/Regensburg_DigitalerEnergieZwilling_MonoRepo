@@ -1,0 +1,39 @@
+﻿@startuml
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+
+title Öffentlicher Schreibvorgang - APISIX Altcha + Neuberechnung auf dem Server
+
+actor "Bürger/Eigentümer/Vermieter" as user
+participant "Öffentlicher Client" as client
+participant "Altcha-Widget" as altcha
+participant "APISIX (Web-/API-Gateway)" as gateway
+participant "Backend-API" as api
+participant "Berechnungskern (Server)" as calc
+database "Datenbank" as db
+
+user -> client: Eingaben erfassen
+client -> altcha: Aufgabe anfordern
+altcha --> client: Aufgabendaten
+client -> altcha: Aufgabe lösen
+altcha --> client: Altcha-Token
+
+client -> gateway: Eingaben + Ergebnisse + config_version + Altcha-Token senden
+gateway -> gateway: Altcha-Token, Ratenbegrenzung und API-Regeln prüfen
+gateway -> api: Geprüfte Anfrage weiterleiten
+api -> api: Eingabebereiche prüfen (Konfiguration)
+api -> calc: Mit demselben Kern und derselben Konfiguration neu berechnen
+calc --> api: Serverergebnisse
+api -> db: Eingaben + Ergebnisse speichern
+api -> api: Audit-Ereignis schreiben
+db --> api: Gespeichert
+api --> gateway: Angenommen / Abgelehnt
+gateway --> client: Angenommen / Abgelehnt
+
+note right of api
+Nur geprüfte und triagierte Ergebnisse
+fließen in den BuildingIndex ein.
+end note
+
+@enduml
+

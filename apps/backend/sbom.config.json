@@ -1,0 +1,132 @@
+{
+  "description": "Fastify API backend for the Regensburg digital energy twin.",
+  "buildDependencies": [],
+  "additionalComponents": [
+    {
+      "type": "library",
+      "bom-ref": "component:debian:ca-certificates@not-pinned",
+      "name": "ca-certificates",
+      "version": "not pinned",
+      "scope": "required",
+      "ecosystem": "Debian package",
+      "relationship": "referenced build and runtime software",
+      "metadataSource": "Dockerfile",
+      "notes": "Explicitly installed in both image stages; transitive Debian packages are not expanded.",
+      "licenses": [
+        {
+          "license": {
+            "name": "NOASSERTION"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "component:debian:openssl@not-pinned",
+      "name": "openssl",
+      "version": "not pinned",
+      "scope": "required",
+      "ecosystem": "Debian package",
+      "relationship": "referenced build and runtime software",
+      "metadataSource": "Dockerfile",
+      "notes": "Explicitly installed in both image stages; transitive Debian packages are not expanded.",
+      "licenses": [
+        {
+          "license": {
+            "name": "Apache-2.0"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "component:debian:python3@not-pinned",
+      "name": "python3",
+      "version": "not pinned",
+      "scope": "required",
+      "ecosystem": "Debian package",
+      "relationship": "referenced build software",
+      "metadataSource": "Dockerfile",
+      "notes": "Native-module build prerequisite installed only in the build image; transitive Debian packages are not expanded.",
+      "licenses": [
+        {
+          "license": {
+            "id": "PSF-2.0"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "component:debian:make@not-pinned",
+      "name": "make",
+      "version": "not pinned",
+      "scope": "required",
+      "ecosystem": "Debian package",
+      "relationship": "referenced build software",
+      "metadataSource": "Dockerfile",
+      "notes": "Native-module build prerequisite installed only in the build image; transitive Debian packages are not expanded.",
+      "licenses": [
+        {
+          "license": {
+            "id": "GPL-3.0-or-later"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "component:debian:g++@not-pinned",
+      "name": "g++",
+      "version": "not pinned",
+      "scope": "required",
+      "ecosystem": "Debian package",
+      "relationship": "referenced build software",
+      "metadataSource": "Dockerfile",
+      "notes": "Native-module build prerequisite installed only in the build image; transitive Debian packages are not expanded.",
+      "licenses": [
+        {
+          "license": {
+            "name": "GPL-3.0-or-later WITH GCC-exception-3.1"
+          }
+        }
+      ]
+    },
+    {
+      "name": "node",
+      "version": "24.21.0-bookworm-slim",
+      "type": "container",
+      "bom-ref": "node:24.21.0-bookworm-slim",
+      "scope": "required",
+      "ecosystem": "build toolchain",
+      "relationship": "referenced build/runtime software",
+      "metadataSource": "Dockerfile / root package.json",
+      "notes": "Release image SBOM attestations additionally inventory final OS packages.",
+      "licenses": [
+        {
+          "license": {
+            "name": "NOASSERTION"
+          }
+        }
+      ]
+    },
+    {
+      "name": "pnpm",
+      "version": "11.22.0",
+      "type": "application",
+      "bom-ref": "pnpm:11.22.0",
+      "scope": "required",
+      "ecosystem": "build toolchain",
+      "relationship": "referenced build/runtime software",
+      "metadataSource": "Dockerfile / root package.json",
+      "notes": "Release image SBOM attestations additionally inventory final OS packages.",
+      "licenses": [
+        {
+          "license": {
+            "name": "NOASSERTION"
+          }
+        }
+      ]
+    }
+  ]
+}

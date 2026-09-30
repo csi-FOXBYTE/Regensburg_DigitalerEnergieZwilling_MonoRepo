@@ -1,0 +1,27 @@
+{
+  "@context": {
+    "DETBuildingEnergyProfile": "https://det.rg.foxbyte.de/det-building-energy-profile/context.jsonld#DETBuildingEnergyProfile",
+    "annualCarrierHeatingEnergyDemand": "https://det.rg.foxbyte.de/det-building-energy-profile/context.jsonld#annualCarrierHeatingEnergyDemand",
+    "annualCo2EmissionsTonnes": "https://det.rg.foxbyte.de/det-building-energy-profile/context.jsonld#annualCo2EmissionsTonnes",
+    "annualElectricalHeatingEnergyDemand": "https://det.rg.foxbyte.de/det-building-energy-profile/context.jsonld#annualElectricalHeatingEnergyDemand",
+    "annualElectricalPrimaryEnergyDemand": "https://det.rg.foxbyte.de/det-building-energy-profile/context.jsonld#annualElectricalPrimaryEnergyDemand",
+    "annualEnergyCarrierHeatingCost": "https://det.rg.foxbyte.de/det-building-energy-profile/context.jsonld#annualEnergyCarrierHeatingCost",
+    "annualEnergyCarrierPrimaryDemand": "https://det.rg.foxbyte.de/det-building-energy-profile/context.jsonld#annualEnergyCarrierPrimaryDemand",
+    "annualHeatingEnergyDemand": "https://det.rg.foxbyte.de/det-building-energy-profile/context.jsonld#annualHeatingEnergyDemand",
+    "annualHouseholdElectricalEnergyCost": "https://det.rg.foxbyte.de/det-building-energy-profile/context.jsonld#annualHouseholdElectricalEnergyCost",
+    "annualHouseholdElectricalEnergyDemand": "https://det.rg.foxbyte.de/det-building-energy-profile/context.jsonld#annualHouseholdElectricalEnergyDemand",
+    "annualPrimaryEnergyDemand": "https://det.rg.foxbyte.de/det-building-energy-profile/context.jsonld#annualPrimaryEnergyDemand",
+    "annualTotalCost": "https://det.rg.foxbyte.de/det-building-energy-profile/context.jsonld#annualTotalCost",
+    "annualTotalElectricalEnergyDemand": "https://det.rg.foxbyte.de/det-building-energy-profile/context.jsonld#annualTotalElectricalEnergyDemand",
+    "annualTotalEnergyDemand": "https://det.rg.foxbyte.de/det-building-energy-profile/context.jsonld#annualTotalEnergyDemand",
+    "annualTotalHeatingCost": "https://det.rg.foxbyte.de/det-building-energy-profile/context.jsonld#annualTotalHeatingCost",
+    "currency": "https://det.rg.foxbyte.de/det-building-energy-profile/context.jsonld#currency",
+    "electricityBaseRate": "https://det.rg.foxbyte.de/det-building-energy-profile/context.jsonld#electricityBaseRate",
+    "electricityUnitRate": "https://det.rg.foxbyte.de/det-building-energy-profile/context.jsonld#electricityUnitRate",
+    "energyCarrierBaseRate": "https://det.rg.foxbyte.de/det-building-energy-profile/context.jsonld#energyCarrierBaseRate",
+    "energyCarrierType": "https://det.rg.foxbyte.de/det-building-energy-profile/context.jsonld#energyCarrierType",
+    "energyCarrierUnit": "https://det.rg.foxbyte.de/det-building-energy-profile/context.jsonld#energyCarrierUnit",
+    "energyCarrierUnitRate": "https://det.rg.foxbyte.de/det-building-energy-profile/context.jsonld#energyCarrierUnitRate",
+    "heatingSystemType": "https://det.rg.foxbyte.de/det-building-energy-profile/context.jsonld#heatingSystemType"
+  }
+}

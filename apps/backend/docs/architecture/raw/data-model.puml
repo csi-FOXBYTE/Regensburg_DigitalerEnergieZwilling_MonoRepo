@@ -1,0 +1,225 @@
+﻿@startuml
+hide circle
+skinparam classAttributeIconSize 0
+left to right direction
+
+title Digitaler Energie Zwilling (DEZ) - Datenmodell (fachlich)
+
+class "Stadtbezirk" as District {
+  +district_id
+  +name
+}
+
+class "Gebäude" as Building {
+  +building_id
+  +lod2_id
+  +address
+  +district_id
+}
+
+class "Eingabensatz" as InputSet {
+  +input_id
+  +building_id
+  +stage
+  +source
+  +validation_status
+  +created_at
+}
+
+class "Bauteileingabe" as ComponentInput {
+  +component_input_id
+  +input_id
+  +component_type
+  +area
+  +year
+  +u_value
+}
+
+class "Lüftungsreferenz" as VentilationReference {
+  +ventilation_reference_id
+  +input_id
+  +catalog_source
+  +building_age_class
+  +tightness_class
+  +derived_at
+}
+
+class "Warmwassereingabe" as WarmWaterInput {
+  +warmwater_input_id
+  +input_id
+  +method
+  +occupancy
+  +area
+}
+
+class "Heizsystemeingabe" as HeatingSystemInput {
+  +heating_input_id
+  +input_id
+  +energy_carrier
+  +generator_type
+  +age
+}
+
+class "Maßnahmenoption" as MeasureOption {
+  +measure_option_id
+  +name
+  +category
+}
+
+class "Maßnahmenauswahl" as MeasureSelection {
+  +selection_id
+  +input_id
+  +measure_option_id
+  +with_subsidy
+}
+
+class "Förderprogramm" as SubsidyProgram {
+  +subsidy_id
+  +name
+  +category
+  +url
+}
+
+class "Berechnungskonfigurationsversion" as BerechnungConfigVersion {
+  +config_version_id
+  +version
+  +status
+  +valid_from
+  +published_at
+}
+
+class "Eingabegrenze" as InputConstraint {
+  +constraint_id
+  +config_version_id
+  +key
+  +min_value
+  +max_value
+  +unit
+}
+
+class "Berechnungskonfigurations-Snapshot" as BerechnungConfigSnapshot {
+  +snapshot_id
+  +config_version_id
+  +json_payload
+  +checksum
+  +export_path
+  +created_at
+}
+
+class "Konfigurationsoption" as ConfigOption {
+  +option_id
+  +config_version_id
+  +option_type
+  +label
+  +value
+}
+
+class "Berechnungslauf" as BerechnungRun {
+  +run_id
+  +input_id
+  +config_version_id
+  +created_at
+}
+
+class "Berechnungsergebnis" as BerechnungResult {
+  +result_id
+  +run_id
+  +scenario_label
+  +energy_demand
+  +co2
+  +primary_energy
+  +efficiency_class_before
+  +efficiency_class_after
+  +cost_estimate
+  +verified_at
+}
+
+class "Gebäudeindex" as BuildingIndex {
+  +index_id
+  +building_id
+  +source_triage_id
+  +derived_at
+  +energy_demand
+  +co2
+  +primary_energy
+  +efficiency_class
+}
+
+class "Effizienzklasse" as EfficiencyClass {
+  +class_id
+  +label
+  +min_value
+  +max_value
+}
+
+class "Triage-Eintrag" as TriageRecord {
+  +triage_id
+  +input_id
+  +status
+  +status_reason
+  +reviewer
+  +note
+  +related_submission_id
+  +published_at
+}
+
+class "Berichtsexport" as ReportExport {
+  +export_id
+  +scope
+  +format
+  +created_at
+}
+
+District "1" -- "*" Building
+Building "1" -- "*" InputSet
+
+InputSet "1" -- "*" ComponentInput
+InputSet "0..1" -- "1" VentilationReference
+InputSet "0..1" -- "1" WarmWaterInput
+InputSet "0..1" -- "1" HeatingSystemInput
+
+InputSet "1" -- "*" MeasureSelection
+MeasureSelection "*" -- "1" MeasureOption
+MeasureOption "*" -- "*" SubsidyProgram
+
+BerechnungConfigVersion "1" -- "*" ConfigOption
+BerechnungConfigVersion "1" -- "*" InputConstraint
+BerechnungConfigVersion "1" -- "0..1" BerechnungConfigSnapshot
+BerechnungConfigVersion "1" -- "*" BerechnungRun
+BerechnungRun "1" -- "*" BerechnungResult
+BerechnungResult "*" -- "1" EfficiencyClass
+
+InputSet "1" -- "1" TriageRecord
+TriageRecord "1" -- "0..1" BuildingIndex
+Building "1" -- "0..1" BuildingIndex
+InputSet "0..*" -- "0..*" ReportExport
+
+note right of Building
+Statische Potenziale und Geometrien werden in 3D Tiles gespeichert,
+nicht in der Datenbank. Persistiert werden nur Referenzen.
+end note
+
+note right of ReportExport
+Berichte für Bürger/Eigentümer/Vermieter werden in der Anwendung angezeigt;
+Exporte werden nur bei Bedarf erstellt.
+end note
+
+note right of VentilationReference
+Die Luftdichtheit wird aus Katalogwerten
+und Gebäudealter abgeleitet (keine direkte Nutzereingabe).
+end note
+
+note right of TriageRecord
+Statuslebenszyklus:
+neu -> in_pruefung -> freigegeben | abgelehnt
+freigegeben -> ersetzt bei einer neueren Freigabe
+Pro Gebäude ist höchstens eine Einreichung freigegeben.
+Die Admin-Aktion "Datensatz abgelehnt"
+verwendet abgelehnt (DECLINED) als Endstatus.
+Die physische Löschung ist eine separate Operation
+und kein Triage- oder Löschmarkierungsstatus.
+end note
+
+@enduml
+
+

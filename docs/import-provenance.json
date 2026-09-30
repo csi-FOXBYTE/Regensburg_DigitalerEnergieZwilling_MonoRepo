@@ -1,0 +1,84 @@
+[
+  {
+    "repository": "Regensburg_DigitalerEnergieZwilling_Frontend",
+    "commit": "12a07ca295e0c9e287a9cf1f134ccaaeabdccae6",
+    "target": "apps/frontend",
+    "sourceStatus": " M SBOM.cdx.json\n M SBOM.csv\n",
+    "importedFiles": 272,
+    "excludedFiles": [
+      ".devcontainer/.env.example",
+      ".devcontainer/devcontainer-lock.json",
+      ".devcontainer/devcontainer.json",
+      ".devcontainer/docker-compose.yml",
+      ".github/workflows/tag-build.yml",
+      ".npmrc",
+      ".vscode/extensions.json",
+      ".vscode/launch.json",
+      ".vscode/settings.json",
+      "SBOM.cdx.json",
+      "SBOM.csv",
+      "pnpm-lock.yaml",
+      "pnpm-workspace.yaml"
+    ]
+  },
+  {
+    "repository": "Regensburg_DigitalerEnergieZwilling_AdminFrontend",
+    "commit": "eca312a38b6a8790a45daa926057f0802d77a5a7",
+    "target": "apps/adminfrontend",
+    "sourceStatus": " M SBOM.cdx.json\n M SBOM.csv\n",
+    "importedFiles": 96,
+    "excludedFiles": [
+      ".devcontainer/devcontainer-lock.json",
+      ".devcontainer/devcontainer.json",
+      ".devcontainer/docker-compose.yml",
+      ".github/workflows/tag-build.yml",
+      ".npmrc",
+      "SBOM.cdx.json",
+      "SBOM.csv",
+      "pnpm-lock.yaml",
+      "pnpm-workspace.yaml",
+      ".tanstack/Dashboard.tsx"
+    ]
+  },
+  {
+    "repository": "Regensburg_DigitalerEnergieZwilling_Backend",
+    "commit": "ab7f55df484e6fdc76573c057d2239161bef164f",
+    "target": "apps/backend",
+    "sourceStatus": " M SBOM.cdx.json\n M SBOM.csv\n",
+    "importedFiles": 169,
+    "excludedFiles": [
+      ".devcontainer/Dockerfile",
+      ".devcontainer/apisix.Dockerfile",
+      ".devcontainer/apisix/apisix.yaml",
+      ".devcontainer/apisix/config.yaml",
+      ".devcontainer/apisix/nginx.conf",
+      ".devcontainer/devcontainer.json",
+      ".devcontainer/docker-compose.yml",
+      ".devcontainer/installScripts/git.sh",
+      ".devcontainer/installScripts/pnpm.sh",
+      ".devcontainer/postgres/init.sql",
+      ".github/workflows/tag-build-deploy.yml",
+      ".npmrc",
+      "SBOM.cdx.json",
+      "SBOM.csv",
+      "pnpm-lock.yaml",
+      "pnpm-workspace.yaml"
+    ]
+  },
+  {
+    "repository": "Regensburg_DigitalerEnergieZwilling_EnergyCalculationCore",
+    "commit": "ff2890cd0e462cd89c7a1e0d0dc0f1916b96be65",
+    "target": "packages/energy-core",
+    "sourceStatus": " M SBOM.cdx.json\n M SBOM.csv\n",
+    "importedFiles": 179,
+    "excludedFiles": [
+      ".devcontainer/devcontainer-lock.json",
+      ".devcontainer/devcontainer.json",
+      ".github/workflows/publish.yml",
+      ".npmrc",
+      "SBOM.cdx.json",
+      "SBOM.csv",
+      "pnpm-lock.yaml"
+    ]
+  }
+]

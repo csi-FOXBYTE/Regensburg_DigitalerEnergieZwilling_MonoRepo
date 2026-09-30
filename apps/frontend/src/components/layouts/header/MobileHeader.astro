@@ -1,0 +1,21 @@
+---
+import { getRelativeLocaleUrl } from 'astro:i18n';
+import { brand } from '@/config/brand';
+import { resolveLocale } from '@/i18n/config';
+
+const homeHref = getRelativeLocaleUrl(resolveLocale(Astro.currentLocale));
+---
+
+<header
+  class="bg-background shadow-paper-2 absolute top-0 right-0 left-0 z-50 shrink-0 border-b border-neutral-200"
+>
+  <div class="px-gutter flex h-(--title-height) items-center py-4">
+    <a
+      href={homeHref}
+      class="text-primary cursor-pointer text-[20px] leading-7 font-semibold"
+    >
+      {brand.applicationName}
+    </a>
+  </div>
+  <slot />
+</header>

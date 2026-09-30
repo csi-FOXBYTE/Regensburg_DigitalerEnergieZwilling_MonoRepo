@@ -1,0 +1,303 @@
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;700&display=swap');
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import 'shadcn/tailwind.css';
+@import '@fontsource-variable/geist';
+
+:root {
+  /* Regensburg Brand Colors */
+  --regensburg-red: #e30613;
+  --regensburg-red-dark: #8b2412;
+
+  /* Neutral Scale */
+  --neutral-850: #191919;
+  --neutral-550: #5f6061;
+  --neutral-450: #757575;
+  --neutral-200: #e5e5e5;
+  --neutral-150: #f4f4f4;
+  --white: #ffffff;
+
+  /* Semantic Tokens - Light Mode */
+  --background: var(--white);
+  --foreground: var(--neutral-850);
+  --card: var(--white);
+  --card-foreground: var(--foreground);
+  --popover: var(--white);
+  --popover-foreground: var(--foreground);
+  --primary: var(--regensburg-red);
+  --primary-hover: var(--regensburg-red-dark);
+  --primary-foreground: var(--white);
+  --secondary: var(--neutral-150);
+  --secondary-foreground: var(--neutral-850);
+  --muted: var(--neutral-150);
+  --muted-foreground: var(--neutral-550);
+  --accent: var(--neutral-150);
+  --accent-foreground: var(--foreground);
+  --destructive: var(--regensburg-red);
+  --destructive-foreground: var(--white);
+  --border: var(--neutral-450);
+  --input: var(--white);
+  --input-border: var(--color-neutral-200);
+  --ring: var(--regensburg-red);
+  --footer: var(--neutral-850);
+  --footer-foreground: var(--white);
+  --compass-north: #e30613;
+
+  /* Semantic Status Colors */
+  --info: var(--regensburg-red);
+  --info-background: #fef2f2;
+  --info-icon: var(--regensburg-red);
+  --warning: #f59e0b;
+  --warning-background: #fffbeb;
+  --warning-icon: #b45309;
+  --danger: var(--regensburg-red);
+  --danger-background: #fef2f2;
+  --danger-icon: var(--regensburg-red);
+  --positive: #16a34a;
+  --positive-background: #f0fdf4;
+  --positive-icon: #15803d;
+
+  /* Chart Colors */
+  --chart-1: oklch(0.809 0.105 251.813);
+  --chart-2: oklch(0.623 0.214 259.815);
+  --chart-3: oklch(0.546 0.245 262.881);
+  --chart-4: oklch(0.488 0.243 264.376);
+  --chart-5: oklch(0.424 0.199 265.638);
+
+  /* Radius policy - sharp surfaces and controls, rounded badges and floating controls */
+  --control-radius: 0px;
+  --surface-radius: 0px;
+  --dialog-radius: 0px;
+  --toolbar-radius: 0px;
+  --badge-radius: 9999px;
+  --floating-control-radius: 9999px;
+
+  /* Layout Sizes */
+  --title-height: 86px;
+  --nav-height: 88px;
+  --header-height: calc(var(--title-height) + var(--nav-height));
+  --content-height: calc(100dvh - var(--header-height));
+  --content-width: 1170px;
+  --landing-map-fade-start: 45%;
+  --landing-map-fade-end: 100%;
+  --content-start-left: max(
+    calc((100vw - var(--content-width)) / 2),
+    var(--gutter)
+  );
+
+  /* Paddings */
+  --gutter: 20px;
+
+  /* Sidebar */
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+
+  /* Typography */
+  --text-h1: 34px;
+  --leading-h1: 45px;
+  --text-h2: 24px;
+  --leading-h2: 32px;
+  --text-h3: 20px;
+  --leading-h3: 32px;
+  --text-h4: 18px;
+  --leading-h4: 28px;
+  --text-lead: 20px;
+  --leading-lead: 30px;
+  --text-body: 16px;
+  --leading-body: 26px;
+  --text-body-sm: 14px;
+  --leading-body-sm: 22px;
+  --text-body-xs: 12px;
+  --leading-body-xs: 18px;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --title-height: 123px;
+    --nav-height: 68px;
+    --text-h1: 48px;
+    --leading-h1: 58px;
+    --text-h2: 36px;
+    --leading-h2: 46px;
+    --text-h3: 24px;
+    --leading-h3: 32px;
+    --gutter: 30px;
+  }
+}
+
+@theme inline {
+  /* `shadow-paper-*`: symmetric elevation levels for Paper surfaces. */
+  --shadow-paper-1: 0 0 4px 0 rgb(0 0 0 / 0.08);
+  --shadow-paper-2: 0 0 8px 0 rgb(0 0 0 / 0.1);
+  --shadow-paper-3: 0 0 16px 2px rgb(0 0 0 / 0.12);
+  --shadow-paper-4: 0 0 24px 4px rgb(0 0 0 / 0.14);
+  --shadow-paper-5: 0 0 32px 6px rgb(0 0 0 / 0.16);
+
+  /* `font-sans`: default application typography. */
+  --font-sans: 'Open Sans', sans-serif;
+
+  /* `neutral-*`: direct neutral utilities for text, dividers, and disabled UI. */
+  --color-neutral-850: var(--neutral-850);
+  --color-neutral-550: var(--neutral-550);
+  --color-neutral-450: var(--neutral-450);
+  --color-neutral-200: var(--neutral-200);
+  --color-neutral-150: var(--neutral-150);
+
+  /* Page and full-area surfaces with their default text color. */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  /* Card and Paper surfaces with their default text color. */
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+
+  /* Floating surfaces such as popovers with their default text color. */
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+
+  /* Primary actions, links, progress, and interactive emphasis. */
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-foreground: var(--primary-foreground);
+
+  /* Secondary actions and low-emphasis interactive surfaces. */
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+
+  /* Subdued surfaces and supporting or explanatory text. */
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+
+  /* Hovered or highlighted control surfaces that are not primary actions. */
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+
+  /* Destructive actions and invalid-state emphasis. */
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+
+  /* Default borders, input surfaces, input outlines, and focus rings. */
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-input-border: var(--input-border);
+  --color-ring: var(--ring);
+
+  /* Ordered data-series colors exposed as `chart-1` through `chart-5`. */
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  /* Sidebar surfaces, text, actions, highlights, borders, and focus rings. */
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Footer surface and its default text color. */
+  --color-footer: var(--footer);
+  --color-footer-foreground: var(--footer-foreground);
+
+  /* North-facing compass needle, independent of interactive brand colors. */
+  --color-compass-north: var(--compass-north);
+
+  /* Informational callouts: border, background, and icon. */
+  --color-info: var(--info);
+  --color-info-background: var(--info-background);
+  --color-info-icon: var(--info-icon);
+
+  /* Warning callouts: border, background, and icon. */
+  --color-warning: var(--warning);
+  --color-warning-background: var(--warning-background);
+  --color-warning-icon: var(--warning-icon);
+
+  /* Danger callouts: border, background, and icon. */
+  --color-danger: var(--danger);
+  --color-danger-background: var(--danger-background);
+  --color-danger-icon: var(--danger-icon);
+
+  /* Positive callouts: border, background, and icon. */
+  --color-positive: var(--positive);
+  --color-positive-background: var(--positive-background);
+  --color-positive-icon: var(--positive-icon);
+
+  /* Role-based radii for municipality-controlled component geometry. */
+  --radius-control: var(--control-radius);
+  --radius-surface: var(--surface-radius);
+  --radius-dialog: var(--dialog-radius);
+  --radius-toolbar: var(--toolbar-radius);
+  --radius-badge: var(--badge-radius);
+  --radius-floating-control: var(--floating-control-radius);
+
+  /* `*-gutter`: responsive horizontal page padding. */
+  --spacing-gutter: var(--gutter);
+  --spacing-gutter-desktop: var(--desktop-gutter);
+
+  /* `max-w-content`: maximum width of centered application content. */
+  --container-content: var(--content-width);
+}
+
+/* When Radix locks body scroll (react-remove-scroll), it adds a margin-right to
+   compensate for the scrollbar it removes. Combined with `scrollbar-gutter: stable`
+   on <html> that gutter is already reserved, so cancel the extra compensation to
+   avoid a layout shift. Unlayered + high specificity so it wins over the lib's
+   injected `!important` rule. */
+html body[data-scroll-locked] {
+  margin-right: 0 !important;
+}
+
+@layer utilities {
+  /* Opt in on two-column energy forms; single-column fields keep natural sizing. */
+  .energy-field-grid {
+    @variant lg {
+      @supports (grid-template-rows: subgrid) {
+        > [data-energy-field] {
+          display: grid;
+          grid-row: span 2;
+          grid-template-rows: subgrid;
+          row-gap: 0.5rem;
+          min-width: 0;
+        }
+
+        > [data-energy-field] > [data-energy-field-label] {
+          grid-row: 1;
+          align-self: end;
+        }
+
+        > [data-energy-field] > [data-energy-field-content] {
+          grid-row: 2;
+          align-self: start;
+          min-width: 0;
+        }
+      }
+    }
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  html {
+    @apply font-sans;
+    /* Reserve scrollbar space so opening modals (Radix scroll-lock) doesn't
+       hide the scrollbar / shift the layout. */
+    scrollbar-gutter: stable;
+  }
+}

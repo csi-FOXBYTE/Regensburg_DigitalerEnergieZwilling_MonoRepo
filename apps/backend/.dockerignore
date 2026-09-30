@@ -1,0 +1,9 @@
+node_modules/
+.pnpm-store/
+docs/
+scripts/
+.dev/
+.build/
+.github/
+README.md
+eslint.config.js

@@ -1,0 +1,16 @@
+node_modules/
+.local/
+**/dist/
+**/.build/
+**/.dev/
+**/.astro/
+**/.cache/
+**/coverage/
+**/*.tsbuildinfo
+**/.env*
+!**/.env*.example
+**/SBOM.cdx.json
+**/SBOM.csv
+apps/frontend/public/cesium/
+.pnpm-store/
+**/.tanstack/

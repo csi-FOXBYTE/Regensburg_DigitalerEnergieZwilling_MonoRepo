@@ -1,0 +1,134 @@
+{
+  "deleteConfirmationDialog": {
+    "title": "Daten wirklich löschen?",
+    "description": "Dieser Vorgang löscht Ihre eingereichten Gebäudedaten unwiderruflich vom $t(municipality:dataSubmission.server). Ihre lokale Sitzung und der heruntergeladene PDF-Bericht bleiben erhalten.",
+    "confirmButton": "Ja, Daten löschen",
+    "deletingButton": "Wird gelöscht…",
+    "cancelButton": "Abbrechen",
+    "checkingTitle": "Löschlink wird geprüft",
+    "checkingDescription": "Bitte warten Sie, während geprüft wird, ob die eingereichten Daten noch verfügbar sind.",
+    "unavailableTitle": "Löschlink nicht verfügbar",
+    "unavailableDescription": "Dieser Link ist nicht mehr gültig oder die eingereichten Daten sind nicht mehr verfügbar.",
+    "deletedTitle": "Daten gelöscht",
+    "deletedDescription": "Ihre eingereichten Daten wurden unwiderruflich vom $t(municipality:dataSubmission.server) gelöscht.",
+    "receiptDescription": "Bewahren Sie diesen Löschbeleg geschützt auf. Nur mit dem vollständigen Beleg lässt sich die Löschung dieser konkreten Einreichung später nachweisen.",
+    "downloadReceipt": "Löschbeleg herunterladen",
+    "cancelledTitle": "Löschen abgebrochen",
+    "cancelledDescription": "Ihre eingereichten Daten wurden nicht gelöscht.",
+    "serviceErrorTitle": "Dienst vorübergehend nicht verfügbar",
+    "serviceErrorDescription": "Der Löschstatus konnte nicht ermittelt werden. Bitte versuchen Sie es erneut.",
+    "retryButton": "Erneut versuchen",
+    "openApplication": "Anwendung öffnen"
+  },
+  "sessionResumeDialog": {
+    "title": "Offene Sitzung",
+    "description": "Du hast eine offene Sitzung. Möchtest du weitermachen?",
+    "continueButton": "Weiter machen",
+    "dismissButton": "Neu starten",
+    "linkRestoreError": "Der Wiederherstellungslink ist ungültig oder wird nicht unterstützt. Eine lokal gespeicherte Sitzung kann weiterhin geöffnet werden."
+  },
+  "startOverConfirmDialog": {
+    "title": "Sitzung zurücksetzen?",
+    "description": "Bist du sicher? Alle gespeicherten Daten für dieses Gebäude werden gelöscht.",
+    "confirmButton": "Ja, neu starten",
+    "cancelButton": "Abbrechen"
+  },
+  "invalidBuildingConfirmDialog": {
+    "title": "Gebäude trotzdem auswählen?",
+    "description": "Dieses Gebäude ist laut den vorliegenden Daten nicht für das Sanierungstool vorgesehen. Die Berechnung kann deshalb unpassende oder unvollständige Ergebnisse liefern. Möchten Sie es trotzdem auswählen?",
+    "confirmButton": "Trotzdem auswählen",
+    "cancelButton": "Abbrechen"
+  },
+  "externalBuildingLink": {
+    "invalidWarning": "Der externe Gebäudelink ist unvollständig oder ungültig.",
+    "notFoundWarning": "Das angeforderte Gebäude wurde nicht gefunden. Wenn es sichtbar ist, können Sie es manuell auswählen."
+  },
+  "renovationPotentialInfoDialog": {
+    "title": "Wie entsteht diese Einschätzung?",
+    "description": "Die Ersteinschätzung basiert ausschließlich auf dem bekannten Baujahr. Gebäude bis einschließlich 1983 werden mit hohem, Gebäude von 1984 bis 1994 mit mittlerem und neuere Gebäude mit tendenziell geringerem Sanierungspotenzial eingeordnet. Der Hinweis zum möglichen Denkmalschutz wird bei unbekanntem Baujahr sowie bei Baujahren bis einschließlich 1948 angezeigt. In den folgenden Schritten können Sie die Gebäudedaten prüfen und ergänzen. Die Einschätzung ersetzt weder eine Energieberatung noch eine Prüfung des Denkmalstatus."
+  },
+  "renovationPotential": {
+    "title": "Geschätztes Sanierungspotenzial",
+    "levels": {
+      "high": "Hoch",
+      "moderate": "Mittel",
+      "lower": "Tendenziell geringer",
+      "unknown": "Noch nicht einschätzbar"
+    },
+    "descriptions": {
+      "high": "Aufgrund des bekannten Baujahrs besteht voraussichtlich ein hohes energetisches Sanierungspotenzial.",
+      "moderate": "Aufgrund des bekannten Baujahrs besteht voraussichtlich ein mittleres energetisches Sanierungspotenzial.",
+      "lower": "Aufgrund des bekannten Baujahrs besteht voraussichtlich ein geringes energetisches Sanierungspotenzial.",
+      "unknown": "Für dieses Gebäude liegt kein bekanntes Baujahr vor. Ein energetisches Sanierungspotenzial kann erst in einem Folgeschritt angezeigt werden."
+    },
+    "basis": "Ersteinschätzung auf Basis des Baujahrs {{year}}.",
+    "assumption": "Die Einschätzung basiert auf der Annahme, dass zwischenzeitlich keine umfangreiche Sanierung stattgefunden hat.",
+    "infoLink": "Wie entsteht diese Einschätzung?",
+    "heritageWarning": {
+      "title": "Möglicher Denkmalschutz",
+      "description": "Bei älteren Gebäuden können besondere Vorgaben gelten. Bitte prüfen Sie vor der Planung, ob das Gebäude denkmalgeschützt ist."
+    }
+  },
+  "buildingWindow": {
+    "title": "Ihr Gebäude",
+    "subtitle": "Energetische Ersteinschätzung auf Basis öffentlicher Daten und Modellannahmen. Im nächsten Schritt können Sie die Gebäudedaten prüfen, ergänzen oder ändern.",
+    "continueButton": "Jetzt Sanierungsvorschlag ermitteln",
+    "sessionContinueButton": "Dort weitermachen",
+    "startOverButton": "Neu starten",
+    "closeButton": "Gebäudeansicht schließen",
+    "processingTime": "Die Bearbeitung dauert ungefähr 10 Minuten bis zum Ergebnis"
+  },
+  "map": {
+    "stepTitle": "Gebäude auswählen",
+    "loading": "Lade Anwendung...",
+    "loadErrorTitle": "Karte konnte nicht geladen werden",
+    "loadErrorMessage": "Die Kartendaten sind nicht erreichbar. Bitte prüfen Sie Ihre Internetverbindung.",
+    "retry": "Erneut versuchen"
+  },
+  "addressSearch": {
+    "placeHolder": "Adresse suchen in $t(municipality:name)...",
+    "noResults": "Adresse nicht gefunden",
+    "loadError": "Die Adresssuche ist momentan nicht verfügbar. Bitte prüfen Sie Ihre Internetverbindung und laden Sie die Seite neu.",
+    "chooseBuilding": "Gebäude auswählen: ",
+    "infoText": "Geben Sie eine Adresse ein oder klicken Sie direkt auf ein Gebäude in der Karte.",
+    "ariaFormLabel": "Gebäudeadresse suchen",
+    "ariaInputLabel": "Adresse eingeben",
+    "ariaDismissLabel": "Hinweis schließen"
+  },
+  "mapNav": {
+    "navigationLabel": "Kartensteuerung",
+    "help": "Hilfe",
+    "viewMode": "Ansicht",
+    "alighToNorth": "Nord ausrichten",
+    "navigation": "Navigation",
+    "zoom": "Zoom",
+    "ariaLabelSwitchToPerspective": "Zur perspektivischen Ansicht wechseln",
+    "ariaLabelSwitchToTopDown": "Zur Draufsicht wechseln",
+    "ariaLabelNorth": "Nach Norden ausrichten",
+    "ariaLabelPanUp": "Nach oben bewegen",
+    "ariaLabelPanLeft": "Nach links bewegen",
+    "ariaLabelPanRight": "Nach rechts bewegen",
+    "ariaLabelPanDown": "Nach unten bewegen",
+    "ariaLabelZoomIn": "Hineinzoomen",
+    "ariaLabelZoomOut": "Herauszoomen"
+  },
+  "mapHelp": {
+    "mapControls": "Kartenbedienung",
+    "ariaLabelButton": "Kartenbedienung anzeigen",
+    "viewMode": "Ansicht wechseln",
+    "viewModePerspectiveExplain": "Die perspektivische Ansicht ist aktiv. Über die Ansichtsschaltfläche wechseln Sie zur Draufsicht.",
+    "viewModeTopDownExplain": "Die Draufsicht ist aktiv. Über die Ansichtsschaltfläche wechseln Sie zur perspektivischen Ansicht.",
+    "chooseBuilding": "Gebäude auswählen",
+    "chooseBuildingExplain": "Klicken Sie mit der linken Maustaste auf ein Gebäude.",
+    "chooseBuildingMobileExplain": "Tippen Sie das Gebäude mit einem Finger an.",
+    "moveMap": "Karte bewegen",
+    "moveMapExplain": "Verschieben Sie die Karte, indem Sie die linke Maustaste halten und ziehen.",
+    "moveMapMobileExplain": "Verschieben Sie die Karte mit einem Finger.",
+    "tiltView": "Ansicht drehen und neigen",
+    "tiltViewExplain": "Drehen und neigen Sie die Ansicht, indem Sie die mittlere Maustaste halten und ziehen.",
+    "tiltViewMobileExplain": "Drehen oder neigen Sie die Ansicht mit zwei Fingern.",
+    "zoom": "Zoom",
+    "zoomExplain": "Zoomen Sie mit dem Mausrad oder den +/- Schaltflächen.",
+    "zoomMobileExplain": "Zoomen Sie mit zwei Fingern."
+  }
+}

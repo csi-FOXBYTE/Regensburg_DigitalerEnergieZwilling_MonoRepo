@@ -1,0 +1,33 @@
+﻿@startuml
+left to right direction
+skinparam rectangle {
+  BackgroundColor #F7F7F7
+  BorderColor #444444
+}
+
+title Frontend-Architektur
+
+rectangle "Repository des öffentlichen Frontends\nAstro-Build + nginx" as public_build
+rectangle "Repository des Admin-Frontends\nAstro-Build + nginx" as admin_build
+rectangle "APISIX\n(Web-/API-Gateway)" as apisix
+rectangle "Öffentlicher Client\n(Bürgerbereich)" as public_client
+rectangle "Admin-Bereich\n(Fachpersonal)" as admin_client
+rectangle "Berechnungskern\n(JS-Modul)" as core
+rectangle "Backend-Kachelweiterleitung\n/api/public/tiles/*" as tiles_redirect
+rectangle "Externer Kacheldienst\n(TILES_URL)" as tiles
+rectangle "Backend-API\n(öffentlich)" as api_public
+rectangle "Backend-API\n(Admin)" as api_admin
+rectangle "Basiskartendienste\n(WMS/WMTS)" as basemap
+
+public_build --> public_client
+admin_build --> admin_client
+public_client --> core
+public_client --> apisix : GET /api/public/tiles/*
+apisix --> tiles_redirect
+tiles_redirect --> tiles : HTTP-Weiterleitung
+public_client --> api_public
+admin_client --> api_admin
+public_client --> basemap
+
+@enduml
+

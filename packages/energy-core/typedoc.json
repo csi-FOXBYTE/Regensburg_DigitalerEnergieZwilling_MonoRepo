@@ -1,0 +1,21 @@
+{
+  "entryPoints": ["src/index.ts"],
+  "out": "docs/api",
+  "plugin": ["typedoc-plugin-markdown"],
+  "readme": "none",
+  "cleanOutputDir": true,
+  "categorizeByGroup": true,
+  "groupOrder": [
+    "Core",
+    "Envelope",
+    "Heating",
+    "Catalogs",
+    "Configuration",
+    "Shared",
+    "*"
+  ],
+  "sort": ["source-order"],
+  "excludePrivate": false,
+  "excludeProtected": false,
+  "excludeInternal": true
+}

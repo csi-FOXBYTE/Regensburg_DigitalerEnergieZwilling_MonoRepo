@@ -1,0 +1,25 @@
+---
+import '@/styles/global.css';
+import { brand } from '@/config/brand';
+import { resolveLocale } from '@/i18n/config';
+
+interface Props {
+  includeCesium?: boolean;
+}
+
+const { includeCesium = true } = Astro.props;
+const locale = resolveLocale(Astro.currentLocale);
+---
+
+<html lang={locale}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{brand.pageTitle}</title>
+    <link rel="icon" href={brand.favicon} />
+    {includeCesium && <script src="/cesium/Cesium.js" is:inline />}
+  </head>
+  <body class="flex flex-col">
+    <slot />
+  </body>
+</html>

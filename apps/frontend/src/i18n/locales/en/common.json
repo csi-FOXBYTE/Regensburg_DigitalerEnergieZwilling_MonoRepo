@@ -1,0 +1,121 @@
+{
+  "hw": "Hello World!",
+  "yes": "Yes",
+  "no": "No",
+  "close": "Close",
+  "clearInput": "Clear input",
+  "showMoreInformation": "Show more information",
+  "yearRange": {
+    "between": "{{from}} to {{to}}",
+    "upTo": "up to {{year}}",
+    "from": "from {{year}}"
+  },
+  "units": {
+    "kilowattHoursPerYear": "kWh/year",
+    "kilowattHoursPerSquareMeterPerYear": "kWh/(m²·year)",
+    "eurosPerYear": "€/year",
+    "eurosPerUnit": "€/{{unit}}",
+    "tonsCo2PerYear": "t CO₂/year"
+  },
+  "footer": {
+    "navigationLabel": "Legal information and settings",
+    "imprint": "Imprint",
+    "privacy": "Privacy Policy",
+    "cookieSettings": "Privacy settings",
+    "feedback": "Feedback"
+  },
+  "feedback": {
+    "title": "Give feedback",
+    "subtitle": "Help us improve the tool",
+    "category": {
+      "label": "Category",
+      "placeholder": "Please select a category",
+      "options": {
+        "bug": "Report a bug",
+        "suggestion": "Suggest an improvement",
+        "feedback": "General feedback"
+      }
+    },
+    "message": {
+      "label": "Your message",
+      "placeholder": "Describe your request..."
+    },
+    "email": {
+      "label": "Email address",
+      "optional": "(optional)",
+      "placeholder": "your.email@example.com",
+      "hint": "If you would like a response"
+    },
+    "privacyNotice": "Your feedback is treated confidentially and used only to improve the tool. You can find more information in our privacy policy.",
+    "submit": "Send feedback",
+    "error": "Your feedback could not be submitted. Please try again.",
+    "success": {
+      "title": "Thank you!",
+      "message": "Your feedback has been submitted successfully and helps us improve the tool."
+    },
+    "bubble": {
+      "cta": "Give feedback"
+    }
+  },
+  "privacy": {
+    "title": "Privacy notice",
+    "placeholder": "The privacy notice will be added here."
+  },
+  "imprint": {
+    "title": "Imprint",
+    "contactIntro": "$t(municipality:imprint.contactIntro)",
+    "labels": {
+      "email": "Email",
+      "phone": "Phone",
+      "fax": "Fax",
+      "internet": "Website"
+    },
+    "contact": {
+      "email": "$t(municipality:imprint.contact.email)",
+      "phone": "$t(municipality:imprint.contact.phone)",
+      "fax": "$t(municipality:imprint.contact.fax)",
+      "address": "$t(municipality:imprint.contact.address)"
+    },
+    "publisher": {
+      "title": "$t(municipality:imprint.publisher.title)",
+      "address": "$t(municipality:imprint.publisher.address)",
+      "email": "$t(municipality:imprint.publisher.email)",
+      "website": "$t(municipality:imprint.publisher.website)",
+      "legalForm": "$t(municipality:imprint.publisher.legalForm)",
+      "vatId": "$t(municipality:imprint.publisher.vatId)"
+    },
+    "responsible": {
+      "title": "$t(municipality:imprint.responsible.title)",
+      "address": "$t(municipality:imprint.responsible.address)",
+      "email": "$t(municipality:imprint.responsible.email)",
+      "website": "$t(municipality:imprint.responsible.website)"
+    },
+    "administration": {
+      "title": "$t(municipality:imprint.administration.title)",
+      "address": "$t(municipality:imprint.administration.address)",
+      "email": "$t(municipality:imprint.administration.email)",
+      "website": "$t(municipality:imprint.administration.website)",
+      "vatId": "$t(municipality:imprint.administration.vatId)"
+    }
+  },
+  "consent": {
+    "title": "Your data. Your decision.",
+    "description": "We can save your selected buildings, inputs and settings in your browser so you can keep your progress on this device.",
+    "support": "You decide. The calculation also works without optional storage.",
+    "allow": "Allow all",
+    "decline": "Decline optional storage",
+    "settings": "Settings",
+    "settingsTitle": "Privacy settings",
+    "settingsDescription": "Choose whether to allow local storage. You can change your choice at any time.",
+    "necessary": "Strictly necessary",
+    "alwaysActive": "Always active",
+    "necessaryDescription": "Remembers your explicitly confirmed privacy decision for 180 days.",
+    "functional": "Progress & settings",
+    "functionalDescription": "Saves your selected buildings, inputs, renovation measures and previously seen notices locally on this device. Progress is kept for 90 days after the last save or explicit resumption. Notices are remembered for 90 days.",
+    "memoryOnly": "Without optional storage, your progress is kept only while this page is open. Reloading or closing it will lose your inputs.",
+    "save": "Save selection",
+    "storageError": "Your browser could not save your choice or progress for future visits, or delete stored data. Your choice applies to this open page; you can continue calculating.",
+    "privacy": "Privacy",
+    "imprint": "Legal notice"
+  }
+}

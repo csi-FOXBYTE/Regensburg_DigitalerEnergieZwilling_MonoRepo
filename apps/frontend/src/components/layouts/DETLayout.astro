@@ -1,0 +1,42 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import Header from './header/Header.astro';
+import Main from './Main.astro';
+import Footer from './Footer.astro';
+import ProgressBar from '@/feature/progressBar/ProgressBar';
+import ScrollToTopButton from '@/components/ui/ScrollToTopButton';
+import MethodologyDialog from '@/feature/methodology/MethodologyDialog';
+import { Toaster } from 'sonner';
+---
+
+<BaseLayout>
+  <Header>
+    <ProgressBar client:load />
+  </Header>
+  <Main>
+    <slot />
+  </Main>
+  <Footer autoPromptConsent />
+  <MethodologyDialog client:load />
+  <ScrollToTopButton client:load />
+  <Toaster client:load richColors />
+</BaseLayout>
+
+<script>
+  import { $step } from '@/lib/state/ui';
+
+  let initialized = false;
+
+  function update(step: number) {
+    document.querySelectorAll<HTMLElement>('[data-step-gate]').forEach((el) => {
+      const steps = el.dataset.stepGate!.split(',').map(Number);
+      el.style.display = steps.includes(step) ? '' : 'none';
+    });
+    if (initialized) {
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    }
+    initialized = true;
+  }
+
+  $step.subscribe(update);
+</script>

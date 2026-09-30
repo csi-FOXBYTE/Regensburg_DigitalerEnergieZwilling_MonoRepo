@@ -1,0 +1,110 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/csi-FOXBYTE/Regensburg_DigitalerEnergieZwilling_EnergyCalculationCore/main/generated/det-building-energy-profile/schema.json",
+  "title": "DETBuildingEnergyProfile",
+  "description": "Annual building energy profile covering energy demand, costs, emissions, heating system and energy carrier information.",
+  "type": "object",
+  "required": [
+    "id",
+    "type"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uri"
+    },
+    "type": {
+      "type": "string",
+      "const": "DETBuildingEnergyProfile"
+    },
+    "annualCarrierHeatingEnergyDemand": {
+      "type": "number",
+      "description": "Annual heating energy demand covered by the selected non-electrical or thermal energy carrier."
+    },
+    "annualCo2EmissionsTonnes": {
+      "type": "number",
+      "description": "Total annual CO2 emissions in tonnes associated with the building energy profile."
+    },
+    "annualElectricalHeatingEnergyDemand": {
+      "type": "number",
+      "description": "Annual electrical energy demand used for heating."
+    },
+    "annualElectricalPrimaryEnergyDemand": {
+      "type": "number",
+      "description": "Annual primary energy demand associated with the building's electricity use."
+    },
+    "annualEnergyCarrierHeatingCost": {
+      "type": "number",
+      "description": "Annual cost associated with the selected heating energy carrier."
+    },
+    "annualEnergyCarrierPrimaryDemand": {
+      "type": "number",
+      "description": "Annual primary energy demand associated with the selected heating energy carrier."
+    },
+    "annualHeatingEnergyDemand": {
+      "type": "number",
+      "description": "Annual energy demand associated with building heating and domestic hot water."
+    },
+    "annualHouseholdElectricalEnergyCost": {
+      "type": "number",
+      "description": "Annual cost associated with household electrical energy demand excluding electricity used for heating."
+    },
+    "annualHouseholdElectricalEnergyDemand": {
+      "type": "number",
+      "description": "Annual household electrical energy demand excluding electricity used for heating."
+    },
+    "annualPrimaryEnergyDemand": {
+      "type": "number",
+      "description": "Total annual primary energy demand associated with the building energy profile."
+    },
+    "annualTotalCost": {
+      "type": "number",
+      "description": "Total annual energy cost of the building, including heating-related costs and electricity costs."
+    },
+    "annualTotalElectricalEnergyDemand": {
+      "type": "number",
+      "description": "Total annual electrical energy demand, including household electricity and electricity used for heating where applicable."
+    },
+    "annualTotalEnergyDemand": {
+      "type": "number",
+      "description": "Total annual energy demand of the building, including heating-related energy and electrical energy use."
+    },
+    "annualTotalHeatingCost": {
+      "type": "number",
+      "description": "Annual cost associated with heating, including thermal energy carrier costs and electricity used for heating where applicable."
+    },
+    "currency": {
+      "type": "string",
+      "description": "Currency code used for cost and rate attributes."
+    },
+    "electricityBaseRate": {
+      "type": "number",
+      "description": "Annual fixed electricity base rate used for the building energy cost profile."
+    },
+    "electricityUnitRate": {
+      "type": "number",
+      "description": "Electricity unit rate used for the building energy cost profile."
+    },
+    "energyCarrierBaseRate": {
+      "type": "number",
+      "description": "Fixed base rate used for the selected heating energy carrier."
+    },
+    "energyCarrierType": {
+      "type": "string",
+      "description": "Primary energy carrier used by the heating system."
+    },
+    "energyCarrierUnit": {
+      "type": "string",
+      "description": "Unit used for the selected heating energy carrier."
+    },
+    "energyCarrierUnitRate": {
+      "type": "number",
+      "description": "Unit rate used for the selected heating energy carrier."
+    },
+    "heatingSystemType": {
+      "type": "string",
+      "description": "Heating system type used for the building energy profile."
+    }
+  },
+  "additionalProperties": true
+}

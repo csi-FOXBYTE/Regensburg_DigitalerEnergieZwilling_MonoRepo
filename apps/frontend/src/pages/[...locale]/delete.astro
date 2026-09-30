@@ -1,0 +1,16 @@
+---
+import BaseLayout from '@/components/layouts/BaseLayout.astro';
+import DeleteConfirmationDialog from '@/feature/map/DeleteConfirmationDialog';
+import type { GetStaticPaths } from 'astro';
+import { buildStaticPaths } from '@/i18n/routing';
+import { Toaster } from 'sonner';
+
+export const getStaticPaths = (() => {
+  return buildStaticPaths();
+}) satisfies GetStaticPaths;
+---
+
+<BaseLayout includeCesium={false}>
+  <DeleteConfirmationDialog client:only="react" />
+  <Toaster client:load richColors />
+</BaseLayout>

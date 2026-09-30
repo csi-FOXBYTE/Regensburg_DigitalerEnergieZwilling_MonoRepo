@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "esModuleInterop": true,
+    "outDir": "./build",
+    "target": "es2020",
+    "module": "preserve",
+    "strict": true,
+    "moduleResolution": "bundler",
+    "moduleDetection": "force",
+    "resolveJsonModule": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "noEmit": true,
+    "lib": [
+      "es2020"
+    ],
+    "incremental": false,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+  },
+  "exclude": [
+    "node_modules",
+    ".dist"
+  ]
+}

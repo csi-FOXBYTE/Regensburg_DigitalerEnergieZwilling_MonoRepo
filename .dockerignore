@@ -1,0 +1,16 @@
+.git
+**/node_modules
+.local
+**/.env*
+**/dist
+**/.build
+**/.dev
+**/.astro
+**/.devcontainer
+**/*.tsbuildinfo
+**/SBOM*
+apps/frontend/public/cesium
+.pnpm-store
+**/.pnpm-store
+.tanstack
+**/.tanstack

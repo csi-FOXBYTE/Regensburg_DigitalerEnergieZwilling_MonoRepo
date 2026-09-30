@@ -1,0 +1,41 @@
+---
+import LandingPageContent from './LandingPageContent';
+import LandingPageTitle from './LandingPageTitle';
+import { Typography } from '@/components/ui/typography';
+import i18next from 'i18next';
+---
+
+<div
+  data-step-gate="0"
+  style="display:none"
+  class="col-start-1 row-start-1 z-20 flex h-full flex-col"
+>
+  <div class="landing-panel flex-1 flex flex-col gap-8 py-10 md:pt-7 md:pb-10">
+    <div class="flex flex-col gap-2">
+      <LandingPageTitle client:only="react" />
+      <Typography variant="lead">{i18next.t('landingPage:aboutText')}</Typography>
+    </div>
+    <LandingPageContent client:load />
+  </div>
+</div>
+
+<style>
+  .landing-panel {
+    position: relative;
+    isolation: isolate;
+    width: min(var(--content-width), calc(100% - 2 * var(--gutter)));
+    margin-inline: auto;
+  }
+
+  .landing-panel::before {
+    content: '';
+    position: absolute;
+    inset-block: 0;
+    left: calc(-1 * var(--content-start-left));
+    right: calc(-1 * var(--gutter));
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    z-index: -1;
+  }
+</style>

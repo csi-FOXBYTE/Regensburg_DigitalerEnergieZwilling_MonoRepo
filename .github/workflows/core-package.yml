@@ -1,0 +1,36 @@
+name: Independent core package
+on:
+  workflow_dispatch:
+    inputs:
+      publish_test:
+        description: Publish a distinct prototype package (never the production name)
+        type: boolean
+        default: false
+permissions:
+  contents: read
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter ./packages/energy-core run sbom
+      - run: pnpm core:pack
+      - uses: actions/upload-artifact@v4
+        with:
+          name: energy-core-package
+          path: .local/packages/*.tgz
+          include-hidden-files: true
+      - name: Publish distinct test package
+        if: inputs.publish_test
+        env:
+          NODE_AUTH_TOKEN: ${{ github.token }}
+        run: |
+          node scripts/publish-test-core.mjs

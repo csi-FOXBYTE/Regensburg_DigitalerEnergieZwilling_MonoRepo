@@ -1,0 +1,81 @@
+﻿@startuml
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+HIDE_STEREOTYPE()
+
+title Digitaler Energie Zwilling (DEZ) - C4-Containerdiagramm
+
+Person(citizen, "Bürger/Eigentümer/Vermieter")
+Person(admin, "Stadtverwaltung/Fachpersonal")
+
+System_Boundary(civitas, "CIVITAS/CORE-Plattform") {
+  System_Boundary(detAddon, "digital-energy-twin_addon (DEZ)") {
+
+    Container(gateway, "APISIX-Web-/API-Gateway", "API-Gateway und Reverse-Proxy", "Einziger öffentlicher Einstiegspunkt und Routenschutz")
+
+    Container(frontendPublic, "Statische Website des öffentlichen Frontends", "Astro SSG + nginx", "Statischer öffentlicher Client für Bürger/Eigentümer/Vermieter, ausgeliefert über nginx")
+    Container(frontendAdmin, "Statische Website des Admin-Frontends", "Astro SSG + nginx", "Statischer Admin-Client für Stadtverwaltung/Fachpersonal, ausgeliefert über nginx")
+
+    Container(backend, "Backend-API", "Node.js und Fastify", "REST-API, RS256/JWKS-Tokenvalidierung, PostgreSQL-Persistenz und Kachelweiterleitungen")
+
+    Container(calcCore, "Berechnungskern-Modul", "JavaScript-Modulpaket", "Gemeinsames Modul; läuft im Browser und in Node")
+
+    ContainerDb(db, "DEZ-Datenbank", "PostgreSQL", "Speichert Nutzereingaben, Triage-Status und Berechnungskonfigurationen")
+  }
+
+  System_Boundary(pipelineAddon, "offline-data-pipeline_addon (separates CIVITAS/CORE Add-on)") {
+    Container(airflow, "Airflow-Pipeline-Orchestrierung", "Apache Airflow", "Führt den DAG der DEZ-Offline-Datenpipeline aus und orchestriert die Verarbeitungscontainer")
+    Container(pipelineWorkers, "Offline-Pipeline-Worker", "Gruppe von Batch-Containern", "Führt Extraktion, Konvertierung, Anreicherung, optionale Berechnung und Export aus")
+  }
+
+  Container(idp, "Keycloak (CIVITAS/CORE)", "OIDC-Identitätsanbieter")
+}
+System_Ext(geo, "Städtische Geodienste", "WMS- und WMTS-Basiskarten")
+System_Ext(tilesStore, "Externer Kacheldienst / Datenspeicher", "Bei der Bereitstellung vorgegebene Kachel-URL und Objektspeicher für veröffentlichte Ausgaben")
+
+System_Ext(citygml, "CityGML-LoD2-Quelle", "Eingabedatensatz")
+System_Ext(potentials, "Solar- (3D Tiles) und Geothermiequellen", "Solare 3D Tiles + Geothermie-WMS/-Rasterdaten")
+System_Ext(vegetation, "Vegetation (Bäume)", "3D-Tiles-Ebene")
+
+Rel(citizen, gateway, "nutzt", "HTTPS")
+Rel(admin, gateway, "nutzt", "HTTPS")
+
+Rel(gateway, frontendPublic, "leitet die öffentliche Website weiter", "GET /")
+Rel(gateway, frontendAdmin, "leitet die Admin-Website weiter", "GET /admin")
+Rel(gateway, backend, "leitet die API weiter", "GET/POST /api (einschließlich /api/public/tiles/*)")
+
+Rel(backend, idp, "validiert Zugriffstoken", "JWKS/RS256")
+
+Rel(frontendPublic, calcCore, "importiert und führt aus", "Browser-Laufzeit")
+Rel(frontendAdmin, calcCore, "importiert und führt aus", "optional in der Browser-Laufzeit")
+Rel(backend, calcCore, "importiert und führt aus", "optional in der Node-Laufzeit")
+
+Rel(frontendPublic, geo, "lädt Basiskarten", "WMS oder WMTS")
+Rel(frontendPublic, gateway, "fordert 3D Tiles an", "GET /api/public/tiles/*")
+Rel(backend, tilesStore, "leitet zur konfigurierten TILES_URL weiter", "HTTP 3xx")
+
+Rel(backend, db, "liest und schreibt", "SQL")
+Rel(frontendPublic, backend, "ruft die API für Nutzerdaten auf", "REST über APISIX")
+Rel(frontendAdmin, backend, "ruft die API für Admin-Aktionen auf", "REST über APISIX")
+
+Rel(airflow, pipelineWorkers, "orchestriert DAG-Aufgaben")
+
+Rel(citygml, tilesStore, "lädt Quelldaten hoch")
+Rel(potentials, tilesStore, "lädt Quelldaten hoch")
+Rel(vegetation, tilesStore, "lädt Daten der visuellen Ebene hoch")
+
+Rel(tilesStore, pipelineWorkers, "liefert Quellartefakte und Zwischendaten")
+Rel(pipelineWorkers, tilesStore, "schreibt CityJSON, angereicherte Daten, Kacheln und CityGML")
+
+note right of gateway
+Sicherheitskontrollen:
+- Einziger externer Einstiegspunkt
+- Routentrennung für öffentlich/Admin
+- Ratenbegrenzung und Regeldurchsetzung
+end note
+
+note right of db
+PostgreSQL ist nicht öffentlich erreichbar.
+Zugriff nur über die Backend-API.
+end note
+
+@enduml

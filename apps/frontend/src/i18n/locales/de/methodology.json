@@ -1,0 +1,142 @@
+{
+  "trigger": "Hinweise",
+  "title": "Hinweise zur Datengrundlage und Berechnung",
+  "description": "Wie Gebäudedaten, Annahmen und Ihre Eingaben in die Orientierung einfließen.",
+  "draft": {
+    "badge": "ENTWURF",
+    "openPoint": "Noch zu ergänzen",
+    "title": "Fachlicher Arbeitsstand",
+    "description": "Die folgenden Inhalte wurden aus der technischen Projekt- und Berechnungsdokumentation abgeleitet. Sie benötigen vor der Veröffentlichung noch eine abschließende fachliche und redaktionelle Freigabe. Noch fehlende Metadaten sind ausdrücklich gekennzeichnet."
+  },
+  "demo": {
+    "title": "So funktionieren automatisch ermittelte Werte und eigene Eingaben",
+    "description": "Probieren Sie das Feld aus. Diese Demonstration ist vollständig von Ihrer echten Berechnung getrennt und beginnt bei jedem Öffnen des Dialogs von vorn.",
+    "automaticValueLabel": "Automatisch ermittelte Wohnfläche",
+    "automaticValueHint": "Je nach Eingabefeld können automatische Werte aus Gebäudedaten abgeleitet oder mithilfe von Standardannahmen bestimmt werden. Die hier gezeigte Wohnfläche von 140 m² dient nur als Beispiel.",
+    "inputExplanationTitle": "Beispiel: Wohnfläche prüfen und korrigieren",
+    "inputExplanationText": "Das Tool hat in diesem Beispiel automatisch eine Wohnfläche von 140 m² ermittelt. Prüfen Sie den Wert und korrigieren Sie ihn, wenn Sie die tatsächliche Wohnfläche kennen.",
+    "inputLabel": "Wohnfläche",
+    "infoDialog": {
+      "title": "Was bedeutet Wohnfläche?",
+      "description": "[BEISPIEL-INHALT] Die Wohnfläche bezeichnet in diesem Beispiel die beheizte Fläche des Gebäudes. Ein solcher Info-Hinweis erklärt, was mit dem jeweiligen Eingabewert gemeint ist und wo Sie die passende Angabe gegebenenfalls finden können."
+    },
+    "automaticExplanation": "Wenn Sie Ihre tatsächliche Wohnfläche kennen, können Sie sie in das Feld eintragen. Ihre Angabe ersetzt dann die automatisch ermittelten 140 m² für die weitere Berechnung. Mit dem Reset-Button können Sie Ihre Eingabe wieder entfernen.",
+    "userValueExplanation": "Ihre eingegebene Wohnfläche wird jetzt anstelle der automatisch ermittelten 140 m² für die weitere Berechnung verwendet. Mit dem Reset-Button entfernen Sie Ihre Angabe und wechseln zurück zum automatisch ermittelten Wert.",
+    "explanation": "Dieses Prinzip gilt auch für die übrigen bearbeitbaren Angaben: Eigene Eingaben haben Vorrang vor automatisch abgeleiteten Werten und Standardannahmen. Ein Reset entfernt nur die eigene Überschreibung; anschließend verwendet die Berechnung wieder den automatisch ermittelten Ausgangswert."
+  },
+  "sectionsTitle": "Themen der Hinweisseite",
+  "sectionsDescription": "Grundlagen, Annahmen und Grenzen der angezeigten Ergebnisse.",
+  "sections": {
+    "scope": {
+      "title": "Orientierung oder Energieberatung?",
+      "intro": "Der Digitale Energiezwilling liefert eine indikative, modellbasierte Ersteinschätzung. Die Ergebnisse sollen helfen, den möglichen energetischen Zustand eines Gebäudes einzuordnen und Sanierungsvarianten miteinander zu vergleichen.",
+      "providesTitle": "Das Tool bietet",
+      "providesOrientation": "eine überschlägige Energiebedarfsschätzung auf Basis der verfügbaren Daten und Annahmen,",
+      "providesComparison": "einen Vergleich des aktuellen Modellzustands mit ausgewählten Sanierungsmaßnahmen,",
+      "providesNextSteps": "Hinweise auf mögliche nächste Schritte und eine Grundlage für das Gespräch mit Fachleuten.",
+      "notProvidesTitle": "Das Tool ersetzt nicht",
+      "notProvidesConsulting": "eine individuelle Vor-Ort-Energieberatung,",
+      "notProvidesCertificate": "einen Energieausweis oder einen anderen norm- beziehungsweise rechtsverbindlichen Nachweis,",
+      "notProvidesPlanning": "eine technische Fachplanung, Bauteilprüfung oder belastbare Wirtschaftlichkeitsberechnung,",
+      "notProvidesFunding": "eine Förderfähigkeitsprüfung oder Förderzusage.",
+      "conclusion": "Nutzen Sie die Ergebnisse als Orientierung. Lassen Sie den tatsächlichen Gebäudezustand und konkrete Investitionen vor einer Entscheidung durch qualifizierte Fachleute prüfen.",
+      "resultsPageHint": "Weitere Informationen zu Anlaufstellen und nächsten Schritten finden Sie auf der Ergebnisseite."
+    },
+    "data": {
+      "title": "LoD2-, Geometrie- und Gebäudedaten",
+      "sourcePrefix": "Die Geometriegrundlage sind amtliche LoD2-Gebäudedaten für die Gemeinde $t(municipality:name) mit dem Gemeindeschlüssel $t(municipality:buildingData.municipalityKey). Herausgeber ist $t(municipality:buildingData.publisher). Die Quelldistribution wird $t(municipality:buildingData.updateFrequency) aktualisiert. Weitere Angaben bietet die",
+      "sourceLink": "$t(municipality:buildingData.sourceLinkLabel)",
+      "sourceSuffix": ".",
+      "processing": "In einer Verarbeitungspipeline werden Geometriekennwerte aus den Quelldaten berechnet. Anschließend werden die Daten als 3D Tiles für die Kartenansicht und als Ausgangswerte für die Berechnung bereitgestellt.",
+      "derivedTitle": "Aus der Geometrie abgeleitete Werte",
+      "derivedGround": "Grundfläche und Fläche der untersten Geschossdecke aus den Bodenflächen,",
+      "derivedWalls": "Außenwandfläche sowie gemeinsam mit Nachbargebäuden belegte Wandflächen,",
+      "derivedRoof": "Dachfläche aus den Dachflächen,",
+      "derivedHeight": "Gebäudehöhe aus der Differenz zwischen niedrigster Boden- und höchster Dachhöhe,",
+      "derivedLivingArea": "Geschosszahl und Wohnfläche indirekt aus Gebäudehöhe, Grundfläche und konfigurierten Umrechnungsfaktoren.",
+      "buildingPartsTitle": "Ein Gebäude kann aus mehreren digitalen Baukörpern bestehen",
+      "buildingParts": "Die Quelldaten können ein baulich zusammengehöriges Gebäude als mehrere Objekte beziehungsweise sogenannte BuildingParts führen, zum Beispiel bei Anbauten oder unterschiedlich hohen Gebäudeteilen. Die Anreicherung berechnet Kennwerte pro Building- oder BuildingPart-Objekt. Dadurch können Flächen und Höhen eines ausgewählten digitalen Objekts von dem abweichen, was vor Ort als gesamtes Gebäude wahrgenommen wird. Prüfen Sie die automatisch übernommenen Werte deshalb besonders sorgfältig.",
+      "notContainedTitle": "Was LoD2 nicht beschreibt",
+      "notContained": "LoD2 bildet vor allem die äußere Gebäudeform mit Boden-, Wand- und Dachflächen ab. Die Daten enthalten keine verlässlichen Aussagen zu Wohnungsgrundrissen, beheizten Bereichen, Dämmung, Fenstern, Bauteilaufbauten, Heizungsanlage oder tatsächlichem Verbrauch. Solche Angaben werden aus weiteren Daten, Katalogen und Standardannahmen abgeleitet oder von Ihnen ergänzt.",
+      "constructionYear": "Eine vorhandene Baujahresvorbelegung stammt nicht aus dem LoD2-Datensatz. Sie kann über den Mittelpunkt der Gebäudegrundfläche aus einem separaten Baualtersklassen-Datensatz zugeordnet werden. Fehlt diese Zuordnung, greift die veröffentlichte Berechnungskonfiguration auf Standardwerte zurück.",
+      "dataStatusOpen": "Der Datenstand der tatsächlich in dieser Anwendung ausgelieferten LoD2- und Zusatzdaten muss aus dem veröffentlichten Release-Manifest eingebunden werden. Der wöchentliche Aktualisierungsturnus der Quelle ist nicht mit dem Übernahmezeitpunkt in die Anwendung gleichzusetzen."
+    },
+    "inputs": {
+      "title": "Automatische Werte, Standardannahmen und eigene Angaben",
+      "intro": "Die Anwendung kann auch ohne vollständige Nutzereingaben rechnen. Fehlende Werte werden entlang eines kontinuierlichen Eingabespektrums aus Gebäudedaten, Katalogwerten und konfigurierten Standardannahmen ergänzt.",
+      "priorityTitle": "Priorität der Werte – von niedrig nach hoch",
+      "priorityDefault": "Technischer Platzhalter oder festgelegter Standardwert.",
+      "priorityAutomatic": "Automatisch aus LoD2-Geometrie, Baualtersklasse oder anderen Gebäudedaten abgeleiteter Ausgangswert.",
+      "priorityManual": "Ihre eigene Eingabe. Sie hat für das betreffende Feld Vorrang.",
+      "reset": "Beim Zurücksetzen eines Feldes wird Ihre Eingabe entfernt. Die Berechnung verwendet danach wieder den aktuell aufgelösten Ausgangswert aus Gebäudedaten, Katalog oder Standardannahme.",
+      "originTitle": "Bedeutung der Herkunft",
+      "originAutomatic": "Automatisch: direkt übernommen oder rechnerisch aus vorhandenen Gebäudedaten abgeleitet.",
+      "originEstimated": "Geschätzt: anhand von Baualter, Gebäudetyp, Referenztabellen oder Standardannahmen bestimmt.",
+      "originManual": "Manuell: von Ihnen eingetragen und nicht unabhängig durch das Tool geprüft.",
+      "livingAreaExample": "Beispiel Wohnfläche: Liegt keine eigene Angabe vor, leitet der Rechenkern die Wohnfläche aus Grundfläche, Gebäudehöhe beziehungsweise Geschosszahl und konfigurierten Flächenfaktoren ab. Ihre Eingabe ersetzt diesen abgeleiteten Wert."
+    },
+    "model": {
+      "title": "Berechnungsmodell und Referenztabellen",
+      "intro": "Der Berechnungskern ist ein vereinfachtes, deterministisches Gebäudemodell. Gleiche Eingaben und Annahmen führen zum gleichen Ergebnis. Die Berechnung erfolgt im Browser; Infrastruktur oder Datenbank sind für den Rechenweg nicht erforderlich.",
+      "chainTitle": "Vereinfachter Rechenweg",
+      "chainGeometry": "Aus Grundfläche, Höhe und Geschosszahl werden beheiztes Volumen sowie Nutz- und Wohnflächen abgeleitet.",
+      "chainEnvelope": "Für Dach, Außenwand, Fenster sowie obere und untere Geschossdecke werden Flächen, U-Werte und Korrekturfaktoren zu Transmissionswärmeverlusten zusammengeführt.",
+      "chainVentilation": "Lüftungswärmeverluste werden über Volumen, Heizgradtage und festgelegte Lüftungsparameter angesetzt.",
+      "chainHeating": "Raumwärme und Warmwasser werden mit Wirkungs- und Aufwandsfaktoren der Heizungs- und Wärmeverteilungstechnik verknüpft.",
+      "chainTotals": "Daraus entstehen Endenergie, Primärenergie, CO₂-Emissionen, Energieträgermenge, Kosten und Energieeffizienzklasse.",
+      "referencesTitle": "Referenztabellen",
+      "references": "Die Berechnung verwendet Referenztabellen für Baualtersklassen und U-Werte, Heizungsaufwandszahlen, Heizflächenzuschläge, Primärenergiefaktoren, CO₂-Faktoren, Heizwerte und Preismodelle.",
+      "referencesOpen": "Für eine vollständige Quellenangabe muss jeder verwendete Tabellenwert noch eindeutig mit fachlicher Quelle, Ausgabe beziehungsweise Bezugsjahr und Gültigkeitsbereich verknüpft werden. Diese Angaben müssen vor der Veröffentlichung ergänzt werden."
+    },
+    "energy": {
+      "title": "Endenergie- und Primärenergiebedarf",
+      "finalTitle": "Endenergie",
+      "final": "Endenergie bezeichnet hier die Energie, die dem Gebäude als Brennstoff, Wärme oder Strom zugeführt wird. Sie unterscheidet sich vom Heizwärmebedarf der Räume, weil Verluste und Aufwände der Anlagentechnik berücksichtigt werden.",
+      "finalCalculation": "Der Rechenkern bildet den gesamten jährlichen Endenergiebedarf als Summe aus dem thermischen Energieträgerbedarf und dem gesamten Strombedarf. Der Strombedarf umfasst Haushaltsstrom und – je nach Heizsystem – Strom für die Wärmeerzeugung. Der flächenspezifische Wert wird durch die berechnete Nutzfläche geteilt.",
+      "primaryTitle": "Primärenergie",
+      "primary": "Primärenergie berücksichtigt zusätzlich die vorgelagerte Gewinnung, Umwandlung und Bereitstellung des jeweiligen Energieträgers. Deshalb kann derselbe Endenergiebedarf je nach Energieträger zu einem anderen Primärenergiebedarf führen.",
+      "primaryCalculation": "Für Wärme und Strom wird der jeweilige Endenergieanteil mit dem zugehörigen Primärenergiefaktor multipliziert. Beide Anteile werden zum jährlichen Primärenergiebedarf addiert.",
+      "emissionsTitle": "CO₂-Emissionen und Effizienzklasse",
+      "emissions": "Die CO₂-Emissionen werden getrennt für den thermischen Energieträger und für Strom berechnet: Endenergiebedarf in kWh multipliziert mit dem jeweiligen Emissionsfaktor in g CO₂/kWh. Anschließend werden beide Anteile addiert und in Tonnen pro Jahr ausgegeben.",
+      "display": "Die derzeit angezeigte Energiekennzahl in kWh/(m²·Jahr) basiert auf dem gesamten jährlichen energiebedarf je berechneter Nutzfläche. Auch die Energieeffizienzklasse wird aus diesem flächenspezifischen Wert abgeleitet.",
+      "interpretation": "Diese Kennzahlen sind Ergebnisse des beschriebenen Modells. Sie sind weder ein gemessener Verbrauch noch automatisch mit Kennwerten eines normgerechten Energieausweises gleichzusetzen."
+    },
+    "assumptions": {
+      "title": "Energieträger-, Kosten- und Emissionsannahmen",
+      "intro": "Die folgenden Tabellen zeigen die numerischen Faktoren, die der Rechenkern für Energieträger, Strom, Emissionen und Kosten verwendet. Eigene Preisangaben können die aufgeführten Arbeits- und Grundpreise in der persönlichen Berechnung überschreiben.",
+      "carrierTitle": "Thermische Energieträger",
+      "carrierCaption": "Faktoren und Preisannahmen der thermischen Energieträger",
+      "electricityTitle": "Strombezug",
+      "electricityCaption": "Faktoren und Preisannahmen der Stromarten",
+      "columns": {
+        "carrier": "Energieträger",
+        "electricityType": "Stromart",
+        "energyContent": "Energieinhalt",
+        "co2": "Emissionsfaktor",
+        "primaryFactor": "Primärenergiefaktor",
+        "unitRate": "Arbeitspreis",
+        "electricityRate": "Strompreis",
+        "baseRate": "Grundpreis",
+        "source": "Quelle",
+        "date": "Stand"
+      },
+      "electricHeating": "Elektrische Heizsysteme werden über den elektrischen Energieanteil bewertet. Dafür gelten der Emissions- und Primärenergiefaktor der ausgewählten Stromart; sie erscheinen deshalb nicht als zusätzlicher thermischer Energieträger in der ersten Tabelle.",
+      "calculation": "Der Energieträgerverbrauch ergibt sich aus dem thermischen Energiebedarf geteilt durch den Energieinhalt pro Einheit. Kosten ergeben sich aus Verbrauch mal Arbeitspreis zuzüglich Grundpreis. Primärenergie und CO₂ werden direkt aus dem Endenergiebedarf und den jeweiligen Faktoren berechnet.",
+      "sourcesOpen": "Fachliche Quelle, Bezugsjahr, Preisstand und räumlicher Gültigkeitsbereich sind für die einzelnen Faktoren noch nicht vollständig dokumentiert. Diese Angaben müssen vor der Veröffentlichung ergänzt und fachlich freigegeben werden."
+    },
+    "limits": {
+      "title": "Datenqualität und Modellgrenzen",
+      "intro": "Das Ergebnis ist eine Modellschätzung. Abweichungen zum realen Gebäude und zu tatsächlichen Abrechnungen sind insbesondere aus folgenden Gründen zu erwarten:",
+      "geometry": "LoD2 vereinfacht die Gebäudegeometrie; Gebäudeteile, Anbauten, Dachdetails und gemeinsam genutzte Wände können anders erfasst sein als vor Ort.",
+      "condition": "Tatsächliche Materialien, Schichtaufbauten, Wärmebrücken, Luftdichtheit, Feuchte, Schäden und Ausführungsqualität werden ohne eigene Angaben nur typologisch beziehungsweise pauschal berücksichtigt.",
+      "usage": "Raumtemperaturen, Belegung, Lüftungsverhalten, Warmwasserbedarf, Leerstand und Haushaltsstrom können stark vom Modellansatz abweichen.",
+      "weather": "Die Berechnung verwendet konfigurierte Heizgradtage und ist keine gebäudespezifische dynamische Simulation eines konkreten Wetterjahres.",
+      "system": "Wirkungsgrade, Regelung, hydraulischer Abgleich, Leitungsverluste und tatsächlicher Betriebszustand der Heizungsanlage können ohne Vor-Ort-Aufnahme nur vereinfacht abgebildet werden.",
+      "costs": "Arbeits- und Grundpreise sind Annahmen oder Nutzereingaben. Sie sind keine Tarifauskunft, kein Angebot und keine Prognose zukünftiger Preise.",
+      "renewables": "PV-Anlagen und Solarthermie sind derzeit nicht Bestandteil des Rechenwegs. Solarpotenziale werden erst nach fachlicher Datenfreigabe und vollständiger Integration belastbar berücksichtigt.",
+      "inputDepth": "Eigene, verlässliche Gebäude- und Verbrauchsangaben reduzieren die Abhängigkeit von Standardannahmen. Sie beseitigen jedoch nicht die grundsätzlichen Vereinfachungen des Modells.",
+      "conclusion": "Für Energieausweis, Förderantrag, Ausführungsplanung, Kostenentscheidung oder Nachweis gesetzlicher Anforderungen ist eine qualifizierte Energieberatung beziehungsweise Fachplanung erforderlich."
+    }
+  },
+  "footer": "Entwurfsstand der Hinweisseite – offene Metadaten und fachliche Freigaben sind gekennzeichnet."
+}

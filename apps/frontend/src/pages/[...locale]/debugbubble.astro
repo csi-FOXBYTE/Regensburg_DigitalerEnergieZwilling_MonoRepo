@@ -1,0 +1,27 @@
+---
+import DETLayout from '@/components/layouts/DETLayout.astro';
+import FeedbackBubble from '@/components/layouts/FeedbackBubble';
+import ContentContainer from '@/components/layouts/ContentContainer.astro';
+import type { GetStaticPaths } from 'astro';
+import { buildStaticPaths } from '@/i18n/routing';
+
+export const getStaticPaths = (() => {
+  return buildStaticPaths();
+}) satisfies GetStaticPaths;
+---
+
+<DETLayout>
+  <ContentContainer class="py-10">
+    <div style="height: 150vh;">Scroll down to the section below.</div>
+    <div id="next-steps-section" style="height: 60vh; background: #eee;">
+      So geht's weiter (debug placeholder)
+    </div>
+    <div style="height: 150vh;"></div>
+  </ContentContainer>
+  <FeedbackBubble client:load />
+</DETLayout>
+
+<script>
+  import { setStep, Step } from '@/lib/state/ui/progress';
+  setStep(Step.Result);
+</script>

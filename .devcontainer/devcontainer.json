@@ -1,0 +1,19 @@
+{
+  "name": "Regensburg web prototype",
+  "dockerComposeFile": "compose.yml",
+  "service": "dev",
+  "workspaceFolder": "/workspace",
+  "remoteUser": "node",
+  "shutdownAction": "stopCompose",
+  "postCreateCommand": "pnpm install --frozen-lockfile && pnpm prepare:workspace",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "astro-build.astro-vscode",
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "zenstack.zenstack-v3"
+      ]
+    }
+  }
+}

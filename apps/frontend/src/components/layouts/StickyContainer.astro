@@ -1,0 +1,99 @@
+---
+import ContentContainer from './ContentContainer.astro';
+
+interface Props {
+  class?: string;
+  padding?: string;
+  compactWhenStuck?: boolean;
+}
+const {
+  class: className = '',
+  padding = 'pt-4 pb-10',
+  compactWhenStuck = false,
+} = Astro.props;
+const hasCompactVersion = compactWhenStuck && Astro.slots.has('compact');
+const pbMatch =
+  padding.match(/\bpb-(\d+(?:\.\d+)?)\b/) ??
+  padding.match(/\bpy-(\d+(?:\.\d+)?)\b/);
+const paddingRem = pbMatch ? `${parseFloat(pbMatch[1]) * 0.25}rem` : '1.5rem';
+---
+
+{
+  hasCompactVersion && (
+    <div
+      data-compact-sticky
+      data-stuck="false"
+      class="pointer-events-none sticky top-0 z-40 hidden h-0 md:block"
+    >
+      <div
+        data-sticky-container
+        style="--sticky-padding: 1.5rem"
+        class="sticky-fade bg-background pointer-events-none invisible pt-2 pb-6 opacity-0 transition-opacity duration-200 data-[stuck=true]:pointer-events-auto data-[stuck=true]:visible data-[stuck=true]:opacity-100 motion-reduce:transition-none"
+      >
+        <ContentContainer>
+          <slot name="compact" />
+        </ContentContainer>
+      </div>
+    </div>
+  )
+}
+<div
+  data-sticky-container
+  style={`--sticky-padding: ${paddingRem}`}
+  class={`sticky-fade bg-background w-full ${hasCompactVersion ? '' : 'md:sticky top-0 z-40'} ${padding} ${className}`}
+>
+  <ContentContainer>
+    <slot />
+  </ContentContainer>
+</div>
+{
+  hasCompactVersion && (
+    <div class="sticky-sentinel" data-sticky-sentinel aria-hidden="true" />
+  )
+}
+
+<style>
+  .sticky-sentinel {
+    height: 1px;
+    margin-top: -1px;
+    pointer-events: none;
+  }
+
+  .sticky-fade {
+    mask-image: linear-gradient(
+      to bottom,
+      black,
+      black calc(100% - var(--sticky-padding)),
+      transparent
+    );
+  }
+</style>
+
+<script>
+  const observer = new IntersectionObserver((entries) => {
+    for (const entry of entries) {
+      const sentinel = entry.target as HTMLElement;
+      const fullVersion = sentinel.previousElementSibling as HTMLElement | null;
+      const compactVersion =
+        fullVersion?.previousElementSibling as HTMLElement | null;
+
+      if (!compactVersion?.matches('[data-compact-sticky]')) continue;
+
+      const isVisible = fullVersion?.offsetParent !== null;
+      compactVersion.firstElementChild?.setAttribute(
+        'data-stuck',
+        String(
+          isVisible &&
+            !entry.isIntersecting &&
+            entry.boundingClientRect.bottom <= 0,
+        ),
+      );
+    }
+  });
+
+  document
+    .querySelectorAll<HTMLElement>('[data-sticky-sentinel]')
+    .forEach((sentinel) => {
+      observer.observe(sentinel);
+    });
+</script>

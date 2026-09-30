@@ -1,0 +1,565 @@
+{
+  "scrollToTop": "Scroll to top",
+  "common": {
+    "resetTooltip": "Resets this value to the automatically derived initial value"
+  },
+  "stats": {
+    "energyDemand": "Energy Demand",
+    "energyEfficiency": "Energy Efficiency",
+    "annualCosts": "Annual Costs",
+    "co2Emissions": "CO₂ Emissions",
+    "beforeRenovation": "Before Renovation",
+    "afterRenovation": "After Renovation",
+    "energyEfficiencyValue": "Class {{value}}",
+    "energyDemandBreakdown": {
+      "carrierHeating": "Heating energy ({{carrier}})",
+      "electricalHeating": "Heating energy (electrical)",
+      "householdElectricity": "Household electricity",
+      "details": "More",
+      "less": "Less",
+      "expand": "Show energy demand breakdown",
+      "collapse": "Hide energy demand breakdown"
+    },
+    "energyDemandLow": "Low energy consumption",
+    "energyDemandModerate": "Moderate energy consumption",
+    "energyDemandHigh": "High energy consumption",
+    "energyDemandVeryHigh": "Very high energy consumption",
+    "efficiencyVeryGood": "Very good efficiency",
+    "efficiencyGood": "Good efficiency",
+    "efficiencySatisfactory": "Satisfactory efficiency",
+    "efficiencyPoor": "Poor efficiency",
+    "efficiencyVeryPoor": "Very poor efficiency",
+    "co2Low": "Low climate impact",
+    "co2Moderate": "Moderate climate impact",
+    "co2Elevated": "Elevated climate impact",
+    "co2High": "High climate impact"
+  },
+  "generalData": {
+    "title": "General Data About Your Building",
+    "dataSourceRemark": "All information about the building was automatically derived from official 3D building data and topologies. You can check any information and adjust it if necessary.",
+    "statsRemark": "These values update automatically when the building data changes",
+    "fields": {
+      "buildingType": "Is the building a single-family or multi-family house?",
+      "numberOfFloors": "How many floors (excluding basement and attic) does your building have?",
+      "livingArea": "What is your living area?",
+      "hasBasement": "Does your building have a basement?",
+      "constructionYear": "When was your Building built?"
+    },
+    "buildingType": {
+      "singleFamily": "Single-family house",
+      "multiFamily": "Multi-family house"
+    },
+    "tooltips": {
+      "constructionYear": "Enter the original year of construction of the building. Major renovations can be added later. Older buildings are often less well insulated and consume more heating energy.",
+      "buildingType": "Different assumptions are made for single-family and multi-family houses in the calculation, for example regarding floor usage and energy demand.",
+      "numberOfFloors": "Count only floors excluding the basement and unfinished attic spaces. A house with a ground floor and an upper floor has, for example, 2 floors.",
+      "livingArea": "The living area is the heated floor area of your building."
+    },
+    "errors": {
+      "livingAreaMustBePositive": "The living area must be greater than 0."
+    }
+  },
+  "outerParts": {
+    "title": "Building Envelope",
+    "sectionNavigationLabel": "Building envelope sections",
+    "insulation": "Insulation",
+    "roof": {
+      "roof": "Roof",
+      "area": "How large is your roof area?",
+      "constructionType": "What type of roof does your building have?",
+      "hasAttic": "Does your building have an attic?",
+      "hasInsulation": "Is your roof insulated?",
+      "insulationThickness": "How thick is the insulation?",
+      "insulationType": "How is your roof insulated?",
+      "insulationTypes": {
+        "betweenRafter": "Between rafter",
+        "aboveRafter": "Above rafter"
+      },
+      "isAtticHeated": "Is the attic heated?",
+      "year": "When was your roof built or last renovated?",
+      "tooltips": {
+        "year": "Enter the year the roof was built or last renovated. Older roofs are often poorly insulated and lose more heat to the outside.",
+        "area": "Enter the total area of your roof, excluding window areas. The larger the area, the more important good insulation is.",
+        "constructionTypeTitle": "Roof Types",
+        "constructionTypeContent": "A flat roof is nearly level or only slightly sloped. A pitched roof has a clearly visible slope, e.g. a gable or hip roof. The roof type affects both the roof area and the heat loss of a building: flat roofs (typically solid construction) have a smaller area than pitched roofs (typically timber construction) for the same floor area, and thus different energy properties.",
+        "constructionTypeGabledRoof": "Pitched roof",
+        "constructionTypeFlatRoof": "Flat roof",
+        "hasAttic": "Indicate whether your building has an accessible attic space. An existing attic influences the insulation of the top floor ceiling and thus the heat loss through the top of the building.",
+        "isAtticHeated": "Indicate whether the space directly below the roof (attic) is heated.",
+        "hasInsulation": "Existing insulation significantly reduces heat loss. Without insulation, up to 30% of heating energy is lost through the roof.",
+        "insulationThickness": "A thicker insulation layer increases the building's energy efficiency. Depending on the age of the insulation, between 6 cm and 20 cm is common.",
+        "insulationTypeTitle": "Roof Insulation Type",
+        "insulationTypeContent": "With above-rafter insulation, the insulation is fitted above the roof rafters. It provides the best thermal protection as no thermal bridges are created by the rafters. With between-rafter insulation, the insulation material is placed between the rafters. This option is more cost-effective but provides slightly less protection due to the rafters acting as thermal bridges."
+      },
+      "info": {
+        "title": "Roof",
+        "description": "The roof closes off the building at the top and borders the outside air. The component is highlighted in red in the graphic.",
+        "imageAlt": "Schematic building with the roof highlighted in red"
+      }
+    },
+    "roofWindows": {
+      "roofWindows": "Roof Windows",
+      "area": "What is the total area of your roof windows?",
+      "windowType": "What type of roof windows are installed?",
+      "uValue": "Do you know the U-value of your roof windows?",
+      "year": "When were your roof windows installed or last replaced?",
+      "tooltips": {
+        "year": "Older roof windows lose more heat than newer ones.",
+        "area": "Enter the total area of all roof windows. The total area of all roof windows affects heat loss.",
+        "windowType": "Wood and plastic frames provide good insulation. Aluminium and steel frames conduct cold more strongly and are less energy-efficient.",
+        "uValue": "The U-value indicates how much heat can be lost through a component to the surroundings. Lower values mean better insulation. Old single-pane windows have approximately 5.0 W/m²K. Modern triple-glazed windows are around 0.7 W/m²K. You can find the U-value in your window documentation or on the type plate."
+      },
+      "errors": {
+        "areaExceedsRoofArea": "The roof-window area must not be greater than the roof area."
+      },
+      "info": {
+        "title": "Roof windows",
+        "description": "Roof windows are windows installed in the roof surface. This does not include windows in exterior walls, e.g. in a gable. The components are highlighted in red in the graphic.",
+        "imageAlt": "Schematic building with the roof windows highlighted in red"
+      }
+    },
+    "topFloor": {
+      "topFloor": "Top Floor Ceiling",
+      "year": "When was your top floor ceiling built or last renovated?",
+      "area": "What is the area of your top floor ceiling?",
+      "type": "What is the construction type of your top floor ceiling?",
+      "hasInsulation": "Is your top floor ceiling insulated?",
+      "insulationThickness": "How thick is the insulation?",
+      "tooltips": {
+        "year": "Enter the year the ceiling was built or last renovated. The construction year of the ceiling between the living area and the attic helps assess insulation quality. Older ceilings are often uninsulated.",
+        "area": "Enter the area of the ceiling between the living area and the attic in m². The area of the ceiling to the attic determines how much heat can escape from your home into the (usually unheated) attic.",
+        "type": "The construction type of the ceiling affects the thermal insulation and heat storage capacity of the building. Solid ceiling: e.g. concrete or brick. Timber beam ceiling: construction of wooden beams, common in older buildings.",
+        "hasInsulation": "Insulating the ceiling below the attic prevents heat from escaping upwards from your home. This can save up to 15% in heating costs.",
+        "insulationThickness": "A thicker insulation layer increases the building's energy efficiency. Depending on the age of the insulation, between 10 cm and 24 cm is common."
+      },
+      "errors": {
+        "areaExceedsRoofArea": "The top-floor ceiling area must not be greater than the roof area."
+      },
+      "info": {
+        "title": "Top floor ceiling",
+        "description": "The top floor ceiling separates the heated living space from the unheated attic. The component is highlighted in red in the graphic.",
+        "imageAlt": "Schematic building with the top floor ceiling highlighted in red"
+      }
+    },
+    "outerWall": {
+      "outerWall": "Outer Wall",
+      "year": "When was your outer wall built or last renovated?",
+      "area": "What is the total area of your heated, free-standing exterior walls?",
+      "constructionType": "What is the construction type of your outer wall?",
+      "hasInsulation": "Is your outer wall insulated?",
+      "insulationThickness": "How thick is the insulation?",
+      "adjacentWallArea": "What is the wall area adjacent to neighbouring buildings?",
+      "tooltips": {
+        "year": "Enter the year the wall was built or last major facade renovation. Older walls without insulation lose a lot of heat to the outside.",
+        "area": "Enter the free-standing wall area of all heated above-ground floors, including window areas. Walls shared with neighbouring buildings are not included. Include attic walls only if the attic is heated. A manual entry replaces the estimated area.",
+        "constructionType": "Solid walls (e.g. brick or concrete) store heat well.",
+        "hasInsulation": "Up to 40% of heating energy is lost through uninsulated outer walls. Insulation significantly reduces heating costs.",
+        "adjacentWallArea": "This is the wall area directly adjoining neighbouring buildings, including the walls of an unheated attic. These areas have already been deducted from the automatically estimated exterior wall area. Manually changing this value currently does not affect the calculation.",
+        "insulationThickness": "A thicker insulation layer increases the building's energy efficiency. Depending on the age of the insulation, between 4 cm and 14 cm is common."
+      },
+      "errors": {
+        "adjacentAreaExceedsWallArea": "The adjacent wall area must not be greater than the building's total wall area, including attic walls."
+      },
+      "info": {
+        "title": "Exterior wall",
+        "description": "The exterior walls enclose the heated area of the building and border the outside air. The components are highlighted in red in the graphic.",
+        "imageAlt": "Schematic building with the exterior walls highlighted in red"
+      }
+    },
+    "windows": {
+      "windows": "Windows",
+      "area": "What is the total area of your windows?",
+      "windowType": "What type of windows are installed?",
+      "uValue": "Do you know the U-value of your windows?",
+      "year": "When were your windows installed or last replaced?",
+      "tooltips": {
+        "year": "This refers to whether the windows were replaced with better-insulated ones or improved in terms of glazing, frame or connection. Pure repairs, new paint or replacing individual fittings do not count.",
+        "area": "Enter the total area of all windows. The total area of all windows affects heat loss through the building envelope.",
+        "windowType": "Wood and plastic frames provide good insulation. Aluminium and steel frames conduct cold more strongly and are less energy-efficient.",
+        "uValue": "The U-value indicates how much heat can be lost through a component to the surroundings. Lower values mean better insulation. Old single-pane windows have approximately 5.0 W/m²K. Modern triple-glazed windows are around 0.7 W/m²K. You can find the U-value in your window documentation or on the type plate."
+      },
+      "errors": {
+        "areaExceedsAvailableWallArea": "The window area must not be greater than the wall area enclosing the heated floors."
+      },
+      "info": {
+        "title": "Windows",
+        "description": "Windows include all glazed surfaces as well as exterior doors in the exterior walls. This does not include windows in the roof surface. The components are highlighted in red in the graphic.",
+        "imageAlt": "Schematic building with the windows and exterior door highlighted in red"
+      }
+    },
+    "bottomFloor": {
+      "bottomFloor": "Bottom Floor Ceiling",
+      "tooltips": {
+        "hasBasement": "Indicate whether your building has a basement. A basement below the living areas affects thermal insulation and thus your energy demand, especially if it is unheated.",
+        "isBasementHeated": "With an unheated basement, insulating the basement ceiling is particularly worthwhile to prevent cold from rising into the living areas.",
+        "area": {
+          "default": "Enter the area of the basement ceiling. The area affects how much heat can be lost through the lower building boundary.",
+          "heated": "Enter the area of the basement floor. The area affects how much heat can be lost through the lower building boundary.",
+          "noBasement": "Enter the area of the ground floor. The area affects how much heat can be lost through the lower building boundary."
+        },
+        "year": {
+          "default": "Enter the year the basement ceiling was built or last renovated. Older, uninsulated basement ceilings allow cold to rise into the living areas.",
+          "heated": "Enter the year the basement floor was built or last renovated. Older, uninsulated basement floors allow cold to rise into the living areas.",
+          "noBasement": "Enter the year the floor was built or last renovated. Older, uninsulated floors allow cold to rise into the living areas."
+        },
+        "constructionType": {
+          "default": "Solid concrete ceilings can be well insulated and store heat better. Timber beam ceilings have poorer insulation properties.",
+          "heated": "Solid concrete floors can be well insulated and store heat better. Timber beam floors have poorer insulation properties.",
+          "noBasement": "Solid concrete floors can be well insulated and store heat better. Timber beam floors have poorer insulation properties."
+        },
+        "hasInsulation": {
+          "default": "Insulating the basement ceiling helps retain heat in the building. This keeps floors warmer and can reduce heating costs.",
+          "heated": "Insulating the basement floor helps retain heat in the building. This keeps floors warmer and can reduce heating costs.",
+          "noBasement": "Insulating the floor helps retain heat in the building. This keeps floors warmer and can reduce heating costs."
+        },
+        "insulationThickness": "A thicker insulation layer increases the building's energy efficiency. Depending on the age of the insulation, between 4 cm and 12 cm is common."
+      },
+      "area": {
+        "default": "What is the area of your basement ceiling?",
+        "heated": "What is the area of your basement floor?",
+        "noBasement": "What is the area of your ground floor?"
+      },
+      "year": {
+        "default": "When was your basement ceiling built or last renovated?",
+        "heated": "When was your basement floor built or last renovated?",
+        "noBasement": "When was your floor built or last renovated?"
+      },
+      "hasBasement": "Does your building have a basement?",
+      "isBasementHeated": "Is your basement heated?",
+      "constructionType": {
+        "default": "What is the construction type of your basement ceiling?",
+        "heated": "What is the construction type of your basement floor?",
+        "noBasement": "What is the construction type of your floor?"
+      },
+      "hasInsulation": {
+        "default": "Is your basement ceiling insulated?",
+        "heated": "Is your basement floor insulated?",
+        "noBasement": "Is your floor insulated?"
+      },
+      "insulationThickness": "What is the thickness of the current insulation?",
+      "info": {
+        "title": "Bottom floor ceiling",
+        "description": {
+          "default": "With an unheated basement, the basement ceiling forms the lower boundary of the heated area. The component is highlighted in red in the graphic.",
+          "heated": "With a heated basement, the basement floor forms the lower boundary of the heated area and borders the ground. The component is highlighted in red in the graphic.",
+          "noBasement": "In a building without a basement, the ground floor slab forms the lower boundary of the heated area and borders the ground. The component is highlighted in red in the graphic."
+        },
+        "imageAlt": {
+          "default": "Schematic building with the basement ceiling above the unheated basement highlighted in red",
+          "heated": "Schematic building with the basement floor of the heated basement highlighted in red",
+          "noBasement": "Schematic building without a basement with the ground floor slab highlighted in red"
+        }
+      }
+    }
+  },
+  "heat": {
+    "title": "Heat Supply",
+    "supply": {
+      "title": "Supply",
+      "hasGasSupply": "Does your building have a gas connection?",
+      "hasStorage": "Can fuels such as oil or pellets be stored at your property?",
+      "tooltips": {
+        "hasGasSupply": "A gas connection enables the use of gas-powered heating systems.",
+        "hasStorage": "Sufficient storage space is required for oil or pellet heating systems."
+      }
+    },
+    "heating": {
+      "title": "Heating",
+      "constructionYear": "When was your heating system installed or last renovated?",
+      "primaryEnergyCarrier": "What energy carrier do you use for heating?",
+      "heatingSystemType": "What type of heating system do you use?",
+      "heatingSurfaceType": "How is heat distributed in the room?",
+      "tooltips": {
+        "constructionYear": "Enter the year your current heating system was installed. Older systems often work less efficiently and consume more energy.",
+        "primaryEnergyCarrier": "Select the fuel for your heating system, for example natural gas, heating oil or electricity for a heat pump.",
+        "heatingSystemType": "This refers to the device that generates the heat, e.g. a condensing boiler or a heat pump. More modern devices generally consume less energy.",
+        "heatingSurfaceType": "Radiators are the classic wall-mounted heaters. A surface heating system distributes heat through the floor, wall or ceiling and works particularly efficiently at low temperatures."
+      }
+    },
+    "bills": {
+      "title": "Costs",
+      "consumption": "What is your annual energy consumption?",
+      "unitRate": "What is your unit rate?",
+      "baseRate": "What is your annual base price?",
+      "tooltips": {
+        "consumption": "Enter the total heating costs you incur per year. These usually include the base price and consumption costs. You can find this value on your most recent annual bill.",
+        "unitRate": "The unit rate indicates how much you pay per unit of energy consumed (e.g. €/kWh, €/L or €/kg). You can find it on your annual bill or in your energy supply contract.",
+        "baseRate": "The base price is the fixed amount you pay regardless of your actual energy consumption. You can find it on your annual bill or in your energy supply contract."
+      },
+      "errors": {
+        "baseRateExceedsTotal": "The annual base price cannot be higher than your annual heating costs.",
+        "unitRateMustBePositive": "The unit rate must be greater than 0 when annual heating costs are provided."
+      }
+    }
+  },
+  "electricity": {
+    "title": "Electricity and Renewable Energy",
+    "electricity": "Electricity",
+    "type": "What type of electricity do you use?",
+    "consumption": "What is your annual electricity consumption?",
+    "unitRate": "What is your electricity price?",
+    "baseRate": "How much is the base rate of your electricity cost?",
+    "tooltips": {
+      "type": "Mixed electricity contains power from various sources, including fossil fuels. Renewable electricity comes from wind, sun or water and has a significantly better CO₂ footprint.",
+      "consumption": "Enter your annual electricity consumption in kWh. You can find this value on your annual bill. An average household uses approximately 2,500–4,000 kWh per year.",
+      "unitRate": "The price you pay per kilowatt hour (kWh) of electricity. You can find this value on your electricity bill. The average price is around 30–40 cents per kWh.",
+      "baseRate": "The base rate is the fixed amount you pay regardless of your actual energy consumption. You can find it on your annual bill or in your energy supply contract."
+    }
+  },
+  "renovation": {
+    "title": "Renovation Measures",
+    "subtitle": "Select the measures you want to compare:",
+    "insulation": {
+      "title": "Insulation",
+      "roof": "Roof insulation",
+      "topFloor": "Top floor ceiling",
+      "bottomFloor": "Basement ceiling",
+      "outerWalls": "Outer wall insulation",
+      "outerWindows": "Window replacement (outer wall)",
+      "roofWindows": "Window replacement (roof windows)"
+    },
+    "heating": {
+      "title": "Heating",
+      "renewal": "Heating System Renewal"
+    },
+    "heatingSurface": {
+      "title": "Heating Surfaces"
+    },
+    "table": {
+      "measure": "Measure",
+      "energyPotential": "Energy Potential",
+      "savings": "Savings Potential",
+      "sortBy": "Sort by {{column}}",
+      "selection": "Selection",
+      "total": "Total",
+      "noMeasure": "No Measure"
+    },
+    "recommended": "Recommended",
+    "selectRecommended": "Select recommended measures",
+    "summary": {
+      "trigger": "Show selection",
+      "title": "Selected Renovation Measures",
+      "description": "Your selection from step 6.",
+      "hint": "You can change the selection in the previous step.",
+      "noMeasure": "No measure selected"
+    },
+    "tooltips": {
+      "envelope_roof": "Roof insulation significantly reduces heat loss through the roof and improves summer heat protection. The measure is especially effective in converted loft spaces. The calculation only applies when the loft is heated.",
+      "envelope_topFloor": "A lot of heat is often lost through the top floor ceiling. Insulating this surface is one of the simplest and most cost-effective renovation measures. The calculation only applies when the loft is unheated.",
+      "envelope_bottomFloor": "An uninsulated basement ceiling can lead to cold floors and heat loss. The insulation is comparatively inexpensive and can usually be installed with little effort.",
+      "envelope_outerWalls": "Outer walls make up a large part of the building envelope. Insulation significantly reduces heat loss and improves living comfort.",
+      "envelope_outerWindows": "Older windows often cause high heat loss and draughts. Modern energy-efficient windows with multiple glazing significantly improve energy efficiency and living comfort.",
+      "envelope_roofWindows": "Older roof windows often have high heat losses. Modern roof windows with thermal glazing reduce draughts and improve living comfort in the loft. The calculation only applies when the loft is heated.",
+      "heat_renew": "The existing heating system is replaced with a more modern and efficient system of the same type. This can reduce energy consumption and heating costs.",
+      "heat_none_air_source_heat_pump_lt_40": "An air source heat pump uses outdoor air for heating. It works especially efficiently in well-insulated buildings and reduces the need for fossil fuels.",
+      "heat_none_ground_source_heat_pump_lt_40": "A ground source heat pump uses heat from the ground. It works very efficiently but requires sufficient space and is associated with higher investment costs.",
+      "heat_wood_pellets_standard_boiler_70_55": "Wood pellets are a renewable fuel made from compressed wood waste. A pellet boiler burns them efficiently and offers a more sustainable alternative to fossil-fuel systems.",
+      "heat_natural_gas_improved_condensing_boiler_55_45": "A modern condensing gas boiler recovers heat from the exhaust gas and therefore achieves significantly higher efficiency than conventional gas heating systems.",
+      "heat_bio_gas_improved_condensing_boiler_55_45": "Biogas is produced from organic materials and is a renewable alternative to fossil natural gas. A biogas boiler significantly reduces the CO₂ footprint of your heating.",
+      "heat_district_heating_district_heating_all_temperatures": "District heating supplies the building with heat energy via the existing municipal heat network. A separate heating system in the building is usually no longer required. If a connection is possible, the building can be supplied via the district heating network.",
+      "surface_radiant_surface_heating": "Instead of individual radiators, a surface heating system warms the floor, wall or ceiling in living spaces more evenly. This allows the heating to often work with lower temperatures and usually consume less energy.",
+      "noMeasureHeating": "The existing heating system remains unchanged."
+    }
+  },
+  "subsidy": {
+    "sectionTitle": "Funding Programmes",
+    "disclaimer": "The funding programmes shown are sample data and make no claim to completeness or currentness.",
+    "benefitUpTo": "Up to",
+    "benefitMax": "max.",
+    "financingLoan": "Loan",
+    "financingGrant": "Grant",
+    "moreInfo": "Show more",
+    "expandDetails": "Show details for {{title}}",
+    "collapseDetails": "Hide details for {{title}}",
+    "loadError": "The funding programmes could not be loaded. Please reload the page."
+  },
+  "result": {
+    "title": "Your Results at a Glance",
+    "energyEfficiencyClass": "Energy Efficiency Class",
+    "energyClassImprovement": "Your building improves from class <bold>{{from}}</bold> to class <bold>{{to}}</bold>.",
+    "energyClassUnchanged": "Your building has energy class <bold>{{class}}</bold>.",
+    "classTooltip": "Class {{cls}}: {{range}}",
+    "classTooltipAfterRenovation": "Class {{cls}}: {{range}} (After Renovation)",
+    "classTooltipCurrentState": "Class {{cls}}: {{range}} (Your Current State)"
+  },
+  "export": {
+    "consentTitle": "Help $t(municipality:name) with Heat Planning",
+    "consentDescription": "If you consent, only the data technically required for the building data donation and heat planning will be transmitted to the $t(municipality:administration.genericName). This includes, in particular, the full building address, building coordinates, building ID, and the approved input and calculation results. Because the data relates to a specific building, it is not anonymous. Registration or the provision of names and contact details is not required.\n\nSubmission is linked to downloading the PDF report and takes place when you request the report. The report also contains a randomly generated deletion link that lets you delete the submitted data after a confirmation dialog.",
+    "consentLabel": "Yes, I would like to voluntarily provide the technically required building, input, and calculation data and contribute to climate protection in $t(municipality:name).",
+    "privacyNote": "Data protection in accordance with GDPR Art. 6(1)(a): Your consent is voluntary and can be withdrawn at any time. The transmitted data includes the full building address and building coordinates; no name, user account, or contact details are required.",
+    "downloadTitle": "Download PDF Report",
+    "downloadIntro": "Download your results as a convenient PDF summary. It includes:",
+    "downloadItems": {
+      "recoveryLink": "A recovery link to your building configuration",
+      "dataDonation": "If you have shared your building data with the $t(municipality:administration.name): the dataset reduced to the submitted scope as a machine-readable file (JSON), plus your deletion link",
+      "buildingData": "Your building's existing data",
+      "scenario": "Your selected renovation scenario",
+      "nextSteps": "Tips for next steps",
+      "subsidyLinks": "Links to funding programmes"
+    },
+    "downloadButton": "Download PDF Report",
+    "reportTitle": "Energy Report",
+    "documentTitle": "Your Renovation Proposal",
+    "documentSubtitle": "Energy Renovation – Digital Energy Twin",
+    "building": "Building",
+    "reportDate": "Report Date",
+    "pageOf": "Page {{page}} of {{total}}",
+    "inputSummaryTitle": "Your Building Data",
+    "sectionGeneral": "General Data",
+    "sectionOuterParts": "Building Envelope",
+    "heatBillsTitle": "Costs and Consumption",
+    "labels": {
+      "general": {
+        "constructionYear": "Year of Construction",
+        "buildingType": "Building Type",
+        "numberOfFloors": "Floors",
+        "livingArea": "Living Area"
+      },
+      "roof": {
+        "year": "Last Major Renovation",
+        "area": "Roof Area",
+        "constructionType": "Construction Type",
+        "hasAttic": "Attic Present",
+        "isAtticHeated": "Attic Heated",
+        "hasInsulation": "Additional Insulation Present",
+        "insulationThickness": "Insulation Thickness",
+        "insulationType": "Insulation Type"
+      },
+      "topFloor": {
+        "year": "Last Major Renovation",
+        "area": "Ceiling Area",
+        "type": "Construction Type",
+        "hasInsulation": "Additional Insulation Present",
+        "insulationThickness": "Insulation Thickness"
+      },
+      "roofWindows": {
+        "year": "Last Major Renovation",
+        "area": "Roof Window Area",
+        "windowType": "Window Type",
+        "uValue": "U-Value"
+      },
+      "outerWall": {
+        "year": "Last Major Renovation",
+        "area": "Wall Area",
+        "adjacentWallArea": "Adjacent Wall Area",
+        "constructionType": "Construction Type",
+        "hasInsulation": "Additional Insulation Present",
+        "insulationThickness": "Insulation Thickness"
+      },
+      "windows": {
+        "year": "Last Major Renovation",
+        "area": "Window Area",
+        "windowType": "Window Type",
+        "uValue": "U-Value"
+      },
+      "bottomFloor": {
+        "hasBasement": "Basement Present",
+        "isBasementHeated": "Basement Heated",
+        "constructionType": "Construction Type",
+        "hasInsulation": "Additional Insulation Present",
+        "insulationThickness": "Insulation Thickness",
+        "year": {
+          "default": "Basement Ceiling – Last Major Renovation",
+          "heated": "Basement Floor – Last Major Renovation",
+          "noBasement": "Floor – Last Major Renovation"
+        },
+        "area": {
+          "default": "Basement Ceiling Area",
+          "heated": "Basement Floor Area",
+          "noBasement": "Floor Area"
+        }
+      },
+      "heat": {
+        "hasGasSupply": "Gas Connection",
+        "hasStorage": "Fuel Storage Present",
+        "hasGeothermalAvailability": "Geothermal Energy Available",
+        "constructionYear": "Heating System Year",
+        "primaryEnergyCarrier": "Energy Carrier",
+        "heatingSystemType": "Heating System Type",
+        "heatingSurfaceType": "Heat Distribution",
+        "heatingDemand": "Heating Demand",
+        "carrierDemand": "Fuel Demand",
+        "totalCost": "Annual Heating Costs",
+        "unitRate": "Unit Rate",
+        "baseRate": "Base Rate"
+      },
+      "electricity": {
+        "type": "Electricity Type",
+        "consumption": "Annual Consumption",
+        "unitRate": "Unit Rate",
+        "baseRate": "Base Rate",
+        "totalDemand": "Total Electrical Demand",
+        "householdDemand": "Household Electricity",
+        "heatingDemand": "Heating Electricity",
+        "householdCost": "Household Electricity Cost"
+      }
+    },
+    "sectionEnergyEfficiency": "Energy Efficiency Analysis Summary",
+    "renovationScenariosTitle": "Renovation Scenarios",
+    "energySavings": "Energy savings",
+    "costSavings": "Cost savings",
+    "columnYear": "Year",
+    "columnMonth": "Month",
+    "savingsYear": "Year Savings",
+    "savingsMonth": "Month Savings",
+    "categoryInsulation": "Insulation",
+    "categoryHeating": "Heating",
+    "categoryHeatingSurface": "Heating Surface",
+    "categoryLabel": "Category",
+    "subsidyColumnTitle": "Title",
+    "subsidyColumnLink": "Link",
+    "submissionSuccess": "Data was submitted successfully.",
+    "submissionError": "Data could not be submitted. The PDF report will be downloaded anyway.",
+    "downloadError": "The PDF report could not be generated. Please try again.",
+    "recoveryLinkError": "The portable recovery link could not be created. Please try downloading the report again.",
+    "dataLinksTitle": "Your Data Management",
+    "recoveryLinkLabel": "Recovery link – reload your building data in the app",
+    "recoveryLinkText": "Restore session",
+    "deletionLinkLabel": "Deletion link – delete your submitted data from the $t(municipality:dataSubmission.server)",
+    "deletionLinkText": "Delete submitted data",
+    "jsonLinkLabel": "JSON download – download raw data for own submission",
+    "jsonLinkText": "Download JSON file",
+    "informationLinksTitle": "Data protection and calculation information",
+    "methodologyLinkText": "Information about the data basis and calculation",
+    "privacyLinkText": "Privacy notice"
+  },
+  "nextSteps": {
+    "sectionTitle": "What's Next",
+    "step1": {
+      "title": "Get an Energy Consultation",
+      "description": "Use this report as the basis for a professional energy consultation. The consultation is subsidised by up to 80% of the costs (max. €1,300 for single- and two-family homes)."
+    },
+    "step2": {
+      "title": "Apply for Funding",
+      "description": "Submit funding applications before starting the measures. The energy consultant will help you select the right programmes and complete the application correctly."
+    },
+    "step3": {
+      "title": "Compare Quotes",
+      "description": "Obtain at least three quotes from qualified specialist contractors. Pay attention to references, warranties and compliance with funding requirements."
+    },
+    "step4": {
+      "title": "Carry Out Renovation",
+      "description": "Plan the order of measures carefully – ideally starting with the building envelope, then the technical systems. This ensures the new heating system is optimally sized."
+    }
+  },
+  "buildingData": {
+    "trigger": "Show building data",
+    "title": "Building data",
+    "description": "Your details on the building's current state from steps 1 to 5.",
+    "hint": "This overview shows the values the calculation currently uses. You can change them in the corresponding step.",
+    "labels": {
+      "street": "Street and house number",
+      "city": "Postcode and city"
+    }
+  },
+  "booleanLabels": {
+    "insulated": "Insulated",
+    "notInsulated": "Not insulated",
+    "heated": "Heated",
+    "notHeated": "Not heated"
+  },
+  "continueButton": "Continue",
+  "backButton": "Back",
+  "resultsButton": "Show Results",
+  "backFromResults": "Back to Measures Selection"
+}

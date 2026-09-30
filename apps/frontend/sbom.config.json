@@ -1,0 +1,67 @@
+{
+  "description": "Static Astro and React public frontend for the Regensburg digital energy twin.",
+  "buildDependencies": [
+    "@astrojs/react",
+    "@tailwindcss/vite",
+    "astro",
+    "tailwindcss",
+    "tw-animate-css",
+    "vite-plugin-cesium"
+  ],
+  "additionalComponents": [
+    {
+      "name": "node",
+      "version": "24.21.0-bookworm-slim",
+      "type": "container",
+      "bom-ref": "node:24.21.0-bookworm-slim",
+      "scope": "required",
+      "ecosystem": "build toolchain",
+      "relationship": "referenced build/runtime software",
+      "metadataSource": "Dockerfile / root package.json",
+      "notes": "Release image SBOM attestations additionally inventory final OS packages.",
+      "licenses": [
+        {
+          "license": {
+            "name": "NOASSERTION"
+          }
+        }
+      ]
+    },
+    {
+      "name": "pnpm",
+      "version": "11.22.0",
+      "type": "application",
+      "bom-ref": "pnpm:11.22.0",
+      "scope": "required",
+      "ecosystem": "build toolchain",
+      "relationship": "referenced build/runtime software",
+      "metadataSource": "Dockerfile / root package.json",
+      "notes": "Release image SBOM attestations additionally inventory final OS packages.",
+      "licenses": [
+        {
+          "license": {
+            "name": "NOASSERTION"
+          }
+        }
+      ]
+    },
+    {
+      "name": "nginx",
+      "version": "1.30.4-alpine",
+      "type": "container",
+      "bom-ref": "nginx:1.30.4-alpine",
+      "scope": "required",
+      "ecosystem": "build toolchain",
+      "relationship": "referenced build/runtime software",
+      "metadataSource": "Dockerfile / root package.json",
+      "notes": "Release image SBOM attestations additionally inventory final OS packages.",
+      "licenses": [
+        {
+          "license": {
+            "name": "NOASSERTION"
+          }
+        }
+      ]
+    }
+  ]
+}

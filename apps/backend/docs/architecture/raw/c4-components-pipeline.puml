@@ -1,0 +1,55 @@
+@startuml
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+HIDE_STEREOTYPE()
+
+title Digitaler Energie Zwilling (DEZ) - C4-Komponentendiagramm (Offline-Datenpipeline)
+
+System_Boundary(civitas, "CIVITAS/CORE-Plattform") {
+  Container_Boundary(pipelineAddon, "offline-data-pipeline_addon", "Airflow + Batch-Verarbeitung") {
+    Component(airflow, "Airflow-DAG-Orchestrierung", "Apache Airflow", "Orchestriert die Aufgaben der DEZ-Offline-Datenpipeline")
+    Component(extract, "Extraktions-Container", "Batch-Container", "Lädt Eingabe-ZIP-Artefakte vom externen Datendienst herunter und entpackt sie")
+    Component(convert, "Konvertierungs-Container", "citygml-tools", "Konvertiert CityGML in CityJSON")
+    Component(enrich, "Anreicherungs-Container", "GDAL + benutzerdefinierte Erweiterungen", "Reichert CityJSON mit Solar- und Geothermieattributen an")
+    Component(calcOffline, "Berechnungskern (optional)", "JavaScript-Modul", "Ergänzt optional berechnete Kennwerte im angereicherten CityJSON")
+    Component(exportTiles, "Export-Container A", "cityjson-to-3d-tiles", "Exportiert angereichertes CityJSON als 3D Tiles")
+    Component(exportGml, "Export-Container B", "CityJSON-zu-CityGML-Werkzeuge", "Exportiert angereichertes CityJSON als CityGML")
+  }
+}
+
+System_Ext(staticTiles, "Externer Datendienst (S3-kompatibel)", "Externer Objektspeicher für Eingabeartefakte und veröffentlichte Ausgaben")
+System_Ext(citygml, "LoD2-Daten (CityGML, inkl. Adressen)", "Eingabedatensatz")
+System_Ext(solar, "Solarpotenziale (3D Tiles + Textur)", "Eingabedatensatz")
+System_Ext(geothermal, "Geothermiepotenziale (bereitgestellt)", "Eingabedatensatz; Metadaten noch offen")
+System_Ext(vegetation, "Vegetation (Bäume) (3D Tiles)", "Externe visuelle Ebene für die öffentliche Kartendarstellung")
+
+Rel(airflow, extract, "orchestriert die Aufgabe")
+Rel(airflow, convert, "orchestriert die Aufgabe")
+Rel(airflow, enrich, "orchestriert die Aufgabe")
+Rel(airflow, calcOffline, "orchestriert die Aufgabe (optional)")
+Rel(airflow, exportTiles, "orchestriert die Aufgabe")
+Rel(airflow, exportGml, "orchestriert die Aufgabe")
+
+Rel(citygml, staticTiles, "lädt Quelldaten hoch")
+Rel(solar, staticTiles, "lädt Quelldaten hoch")
+Rel(geothermal, staticTiles, "lädt Quelldaten hoch")
+Rel(vegetation, staticTiles, "lädt Daten der visuellen Ebene hoch")
+
+Rel(staticTiles, extract, "Eingabe-ZIP herunterladen")
+Rel(extract, convert, "entpackte Dateien")
+Rel(convert, staticTiles, "cityjson/ hochladen")
+Rel(staticTiles, enrich, "cityjson/ herunterladen")
+Rel(enrich, staticTiles, "cityjson_enriched/ hochladen")
+Rel(staticTiles, calcOffline, "cityjson_enriched/ herunterladen (optional)")
+Rel(calcOffline, staticTiles, "cityjson_enriched/ hochladen (aktualisiert, optional)")
+Rel(staticTiles, exportTiles, "cityjson_enriched/ herunterladen")
+Rel(exportTiles, staticTiles, "tiles/ hochladen")
+Rel(staticTiles, exportGml, "cityjson_enriched/ herunterladen")
+Rel(exportGml, staticTiles, "citygml/ hochladen")
+
+note right of airflow
+Ein kombinierter DAG-Lauf verarbeitet immer einen aktuellen LoD2-Datensatz.
+Optionale Eingaben werden nur bei Verfügbarkeit verarbeitet; Adressen stammen aus LoD2.
+Kein update_scope, keine isolierte Teilaktualisierung und keine Wiederverwendung angereicherter Ergebnisse.
+end note
+
+@enduml

@@ -1,0 +1,38 @@
+---
+import ContentContainer from '@/components/layouts/ContentContainer.astro';
+import EnergyCalculationPage from '@/components/layouts/EnergyCalculationPage.astro';
+import StickyContainer from '@/components/layouts/StickyContainer.astro';
+import { Typography } from '@/components/ui/typography';
+import i18next from 'i18next';
+import BuildingAddress from '../BuildingAddress';
+import BuildingDataDialog from '../buildingData/BuildingDataDialog';
+import ButtonBar from '../ButtonBar';
+import RenovationStats from './RenovationStats';
+import RenovationStepForm from './RenovationStepForm';
+---
+
+<EnergyCalculationPage step={6}>
+  <ContentContainer>
+    <div
+      class="flex flex-wrap items-start justify-between gap-3 sm:items-center"
+    >
+      <div>
+        <Typography as="h1" variant="h2">
+          {i18next.t('energyCalculation:renovation.title')}
+        </Typography>
+        <BuildingAddress client:only="react" />
+      </div>
+      <BuildingDataDialog client:only="react" />
+    </div>
+  </ContentContainer>
+  <StickyContainer compactWhenStuck>
+    <RenovationStats client:only="react" />
+    <Fragment slot="compact">
+      <RenovationStats compact client:only="react" />
+    </Fragment>
+  </StickyContainer>
+  <ContentContainer>
+    <RenovationStepForm client:only="react" />
+    <ButtonBar continueTextKey="resultsButton" className="mt-8" client:load />
+  </ContentContainer>
+</EnergyCalculationPage>

@@ -1,0 +1,65 @@
+{
+  "name": "@csi-foxbyte/regensburg_digitalerenergiezwilling_energycalculationcore",
+  "version": "0.20.2",
+  "description": "Domain-based TypeScript energy calculation core with JSON-configurable catalogs and rules for building envelope and heating evaluation.",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "bin": {
+    "generate-det-building-energy-profile": "./dist/bin/generate-det-building-energy-profile.js"
+  },
+  "scripts": {
+    "test": "node --test --import tsx \"test/**/*.test.ts\"",
+    "gen:det-building-energy-profile": "tsx scripts/generate-det-building-energy-profile-artifacts.ts",
+    "build": "pnpm run lint && pnpm run test && tsdown",
+    "lint": "tsc --noEmit",
+    "gen:docs": "typedoc --options typedoc.json",
+    "sbom": "node scripts/generate-sbom.mjs",
+    "prepack": "pnpm run build",
+    "typecheck": "tsc --noEmit",
+    "dev": "node ../../scripts/watch-core.mjs",
+    "build:code": "tsdown"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "LGPL-3.0-or-later",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/csi-FOXBYTE/Regensburg_DigitalerEnergieZwilling_EnergyCalculationCore.git"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "peerDependencies": {
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "zod": "^3.24.0",
+    "@types/node": "^25.3.5",
+    "esbuild": "^0.27.3",
+    "prettier": "^3.8.1",
+    "publint": "^0.3.18",
+    "ts-json-schema-generator": "^2.9.0",
+    "tsdown": "^0.21.0",
+    "tsx": "^4.21.0",
+    "typedoc": "^0.28.17",
+    "typedoc-plugin-markdown": "^4.10.0",
+    "typescript": "^5.9.3"
+  },
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.cts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./bin/generate-det-building-energy-profile": {
+      "import": "./dist/bin/generate-det-building-energy-profile.js",
+      "require": "./dist/bin/generate-det-building-energy-profile.cjs"
+    },
+    "./generator": {
+      "import": "./dist/generator.js",
+      "require": "./dist/generator.cjs"
+    },
+    "./package.json": "./package.json"
+  }
+}

@@ -1,0 +1,17 @@
+---
+interface Props {
+  class?: string;
+}
+const { class: className = '' } = Astro.props;
+---
+
+<div class={`content-container ${className}`}>
+  <slot />
+</div>
+
+<style>
+  .content-container {
+    width: min(var(--content-width), calc(100% - 2 * var(--gutter)));
+    margin-inline: auto;
+  }
+</style>

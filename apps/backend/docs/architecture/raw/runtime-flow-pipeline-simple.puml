@@ -1,0 +1,31 @@
+@startuml
+title Ablauf - Offline-Datenpipeline (vereinfacht)
+top to bottom direction
+
+skinparam shadowing false
+skinparam backgroundColor white
+skinparam rectangle {
+  BackgroundColor #F7F7F7
+  BorderColor #444444
+  FontColor #222222
+  RoundCorner 10
+}
+skinparam ArrowColor #444444
+
+rectangle "ZIP-Datei von S3 herunterladen" as A
+rectangle "ZIP-Datei entpacken" as B
+rectangle "CityGML in CityJSON konvertieren" as C
+rectangle "CityJSON anreichern + Energie vorab berechnen" as D
+rectangle "3D Tiles aus CityJSON erzeugen" as E
+rectangle "CityJSON zurück in CityGML konvertieren" as F
+rectangle "Zu S3 hochladen" as G
+
+A --> B
+B --> C
+C --> D
+D --> E
+D --> F
+E --> G
+F --> G
+
+@enduml

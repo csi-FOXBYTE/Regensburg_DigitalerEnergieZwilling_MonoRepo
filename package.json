@@ -1,0 +1,28 @@
+{
+  "name": "regensburg-web",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "license": "LGPL-3.0-or-later",
+  "packageManager": "pnpm@11.22.0",
+  "engines": {
+    "node": "24.21.0",
+    "pnpm": "11.22.0"
+  },
+  "scripts": {
+    "prepare:workspace": "pnpm --filter ./packages/energy-core build:code && pnpm --filter ./apps/backend generate && pnpm --filter ./apps/adminfrontend generate",
+    "dev": "node scripts/dev.mjs",
+    "dev:frontend": "pnpm --filter ./apps/frontend dev",
+    "dev:admin": "pnpm --filter ./apps/adminfrontend dev",
+    "dev:backend": "pnpm --filter ./apps/backend dev",
+    "dev:core": "pnpm --filter ./packages/energy-core dev",
+    "build": "pnpm prepare:workspace && pnpm --filter \"./apps/*\" --workspace-concurrency=1 -r build",
+    "typecheck": "pnpm prepare:workspace && pnpm -r typecheck",
+    "test": "pnpm prepare:workspace && pnpm -r test && pnpm test:release",
+    "test:release": "node --test scripts/release/*.test.mjs scripts/deploy/*.test.mjs",
+    "check": "pnpm typecheck && pnpm test",
+    "sbom": "pnpm -r run sbom",
+    "gen:api": "pnpm --filter ./apps/adminfrontend gen:api",
+    "core:pack": "pnpm --filter ./packages/energy-core pack --pack-destination ../../.local/packages"
+  }
+}
