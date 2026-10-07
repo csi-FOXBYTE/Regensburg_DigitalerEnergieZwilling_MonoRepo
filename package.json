@@ -20,7 +20,7 @@
     "typecheck": "pnpm prepare:workspace && pnpm -r typecheck",
     "test": "pnpm prepare:workspace && pnpm -r test && pnpm test:release",
     "test:release": "node --test scripts/release/*.test.mjs scripts/deploy/*.test.mjs",
-    "check": "pnpm typecheck && pnpm test",
+    "check": "pnpm prepare:workspace && pnpm -r typecheck && pnpm -r test && pnpm test:release",
     "sbom": "pnpm -r run sbom",
     "gen:api": "pnpm --filter ./apps/adminfrontend gen:api",
     "core:pack": "pnpm --filter ./packages/energy-core pack --pack-destination .local/packages",

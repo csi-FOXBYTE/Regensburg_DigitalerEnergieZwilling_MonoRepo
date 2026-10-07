@@ -1,12 +1,13 @@
 # SBOM generation and local openCode audits
 
-GitHub CI and releases generate inventories without evaluating license compliance.
+GitHub releases generate inventories without evaluating license compliance.
 The expensive ScanCode audit is an explicit local step before publishing a release
 to openCode. The target is the [openCode maintainer requirements](https://opencode.de/de/wissen/rechtssichere-nutzung/anforderungen-an-inhalte).
 
 ## Normal GitHub releases
 
-CI generates fresh workspace CycloneDX SBOMs. Changed release images generate
+Push and pull request CI runs workspace checks without generating or uploading
+SBOMs or building container images. Changed release images generate
 fresh dependency inventories and embed them at `/usr/share/regensburg/SBOM.cdx.json`.
 This includes configured build dependencies and dependencies bundled into static
 assets. Release publication generates new source/application snapshots and uses

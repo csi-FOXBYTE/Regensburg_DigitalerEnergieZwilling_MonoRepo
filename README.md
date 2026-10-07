@@ -62,7 +62,10 @@ pnpm test:release    # mocks only: no registry/GitHub writes
 
 `pnpm sbom` without `run` invokes pnpm's built-in command, not the workspace script.
 Application checks explicitly generate ZenStack, fastify-toab registries and the
-admin route tree. Core exports are not rewritten by a build. The core CLI can
+admin route tree. `pnpm check` prepares the workspace once, then runs type checks
+and tests. Push and pull request CI runs this check in a single job, with no
+container image builds, SBOM generation or artifact uploads.
+Core exports are not rewritten by a build. The core CLI can
 also be run directly after building:
 `node packages/energy-core/dist/bin/generate-det-building-energy-profile.js --help`.
 
@@ -86,7 +89,7 @@ Read [release behavior](scripts/release/README.md), [addon contract and adoption
 
 ## SBOMs and openCode publication
 
-CI and GitHub releases generate fresh SBOMs without running the expensive license
+GitHub releases generate fresh SBOMs without running the expensive license
 scan. Release tags contain application dependency and container runtime/OS
 CycloneDX inventories under `release/sboms/`. These inventories do not certify
 license compliance, and license findings do not block GitHub releases.
