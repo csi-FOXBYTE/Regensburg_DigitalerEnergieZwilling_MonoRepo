@@ -40,6 +40,7 @@ if (tool === 'gh') {
     if (state.failAt === 'missing-sbom') fail('SBOM missing');
     const bom = fixtureBom(state.copyImage);
     if (state.failAt === 'wrong-sbom') bom.metadata.component.version = 'build-999-1';
+    if (state.failAt === 'wrong-name') bom.metadata.component.name = 'wrong-component';
     if (state.failAt === 'wrong-source') bom.metadata.component.properties[0].value = '9'.repeat(40);
     writeFileSync(args[2], JSON.stringify(bom)); result();
   }

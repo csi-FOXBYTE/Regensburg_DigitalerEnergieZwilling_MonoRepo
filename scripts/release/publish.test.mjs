@@ -8,6 +8,8 @@ import { test } from 'node:test';
 import { config } from './io.mjs';
 import { sbomEvidence } from './evidence.mjs';
 import { fixtureBom } from './fixtures/sbom.mjs';
+import { digest, save } from '../compliance/common.mjs';
+import { sbomSelection } from './sboms.mjs';
 
 function fixture(t, failAt) {
   const dir = mkdtempSync(path.join(tmpdir(), 'regensburg-release-test-'));
@@ -37,12 +39,31 @@ function fixture(t, failAt) {
     images[component] = { ...selected, changed: true };
     writeFileSync(path.join(dir, 'images', `${component}.json`), JSON.stringify(selected));
   }
+  const sboms = path.join(dir, 'sboms');
+  mkdirSync(sboms);
+  const setSboms = (selection = manifest) => {
+    const identity = sbomSelection(selection);
+    const files = {};
+    for (const name of ['source', 'frontend', 'frontend-runtime', 'adminfrontend', 'adminfrontend-runtime', 'backend', 'backend-runtime']) {
+      const filename = `${name}.cdx.json`;
+      const component = name.replace(/-runtime$/, '');
+      save(path.join(sboms, filename), { bomFormat: 'CycloneDX', specVersion: '1.6', version: 1,
+        metadata: { component: { type: 'application', name: 'mock' }, properties: [
+          { name: 'regensburg:release-source', value: identity.sourceCommit },
+          ...(component === 'source' ? [] : [{ name: 'regensburg:image-digest', value: selection[component].digest }]),
+        ] } });
+      files[filename] = digest(readFileSync(path.join(sboms, filename)));
+    }
+    selection.sboms = { schema: 1, ...identity, files };
+    save(path.join(sboms, 'receipt.json'), selection.sboms);
+  };
+  setSboms();
   writeFileSync(path.join(dir, 'plan.json'), JSON.stringify({ ...manifest, mode: 'build', images }));
   const statePath = path.join(dir, 'state.json');
   writeFileSync(statePath, JSON.stringify({ manifest, main: manifest.sourceCommit,
     failAt, tags: {}, release: null, current: null, tagged: false, calls: [] }));
   return {
-    dir, manifest,
+    dir, manifest, setSboms,
     state: () => JSON.parse(readFileSync(statePath)),
     update: (changes) => writeFileSync(statePath, JSON.stringify({ ...JSON.parse(readFileSync(statePath)), ...changes })),
     run: () => spawnSync(process.execPath, [fileURLToPath(new URL('./publish.mjs', import.meta.url))], {
@@ -51,6 +72,7 @@ function fixture(t, failAt) {
         RELEASE_DIR: dir, GITHUB_REF: 'refs/heads/main', GITHUB_RUN_ID: '123',
         GITHUB_REPOSITORY: 'example/repository', GITHUB_SHA: manifest.sourceCommit,
         GITHUB_STEP_SUMMARY: '',
+        SBOM_DIR: sboms,
       },
     }),
   };
@@ -126,7 +148,9 @@ test('reused images retain their original source commit and build identity', (t)
   const plan = JSON.parse(readFileSync(planPath));
   const original = { ...f.manifest.frontend, sourceCommit: '9'.repeat(40), build: '99-1' };
   original.sbom = sbomEvidence(Buffer.from(JSON.stringify(fixtureBom(original))), original);
-  f.update({ manifest: { ...f.manifest, frontend: original } });
+  const revised = { ...f.manifest, frontend: original };
+  f.setSboms(revised);
+  f.update({ manifest: revised });
   plan.images.frontend = { ...plan.images.frontend, changed: false, selected: original };
   writeFileSync(planPath, JSON.stringify(plan));
   const result = f.run();
@@ -135,16 +159,40 @@ test('reused images retain their original source commit and build identity', (t)
   assert.equal(f.state().current.sourceCommit, f.manifest.sourceCommit);
 });
 
-test('a later main commit during recovery does not change the recorded build source', (t) => {
+test('a later main commit during recovery cannot publish a source differing from the SBOM snapshot', (t) => {
   const f = fixture(t, 'adminfrontend-tag');
   assert.notEqual(f.run().status, 0);
   f.update({ failAt: null, main: '8'.repeat(40) });
   const result = f.run();
-  assert.equal(result.status, 0, result.stderr);
-  assert.deepEqual(f.state().current, f.manifest);
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /source differs from the release SBOM snapshot/);
+  assert.equal(f.state().release.draft, true);
+  assert.equal(f.state().tagged, false);
 });
 
-for (const failAt of ['missing-image', 'missing-sbom', 'wrong-sbom', 'wrong-source']) {
+test('publication requires SBOMs for the selected source and images', t => {
+  const f = fixture(t);
+  const receiptFile = path.join(f.dir, 'sboms/receipt.json');
+  const receipt = JSON.parse(readFileSync(receiptFile));
+  receipt.sourceCommit = 'f'.repeat(40);
+  save(receiptFile, receipt);
+  assert.notEqual(f.run().status, 0);
+  assert.equal(f.state().release, null);
+  assert.deepEqual(f.state().tags, {});
+});
+
+test('changed SBOM bytes block recovery before completion', t => {
+  const f = fixture(t, 'publish');
+  assert.notEqual(f.run().status, 0);
+  writeFileSync(path.join(f.dir, 'sboms/frontend.cdx.json'), '{}');
+  f.update({ failAt: null });
+  const retry = f.run();
+  assert.notEqual(retry.status, 0);
+  assert.match(retry.stderr, /SBOM artifact changed/);
+  assert.equal(f.state().release.draft, true);
+});
+
+for (const failAt of ['missing-image', 'missing-sbom', 'wrong-sbom', 'wrong-source', 'wrong-name']) {
   test(`publication fails closed for ${failAt}`, t => {
     const f = fixture(t, failAt);
     assert.notEqual(f.run().status, 0);

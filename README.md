@@ -83,3 +83,25 @@ is not cached. Package and core API versions remain separately displayed.
 
 Read [release behavior](scripts/release/README.md), [addon contract and adoption](docs/adoption.md),
 [source provenance](docs/import-provenance.json), and [verification results](docs/verification.md).
+
+## SBOMs and openCode publication
+
+CI and GitHub releases generate fresh SBOMs without running the expensive license
+scan. Release tags contain application dependency and container runtime/OS
+CycloneDX inventories under `release/sboms/`. These inventories do not certify
+license compliance, and license findings do not block GitHub releases.
+
+Before publishing a release to openCode, run the retained full local audit:
+
+```sh
+# Requires the project toolchain, Docker, ScanCode and Syft; see setup below.
+node scripts/compliance/audit.mjs opencode \
+  .local/opencode-audit-v0.1.0 release/manifest.json
+```
+
+The [audit instructions](scripts/compliance/README.md#run-the-full-audit-before-publishing-to-opencode)
+include a dedicated tools container, prerequisites, result interpretation and
+review records. The audit scans the pinned source/dependency contents and exact
+release images, and produces SPDX documents, original texts and notices. Resolve
+its findings and include the results before an openCode publication. Sanitization
+and transfer will be separate later stages; audit any changed final payload again.

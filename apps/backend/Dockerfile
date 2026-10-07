@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 ARG NODE_BASE_IMAGE=node:24.21.0-bookworm-slim
-ARG RUNTIME_BASE_IMAGE=nginxinc/nginx-unprivileged:1.30.4-alpine
+ARG RUNTIME_BASE_IMAGE=node:24.21.0-bookworm-slim
 FROM ${NODE_BASE_IMAGE} AS build
 ARG RELEASE_REFRESH=0
 RUN echo "External dependency refresh: ${RELEASE_REFRESH}" && apt-get update && apt-get install -y --no-install-recommends git ca-certificates openssl python3 make g++ && rm -rf /var/lib/apt/lists/*
@@ -22,7 +22,7 @@ ARG BUILD_ID=local
 ARG SOURCE_COMMIT=local
 RUN node scripts/artifact-sbom.mjs backend
 RUN pnpm --filter ./apps/backend deploy --prod --legacy /workspace/.deploy/backend
-FROM ${NODE_BASE_IMAGE} AS production
+FROM ${RUNTIME_BASE_IMAGE} AS production
 RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates openssl && rm -rf /var/lib/apt/lists/*
 ENV NODE_ENV=production HOSTNAME=0.0.0.0 PORT=5000
 WORKDIR /app

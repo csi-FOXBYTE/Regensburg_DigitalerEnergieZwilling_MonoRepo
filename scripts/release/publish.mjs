@@ -1,9 +1,11 @@
 import assert from 'node:assert/strict';
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { copyFileSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import path from 'node:path';
 import { assertTagDigest, components, journalBody, manifestPath, readJournal,
   selectReleaseState, validateManifest } from './core.mjs';
 import { api, command, config, git, readManifest, registryDigest, releases, summary } from './io.mjs';
 import { verifyImage } from './evidence.mjs';
+import { verifySboms } from './sboms.mjs';
 
 assert.equal(process.env.GITHUB_REF, 'refs/heads/main');
 const repository = process.env.GITHUB_REPOSITORY;
@@ -43,6 +45,7 @@ if (state.mode === 'complete') {
     manifest[component] = selected;
   }
   validateManifest(manifest, config);
+  manifest.sboms = verifySboms(process.env.SBOM_DIR, manifest);
   if (plan.previous && components.every((component) =>
     manifest[component].digest === plan.previous[component].digest)) {
     summary('All resulting image digests match the last release; no version bump.');
@@ -67,6 +70,8 @@ if (state.mode === 'complete') {
 }
 
 validateManifest(manifest, config);
+assert.deepEqual(verifySboms(process.env.SBOM_DIR, manifest), manifest.sboms,
+  'Fresh SBOM selection must match the publication journal');
 assert.equal(manifest.runId, runId);
 assert.deepEqual(readJournal(release, config), manifest);
 for (const component of components) {
@@ -100,12 +105,17 @@ for (let attempt = 0; attempt < 3; attempt++) {
   assert.equal(current?.appVersion ?? null, manifest.previousVersion,
     'Another release changed main; publication requires investigation');
   git('merge-base', '--is-ancestor', manifest.sourceCommit, 'origin/main');
-  // A developer may push after publication starts. Append metadata to the new
-  // main tip, retaining the original image/source SHAs in the manifest.
+  assert.equal(git('ls-remote', 'origin', 'refs/heads/main').split(/\s/)[0], manifest.sourceCommit,
+    'main advanced after publication started; source differs from the release SBOM snapshot. Investigate the draft journal.');
+  // The tagged source must be the selected tree plus release metadata.
   git('checkout', '--detach', 'origin/main');
   mkdirSync('release', { recursive: true });
   writeFileSync(manifestPath, json);
-  git('add', '--', manifestPath);
+  mkdirSync('release/sboms', { recursive: true });
+  for (const filename of [...Object.keys(manifest.sboms.files), 'receipt.json']) {
+    copyFileSync(path.join(process.env.SBOM_DIR, filename), path.join('release/sboms', filename));
+  }
+  git('add', '--', manifestPath, 'release/sboms');
   command('git', ['-c', 'user.name=github-actions[bot]', '-c',
     'user.email=41898282+github-actions[bot]@users.noreply.github.com',
     '-c', 'core.hooksPath=/dev/null', 'commit', '-m', `chore(release): ${tag}`]);

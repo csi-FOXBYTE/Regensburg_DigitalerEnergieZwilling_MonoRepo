@@ -85,7 +85,7 @@ jobs:
     needs: [plan, checks]
     if: needs.plan.outputs.mode == 'build'
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 45
     strategy:
       fail-fast: false
       matrix: ${{ fromJSON(needs.plan.outputs.matrix) }}
@@ -139,7 +139,7 @@ jobs:
       (needs.plan.outputs.mode == 'resume' ||
        (needs.plan.outputs.mode == 'build' && needs.checks.result == 'success' && needs.images.result == 'success'))
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 45
     permissions:
       contents: write
       packages: write
@@ -151,6 +151,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version-file: .node-version
+      - uses: anchore/sbom-action/download-syft@v0
+        with:
+          syft-version: v1.54.1
       - uses: actions/download-artifact@v4
         with:
           name: release-plan
@@ -167,7 +170,21 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ github.token }}
+      - name: Generate fresh SBOMs for the entire release selection
+        env:
+          SBOM_DIR: .local/release-sboms
+        run: node scripts/release/generate-sboms.mjs "$SBOM_DIR" "$RELEASE_DIR/plan.json"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: release-sboms
+          path: |
+            .local/release-sboms/*.json
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 90
       - name: Tag images, commit manifest, tag Git and publish GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
+          SBOM_DIR: .local/release-sboms
         run: node scripts/release/publish.mjs

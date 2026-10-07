@@ -11,22 +11,32 @@ permissions:
 jobs:
   package:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     permissions:
       contents: read
       packages: write
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
         with:
-          node-version-file: .node-version
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm --filter ./packages/energy-core run sbom
-      - run: pnpm core:pack
+          fetch-depth: 0
+      - uses: ./.github/actions/check
+      - name: Generate a fresh SBOM and pack the independently versioned core
+        env:
+          PUBLISH_TEST: ${{ inputs.publish_test }}
+        run: |
+          if [ "$PUBLISH_TEST" = true ]; then
+            node scripts/prepare-core-package.mjs --prototype
+          else
+            node scripts/prepare-core-package.mjs
+          fi
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: energy-core-package
-          path: .local/packages/*.tgz
+          path: |
+            .local/core-package/*.tgz
+            .local/core-package/*.json
+            .local/core-package/*.csv
           include-hidden-files: true
       - name: Publish distinct test package
         if: inputs.publish_test

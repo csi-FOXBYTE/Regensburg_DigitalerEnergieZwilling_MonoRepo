@@ -3,7 +3,7 @@ import { createHash } from 'node:crypto';
 
 export const components = ['frontend', 'adminfrontend', 'backend'];
 export const manifestPath = 'release/manifest.json';
-export const journalMarker = '<!-- regensburg-release-v1 -->';
+export const journalMarker = '<!-- regensburg-release-v2 -->';
 const sha = /^[a-f0-9]{40}$/;
 const digest = /^sha256:[a-f0-9]{64}$/;
 const semver = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/;
@@ -52,8 +52,8 @@ export function validateManifest(value, config) {
   assert(value.previousVersion === null || semver.test(value.previousVersion));
   for (const component of components) {
     const image = value[component];
-    assert.equal(image.image, config.images[component].repository, 'Unexpected image repository');
     assert(image && typeof image === 'object', 'Missing image record');
+    assert.equal(image.image, config.images[component].repository, 'Unexpected image repository');
     assert(digest.test(image.digest), 'Invalid registry digest');
     assert(digest.test(image.fingerprint), 'Invalid fingerprint');
     assert(sha.test(image.sourceCommit), 'Invalid image source commit');
@@ -67,6 +67,15 @@ export function validateManifest(value, config) {
     assert(digest.test(image.sbom.sha256), 'Invalid SBOM hash');
     assert.equal(image.sbom.version, `build-${image.build}`, 'SBOM/build mismatch');
     assert.equal(image.sbom.sourceCommit, image.sourceCommit, 'SBOM/source mismatch');
+  }
+  if (value.sboms) {
+    assert.equal(value.sboms.schema, 1, 'Unknown SBOM receipt schema');
+    assert.equal(value.sboms.sourceCommit, value.sourceCommit, 'SBOM/source mismatch');
+    for (const component of components) {
+      assert.deepEqual(value.sboms.images[component], {
+        digest: value[component].digest, sourceCommit: value[component].sourceCommit, build: value[component].build,
+      }, 'SBOM/image selection mismatch');
+    }
   }
   return value;
 }

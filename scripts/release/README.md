@@ -18,8 +18,13 @@ The SBOM lives at `/usr/share/regensburg/SBOM.cdx.json` inside the immutable ima
 BuildKit also emits image SBOM and provenance attestations. Package inventory
 includes dependencies bundled into static apps; it is not limited to the final
 nginx filesystem. The embedded SBOM is scoped application/build evidence; BuildKit
-SBOMs additionally inventory the final OS. Licensing coverage still needs the
-review described in the prior release-readiness audit.
+SBOMs additionally inventory the final OS. Before publication, `generate-sboms.mjs`
+creates fresh CycloneDX snapshots of the selected source and application inputs,
+plus Syft runtime/OS inventories for all selected images. Their identity/hash receipt
+is stored in the publication journal and the inventories are committed under
+`release/sboms/` at the tag. This checks inventory integrity, not license eligibility.
+GitHub CI and releases run no ScanCode audit. The [full local audit](../compliance/README.md)
+is an explicit step before a later openCode publication.
 
 ## Reuse and freshness
 
@@ -42,9 +47,10 @@ publication. A draft GitHub release stores the exact selection before retagging.
 Other runs stop while this journal exists. Rerun the **original workflow run** to
 recover. Recovery rechecks image labels, digests and SBOM bytes, never moving tags.
 Matching existing version tags may be reused; conflicting ones fail. The release
-metadata commit and Git tag are pushed atomically without force. Once publication
-has started, metadata may be appended to a newer main tip while retaining the
-original reviewed source. Completion of an already completed run is a no-op.
+metadata commit and Git tag are pushed atomically without force. If main advances
+after publication has started, publication stops for maintainer investigation so
+the tag cannot include source differing from the SBOM snapshot. Completion of an already completed run
+is a no-op.
 
 Build/check failures prevent completion; unique build tags may remain. Do not edit
 or delete a draft journal to bypass recovery. Retain images, manifests and SBOMs

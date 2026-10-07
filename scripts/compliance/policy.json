@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "target": "https://opencode.de/de/wissen/rechtssichere-nutzung/anforderungen-an-inhalte",
+  "automaticallyAcceptedLicenses": [
+    "0BSD", "Apache-2.0", "BSD-2-Clause", "BSD-3-Clause", "BSL-1.0",
+    "ISC", "MIT", "NCSA", "PostgreSQL", "Python-2.0", "Zlib"
+  ],
+  "reviewableLicenses": [
+    "GPL-2.0-only", "GPL-2.0-or-later", "GPL-3.0-only", "GPL-3.0-or-later",
+    "LGPL-2.1-only", "LGPL-2.1-or-later", "LGPL-3.0-only", "LGPL-3.0-or-later",
+    "MPL-2.0", "EPL-2.0"
+  ],
+  "notes": "Conservative project policy, not an exhaustive openCode license list. Other licenses require a documented policy amendment establishing openCode eligibility. Copyleft compatibility and distribution obligations require a component review. No unknown or proprietary license is automatically accepted."
+}

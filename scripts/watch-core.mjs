@@ -20,14 +20,14 @@ function fingerprint() {
 let previous = process.env.CORE_ALREADY_BUILT === '1' ? fingerprint() : '';
 let child;
 let stopped = false;
-for (const signal of ['SIGINT', 'SIGTERM']) process.on(signal, () => { stopped = true; child?.kill(signal); });
+for (const signal of ['SIGINT', 'SIGTERM']) process.on(signal, () => { stopped = true; if (child?.pid) { try { process.kill(-child.pid, signal); } catch {} } });
 // Hash polling also works on bind mounts that emit spurious access/change events.
 while (!stopped) {
   const next = fingerprint();
   if (next !== previous) {
     previous = next;
     const status = await new Promise((done, reject) => {
-      child = spawn('pnpm', ['exec', 'tsdown', '--no-clean'], { cwd: root, stdio: 'inherit' });
+      child = spawn('pnpm', ['exec', 'tsdown', '--no-clean'], { cwd: root, stdio: 'inherit', detached: true });
       child.once('error', reject); child.once('exit', done);
     });
     child = undefined;

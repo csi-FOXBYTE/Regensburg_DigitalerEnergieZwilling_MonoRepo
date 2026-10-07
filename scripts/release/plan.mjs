@@ -1,7 +1,7 @@
 import { selectArtifacts } from './selection.mjs';
 import assert from 'node:assert/strict';
 import { mkdirSync, writeFileSync } from 'node:fs';
-import { components, fingerprint, isBuildInput, nextVersion, readJournal,
+import { components, nextVersion, readJournal,
   selectReleaseState, validateManifest } from './core.mjs';
 import { config, git, outputs, readManifest, registryDigest, releases, summary, tree } from './io.mjs';
 import { verifyImage } from './evidence.mjs';

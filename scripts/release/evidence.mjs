@@ -3,13 +3,16 @@ import { createHash } from 'node:crypto';
 import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { command, registryDigest } from './io.mjs';
+import { command, config, registryDigest } from './io.mjs';
 
 export const sbomPath = '/usr/share/regensburg/SBOM.cdx.json';
 export function sbomEvidence(bytes, image) {
   const bom = JSON.parse(bytes);
   assert.equal(bom.bomFormat, 'CycloneDX', 'Expected CycloneDX SBOM');
   const root = bom.metadata?.component;
+  const settings = Object.values(config.images).find(settings => settings.repository === image.image);
+  assert(settings, 'Unexpected image repository');
+  assert.equal(root?.name, settings.packageName, 'SBOM/package mismatch');
   assert.equal(root?.version, `build-${image.build}`, 'SBOM/build mismatch');
   const properties = Object.fromEntries((root.properties ?? []).map(p => [p.name, p.value]));
   assert.equal(properties['vcs:commit'], image.sourceCommit, 'SBOM/source mismatch');

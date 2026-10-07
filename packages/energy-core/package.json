@@ -61,5 +61,18 @@
       "require": "./dist/generator.cjs"
     },
     "./package.json": "./package.json"
-  }
+  },
+  "files": [
+    "dist",
+    "generated",
+    "LICENSE",
+    "COPYING",
+    "COPYING.LESSER",
+    "NOTICE",
+    "README.md",
+    "SBOM.cdx.json",
+    "SBOM.csv",
+    "SPDX_energy-core.spdx.json",
+    "THIRD_PARTY_NOTICES.txt"
+  ]
 }
