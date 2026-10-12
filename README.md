@@ -94,7 +94,9 @@ policy marks releases as prereleases. New images use
 `ghcr.io/csi-foxbyte/regensburg-web-{frontend,adminfrontend,backend}`. The existing
 v0.1.0 manifest retains its original image repositories and digests so that
 release recovery and deployment can still read that published selection. A new
-release builds fresh images in the new repositories.
+release builds fresh images in the new repositories. When the current manifest is
+v0.1.0, the next changed release is **v1.7.3**; later releases use the selected
+patch, minor or major increment.
 
 The backend does not apply database migrations at startup. Deployment must run
 the required migrations through its normal process. Both static frontends read

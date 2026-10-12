@@ -43,7 +43,8 @@ if (state.mode === 'resume') {
   plan = {
     mode: changed ? 'build' : 'noop', sourceCommit, runId,
     previousVersion: previous?.appVersion ?? null, previous,
-    appVersion: nextVersion(previous?.appVersion, process.env.RELEASE_BUMP, config.initialVersion), images,
+    appVersion: nextVersion(previous?.appVersion, process.env.RELEASE_BUMP,
+      config.initialVersion, config.versionTransition), images,
   };
   summary(changed ? `Selected application version: ${plan.appVersion}` : 'No changed image inputs; no version bump.');
 }

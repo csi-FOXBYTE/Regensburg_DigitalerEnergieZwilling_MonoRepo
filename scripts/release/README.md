@@ -5,7 +5,9 @@ minor or major. The first application version was **0.1.0**. Current releases
 are marked **prerelease** by `config.json` and new images use the three
 `regensburg-web-*` GHCR repositories. The published v0.1.0 manifest retains its
 original repositories and immutable digests. The first release after the name
-change rebuilds all three images in the new repositories.
+change rebuilds all three images in the new repositories. When the current
+manifest is v0.1.0, the next changed release is pinned to **v1.7.3** regardless
+of the selected bump. Subsequent releases use the selected bump normally.
 
 The independent identities are:
 

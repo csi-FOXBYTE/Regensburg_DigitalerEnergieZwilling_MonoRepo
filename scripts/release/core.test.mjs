@@ -15,6 +15,16 @@ test('independent application version selection', () => {
   assert.throws(() => nextVersion('bad', 'patch'));
   assert.throws(() => nextVersion('1.2.3', 'other'));
 });
+test('the first release after v0.1.0 is v1.7.3, then normal bumps resume', () => {
+  for (const bump of ['patch', 'minor', 'major']) {
+    assert.equal(nextVersion('0.1.0', bump, config.initialVersion, config.versionTransition), '1.7.3');
+  }
+  assert.equal(nextVersion('1.7.3', 'patch', config.initialVersion, config.versionTransition), '1.7.4');
+  assert.equal(nextVersion('1.7.3', 'minor', config.initialVersion, config.versionTransition), '1.8.0');
+  assert.equal(nextVersion('1.7.3', 'major', config.initialVersion, config.versionTransition), '2.0.0');
+  assert.throws(() => nextVersion('0.1.0', 'patch', config.initialVersion,
+    { from: '0.1.0', to: '0.1.0' }), /must increase/);
+});
 
 test('only the allowlisted, nonsecret build inputs enter contexts', () => {
   for (const c of components) {

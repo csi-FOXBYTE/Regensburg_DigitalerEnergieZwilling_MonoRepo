@@ -20,10 +20,19 @@ const firstRelease = {
   },
 };
 
-export function nextVersion(previous, bump, initial = '0.1.0') {
+export function nextVersion(previous, bump, initial = '0.1.0', transition = null) {
   assert(['patch', 'minor', 'major'].includes(bump), 'Invalid version bump');
   assert(semver.test(previous ?? initial), 'Invalid application version');
   if (!previous) return initial;
+  if (transition) {
+    assert(semver.test(transition.from) && semver.test(transition.to), 'Invalid version transition');
+    const from = transition.from.split('.').map(Number);
+    const to = transition.to.split('.').map(Number);
+    const firstDifference = to.findIndex((part, index) => part !== from[index]);
+    assert(firstDifference !== -1 && to[firstDifference] > from[firstDifference],
+      'Version transition must increase the application version');
+    if (previous === transition.from) return transition.to;
+  }
   const parts = previous.split('.').map(Number);
   const index = { major: 0, minor: 1, patch: 2 }[bump];
   parts[index]++;
