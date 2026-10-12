@@ -67,6 +67,7 @@ export const DETHeatConfigSchema = z.object({
   hotWaterEnergyDemandFromAreaFactor: keyedValues(BuildingTypeSchema, z.number()),
   householdElectricityPerApartment: keyedValues(BuildingTypeSchema, LinearInterpolationSchema),
   ventilationHeatLossCorrectionFactor: z.number(),
+  thermalBridgeSurcharge: z.number().min(0),
   heatingDegreeDays: z.number(),
   defaultPrimaryEnergyCarrier: z.string(),
   defaultHeatingSystemType: keyedValues(z.string(), z.string()),

@@ -36,6 +36,7 @@ import bottomFloorHeatingDemand from "./resolvers/bottomFloor/bottomFloorHeating
 import roofWindowsInputs from "./resolvers/roofWindows/roofWindowsInputs";
 import roofWindowsHeatLoss from "./resolvers/roofWindows/roofWindowsHeatLoss";
 import roofWindowsHeatingDemand from "./resolvers/roofWindows/roofWindowsHeatingDemand";
+import thermalBridgeHeatLoss from "./resolvers/thermalBridgeHeatLoss";
 
 export interface DETCalculatorRegistry {}
 
@@ -77,6 +78,7 @@ export const DETEnergyCaluclator = createCalculator<
   ...roofWindowsInputs,
   ...roofWindowsHeatLoss,
   roofWindowsHeatingDemand,
+  ...thermalBridgeHeatLoss,
   ...heatingDemand,
   ...internalGains,
   ...energyDemandSplit,

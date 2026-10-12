@@ -129,10 +129,30 @@ const addRoofShapeDefaults: ConfigMigrator = {
   },
 };
 
+const addThermalBridgeSurcharge: ConfigMigrator = {
+  id: "add-thermal-bridge-surcharge",
+  canFix: (issue) => issue.path === "heat.thermalBridgeSurcharge",
+  migrate: (raw) => {
+    if (!isRecord(raw)) return raw;
+    const heat = raw.heat;
+    if (!isRecord(heat)) return raw;
+    if (heat.thermalBridgeSurcharge != null) return raw;
+
+    return {
+      ...raw,
+      heat: {
+        ...heat,
+        thermalBridgeSurcharge: DEFAULT_CONFIG.heat.thermalBridgeSurcharge,
+      },
+    };
+  },
+};
+
 const migrators: ConfigMigrator[] = [
   addRecommendedForSystems,
   addHeatingRenovationLabelTemplates,
   addRoofShapeDefaults,
+  addThermalBridgeSurcharge,
 ];
 
 /**

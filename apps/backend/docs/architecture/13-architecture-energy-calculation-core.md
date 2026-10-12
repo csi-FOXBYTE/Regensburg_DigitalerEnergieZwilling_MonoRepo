@@ -110,7 +110,7 @@ Die Arbeitsmappe ist damit Referenz für die fachliche Herleitung, nicht jedoch 
 - Fensteranteil am Fassadenbereich: Standardannahme (z.B. 40%), wenn nicht bekannt.
 - Lüftungswärmeverlust: globaler Faktor gemäß implementiertem und am 06.02.2026 fachlich bestätigtem Umfang.
 - Warmwasserbedarf: flächenbezogener Pauschalwert gemäß implementiertem und am 06.02.2026 fachlich bestätigtem Umfang; keine zusätzliche personenbezogene Vertiefung.
-- Wärmebrücken: pauschaler Zuschlag auf U-Werte, eingabeabhängig.
+- Wärmebrücken: pauschaler Zuschlag `ΔU_WB` (Standard `0,10 W/(m²K)`) auf die wärmeübertragende Hüllfläche `Ages`, also `HT = ∑HT + ΔU_WB * Ages`; in der Systempflege unter „Allgemeine Parameter“ konfigurierbar.
 - Beispiel- und Templatewerte aus der Referenzarbeitsmappe sind keine normativen Produktdefaults; produktive Defaults müssen konfigurierbar und kommunenprofilfähig bleiben.
 
 ---

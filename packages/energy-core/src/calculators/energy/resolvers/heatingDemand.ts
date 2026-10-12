@@ -23,7 +23,8 @@ export const totalHeatLoss = {
     ctx.get("roofWindowsHeatLoss") +
     ctx.get("exteriorWallWindowsHeatLoss") +
     ctx.get("outerWallHeatLoss") +
-    ctx.get("bottomFloorHeatLoss"),
+    ctx.get("bottomFloorHeatLoss") +
+    ctx.get("thermalBridgeHeatLoss"),
 } satisfies Resolver<DETCalculatorContext, DETCalculatorRegistry, "totalHeatLoss">;
 
 export const rawSpaceHeatingDemand = {

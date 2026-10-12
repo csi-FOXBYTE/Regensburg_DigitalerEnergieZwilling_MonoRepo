@@ -323,6 +323,8 @@ export const DEFAULT_CONFIG: DETConfig = {
     heatingDegreeDays: 3626,
     // kHv
     ventilationHeatLossCorrectionFactor: 0.79,
+    // ΔUWB [W/(m²K)]
+    thermalBridgeSurcharge: 0.1,
     // kQwb
     hotWaterEnergyDemandFromAreaFactor: [
       { key: BuildingType.SINGLE_FAMILY, value: 11 },
@@ -1050,7 +1052,8 @@ export const DEFAULT_CONFIG: DETConfig = {
     defaultIsAtticHeated: false,
     thermalConductivity: 0.032,
     assumedInsulationThickness: 0.24,
-    heatLossFactor: 1,
+    // vereinfachtes Verfahren nach DIN V 4108-6
+    heatLossFactor: 0.8,
     uValue: [
       {
         key: "solid_ceiling",
@@ -1183,7 +1186,8 @@ export const DEFAULT_CONFIG: DETConfig = {
     ],
     thermalConductivity: 0.03,
     assumedInsulationThickness: 0.12,
-    heatLossFactor: 1,
+    // vereinfachtes Verfahren nach DIN V 4108-6
+    heatLossFactor: 0.6,
     uValue: [
       {
         key: "reinforced_concrete_on_ground",

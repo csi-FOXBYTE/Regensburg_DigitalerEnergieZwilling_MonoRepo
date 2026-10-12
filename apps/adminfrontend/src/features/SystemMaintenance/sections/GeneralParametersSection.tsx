@@ -227,9 +227,19 @@ export function GeneralParametersSection({
             }
           />
           <Box />
-          <Box />
-          <Box />
-          <Box />
+          <Typography>Wärmebrückenzuschlag ΔU_WB [W/(m²K)]</Typography>
+          <TextField
+            size="small"
+            type="number"
+            value={configStore.heat.thermalBridgeSurcharge}
+            onChange={(e) =>
+              updateSimpleValue(
+                "heat.thermalBridgeSurcharge",
+                parseFloat(e.target.value),
+              )
+            }
+            slotProps={{ htmlInput: { min: 0, step: 0.01 } }}
+          />
         </Box>
         <Box sx={{ mb: 2 }}>
           <Typography variant="body1" fontWeight={"bold"} mb={1}>

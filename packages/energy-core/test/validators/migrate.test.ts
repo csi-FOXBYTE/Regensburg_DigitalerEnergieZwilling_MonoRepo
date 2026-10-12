@@ -255,6 +255,34 @@ describe("add-roof-shape-defaults migrator", () => {
   });
 });
 
+// ── add-thermal-bridge-surcharge migrator ────────────────────────────────────
+
+describe("add-thermal-bridge-surcharge migrator", () => {
+  test("adds the default surcharge to configs without thermalBridgeSurcharge", () => {
+    const raw = structuredClone(baseConfig()) as any;
+    delete raw.heat.thermalBridgeSurcharge;
+
+    const result = validateAndMigrate(raw);
+
+    assert.strictEqual(result.success, true);
+    assert.strictEqual(result.migrated, true);
+    if (!result.success) return;
+    assert.strictEqual(
+      result.data.heat.thermalBridgeSurcharge,
+      DEFAULT_CONFIG.heat.thermalBridgeSurcharge,
+    );
+  });
+
+  test("does not overwrite an existing surcharge", () => {
+    const migrator = detectMigrations({}, [
+      { path: "heat.thermalBridgeSurcharge", message: "Required" },
+    ])[0];
+    assert.ok(migrator);
+    const raw = { heat: { thermalBridgeSurcharge: 0.05 } };
+    assert.strictEqual(migrator.migrate(raw), raw);
+  });
+});
+
 // ── validateAndMigrate ────────────────────────────────────────────────────────
 
 describe("validateAndMigrate", () => {
