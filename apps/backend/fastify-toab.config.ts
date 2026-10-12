@@ -13,6 +13,7 @@ export default defineConfig({
   env: Type.Object({
     AUTH_RESOURCE_ACCESS_CLIENT_ID: Type.Optional(Type.String()),
     DATABASE_URL: Type.String(),
+    SMTP_URL: Type.Optional(Type.String({ minLength: 1 })),
     TILES_URL: Type.String({ minLength: 1 }),
     TERRAIN_URL: Type.String({ minLength: 1 }),
     ADDRESS_DATABASE_URL: Type.String({ minLength: 1 }),
