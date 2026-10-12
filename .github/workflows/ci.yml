@@ -1,7 +1,7 @@
 name: Workspace CI
 on:
   push:
-    branches: [main, 'prototype/**']
+    branches: [main]
   pull_request:
   workflow_dispatch:
 permissions:

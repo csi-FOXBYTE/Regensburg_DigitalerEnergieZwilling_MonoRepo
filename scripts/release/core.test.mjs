@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
 import { components, fingerprint, isBuildInput, journalBody, nextVersion, readJournal, selectReleaseState, validateManifest } from './core.mjs';
 import { config } from './io.mjs';
@@ -41,6 +42,16 @@ test('unchanged inputs reuse exact completed records', () => {
   for (const c of components) { assert(!selected[c].changed); assert.equal(selected[c].selected, previous[c]); }
   assert.equal(seen.length, 3);
 });
+test('a repository rename rebuilds images even when source fingerprints match', () => {
+  const previous = baseline();
+  for (const component of components) previous[component].image =
+    `ghcr.io/csi-foxbyte/regensburg-web-prototype-${component}`;
+  const selected = selectArtifacts(files, config, previous, services);
+  for (const component of components) {
+    assert(selected[component].changed);
+    assert.equal(selected[component].image, config.images[component].repository);
+  }
+});
 for (const file of files) {
   test(`content, removal and rename of ${file.path} invalidate affected images`, () => {
     const expected = components.filter(c => isBuildInput(file.path, c) || file.path.startsWith('scripts/release/') || file.path.startsWith('.github/'));
@@ -79,4 +90,13 @@ test('reused SBOMs retain their own build/source, independent of the new release
   assert.equal(validateManifest(manifest, config), manifest);
   manifest.frontend.sbom.version = 'build-999-1';
   assert.throws(() => validateManifest(manifest, config), /SBOM\/build mismatch/);
+});
+test('the published first release remains readable with its original image repositories', () => {
+  const manifest = JSON.parse(readFileSync(new URL('../../release/manifest.json', import.meta.url)));
+  assert.deepEqual(validateManifest(manifest, config), manifest);
+  assert.deepEqual(readJournal({ tag_name: 'v0.1.0', body: journalBody(manifest) }, config), manifest);
+  for (const [field, value] of [['appVersion', '0.1.1'], ['sourceCommit', 'a'.repeat(40)], ['runId', '123']]) {
+    const changed = { ...manifest, [field]: value };
+    assert.throws(() => validateManifest(changed, config));
+  }
 });

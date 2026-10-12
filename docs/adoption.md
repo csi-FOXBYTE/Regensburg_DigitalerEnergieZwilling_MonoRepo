@@ -1,6 +1,6 @@
 # Review and production adoption
 
-This private repository is a prototype snapshot import. The seven original
+This repository began as a snapshot import. The seven original
 checkouts and their Git metadata remain outside its mutation scope. Existing dirty
 SBOM files were excluded and regenerated for this layout. Full revisions and
 exclusions are in `import-provenance.json`. Original per-package legal notices are
@@ -29,12 +29,12 @@ root NOTICE; no Azure, customer-source export, deployment, or business code was 
 ## Addon contract (proposed, not applied to the separate addon)
 
 1. Let an operator select one exact completed GitHub release on this repo. Default
-   production selection excludes drafts and prereleases; prototype testing requires
+   deployment selection excludes drafts and prereleases; prerelease use requires
    explicit opt-in. Do not independently resolve `dev` or `latest` for three images.
 2. Fetch that release JSON and `release/manifest.json` from its exact `vX.Y.Z` tag.
    Verify their equality and the source/tag ancestry. Use:
-   `node scripts/deploy/select-release.mjs release.json manifest.json --allow-prototype`
-   for this prototype. Production omits the opt-in after approved release config.
+   `node scripts/deploy/select-release.mjs release.json manifest.json --allow-prerelease`
+   for a prerelease. Omit the opt-in for a stable release.
 3. Persist the returned manifest/selection in the addon preparation PR. Keep
    application version, artifact build IDs, sources, immutable digests and SBOM
    hashes. Fetch each SBOM from `image@sha256:...`, verify its hash and its own
@@ -61,8 +61,8 @@ No package dependency on the core was found in the separate offline enrichment o
 Airflow projects at import. Nevertheless the public package exports and version
 are retained. `pnpm core:pack` builds/tests an independently consumable tarball.
 The `Independent core package` workflow always uploads that tarball. Its optional
-publication uses ONLY `@csi-foxbyte/regensburg-energy-core-monorepo-prototype`, with
-unique `-prototype.<run>.<attempt>` version and `prototype` dist-tag. It cannot
+publication uses ONLY `@csi-foxbyte/regensburg-web-energy-core-test`, with
+unique `-test.<run>.<attempt>` version and `test` dist-tag. It cannot
 publish over the existing production core package.
 
 To adopt core publication here, explicitly transfer package Actions write access,
@@ -73,10 +73,10 @@ every web application release or overwrite the existing 0.20.2 package.
 ## Production adoption checklist
 
 - Review imported source revisions, legal provenance and the small admin fixes.
-- Resolve the prior SBOM licensing/coverage audit; approve public redistribution
-  rights for reference-derived release scripts before publishing source externally.
-- Choose production app initial version and GHCR repositories; review visibility,
-  access inheritance, retention and immutable-digest rollback policy.
+- Resolve the prior SBOM licensing/coverage audit and confirm public redistribution
+  rights for reference-derived release scripts.
+- Review GHCR repository visibility, access inheritance, retention and
+  immutable-digest rollback policy for the current image names.
 - Decide branch protection and who may dispatch/recover releases. Current metadata
   publication assumes permitted atomic pushes to main. Adapt this for protected main.
 - Provide reviewed production environment values, Keycloak clients/roles, gateway
@@ -88,4 +88,4 @@ every web application release or overwrite the existing 0.20.2 package.
 - Verify health, login, admin/public operations and runtime versions in staging.
 - Assign core publication ownership; preserve external API/package compatibility.
 - Only after rollout approval retire/redirect source repositories and their old
-  CI jobs. Nothing in this prototype performs retirement or production deployment.
+  CI jobs. This repository does not perform retirement or production deployment.

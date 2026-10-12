@@ -1,4 +1,4 @@
-name: Build Regensburg prototype release image
+name: Build Regensburg web release image
 description: Build a fingerprinted context and push a unique GHCR build tag.
 inputs:
   component:
@@ -60,5 +60,5 @@ runs:
         labels: |
           org.opencontainers.image.source=https://github.com/csi-FOXBYTE/Regensburg_DigitalerEnergieZwilling_MonoRepo
           org.opencontainers.image.revision=${{ github.sha }}
-        cache-from: type=gha,scope=regensburg-prototype-${{ inputs.component }}-${{ inputs.refresh-epoch }}
-        cache-to: type=gha,mode=max,scope=regensburg-prototype-${{ inputs.component }}-${{ inputs.refresh-epoch }}
+        cache-from: type=gha,scope=regensburg-web-${{ inputs.component }}-${{ inputs.refresh-epoch }}
+        cache-to: type=gha,mode=max,scope=regensburg-web-${{ inputs.component }}-${{ inputs.refresh-epoch }}

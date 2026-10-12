@@ -3,18 +3,18 @@ import { copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync, writeFi
 import path from 'node:path';
 import { digest, run, save } from './compliance/common.mjs';
 
-const prototype = process.argv[2] === '--prototype';
-assert.equal(process.argv.length, prototype ? 3 : 2);
+const testPackage = process.argv[2] === '--test-package';
+assert.equal(process.argv.length, testPackage ? 3 : 2, 'Only --test-package is supported');
 const root = path.resolve('.local/core-package');
 assert(!existsSync(root), 'Use a fresh core-package directory');
 mkdirSync(root, { recursive: true });
 const file = 'packages/energy-core/package.json';
 const original = readFileSync(file);
 const pkg = JSON.parse(original);
-if (prototype) {
+if (testPackage) {
   assert(/^\d+$/.test(process.env.GITHUB_RUN_ID || '') && /^\d+$/.test(process.env.GITHUB_RUN_ATTEMPT || ''));
-  pkg.name = '@csi-foxbyte/regensburg-energy-core-monorepo-prototype';
-  pkg.version += `-prototype.${process.env.GITHUB_RUN_ID}.${process.env.GITHUB_RUN_ATTEMPT}`;
+  pkg.name = '@csi-foxbyte/regensburg-web-energy-core-test';
+  pkg.version += `-test.${process.env.GITHUB_RUN_ID}.${process.env.GITHUB_RUN_ATTEMPT}`;
   pkg.repository = { type: 'git', url: 'git+https://github.com/csi-FOXBYTE/Regensburg_DigitalerEnergieZwilling_MonoRepo.git', directory: 'packages/energy-core' };
 }
 try {

@@ -1,4 +1,4 @@
-name: rg-web-prototype
+name: regensburg-web
 services:
   dev:
     build:
@@ -17,7 +17,7 @@ services:
       NODE_ENV: development
       HOSTNAME: 0.0.0.0
       PORT: "5000"
-      DATABASE_URL: postgresql://prototype:prototype@postgres:5432/prototype
+      DATABASE_URL: postgresql://regensburg:regensburg@postgres:5432/regensburg
       APP_BASE_URL: http://localhost:15000
       PUBLIC_CLIENT_BASE_URL: http://localhost:14321
       ADMIN_CLIENT_BASE_URL: http://localhost:15173
@@ -33,13 +33,13 @@ services:
   postgres:
     image: postgres:16-alpine
     environment:
-      POSTGRES_USER: prototype
-      POSTGRES_PASSWORD: prototype
-      POSTGRES_DB: prototype
+      POSTGRES_USER: regensburg
+      POSTGRES_PASSWORD: regensburg
+      POSTGRES_DB: regensburg
     volumes:
-      - prototype_postgres:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U prototype -d prototype"]
+      test: ["CMD-SHELL", "pg_isready -U regensburg -d regensburg"]
       interval: 3s
       timeout: 3s
       retries: 20
@@ -55,4 +55,4 @@ services:
       - "127.0.0.1:15000:9080"
     depends_on: [dev]
 volumes:
-  prototype_postgres:
+  postgres_data:

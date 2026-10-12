@@ -1,10 +1,5 @@
-Regensburg web monorepo prototype
+Regensburg Digitaler EnergieZwilling web workspace
 
 Snapshot imports preserve each project's LICENSE, COPYING, COPYING.LESSER and
 NOTICE files under apps/ and packages/energy-core. Source revisions and exclusions
 are recorded in docs/import-provenance.json. Original copyright notices apply.
-
-Release orchestration is adapted, at the user's direction, from the internal FHHVR
-ABH reference (web_INTERNAL commit 0f81a1e9d6e3b3ddbfa8e7bd1faa366144515983).
-The reference has no root license file; confirm redistribution rights before any
-public source distribution. This prototype stays in the authorized private repo.

@@ -7,6 +7,18 @@ export const journalMarker = '<!-- regensburg-release-v2 -->';
 const sha = /^[a-f0-9]{40}$/;
 const digest = /^sha256:[a-f0-9]{64}$/;
 const semver = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/;
+// v0.1.0 is an immutable published selection. Its original registry names must
+// remain valid for release recovery and deployment after new image names are used.
+const firstRelease = {
+  appVersion: '0.1.0',
+  sourceCommit: 'd41794746bf2a6a1054f97e8a4c6988252250764',
+  runId: '37619743033',
+  images: {
+    frontend: 'ghcr.io/csi-foxbyte/regensburg-web-prototype-frontend',
+    adminfrontend: 'ghcr.io/csi-foxbyte/regensburg-web-prototype-adminfrontend',
+    backend: 'ghcr.io/csi-foxbyte/regensburg-web-prototype-backend',
+  },
+};
 
 export function nextVersion(previous, bump, initial = '0.1.0') {
   assert(['patch', 'minor', 'major'].includes(bump), 'Invalid version bump');
@@ -53,7 +65,12 @@ export function validateManifest(value, config) {
   for (const component of components) {
     const image = value[component];
     assert(image && typeof image === 'object', 'Missing image record');
-    assert.equal(image.image, config.images[component].repository, 'Unexpected image repository');
+    const isFirstRelease = value.appVersion === firstRelease.appVersion
+      && value.sourceCommit === firstRelease.sourceCommit
+      && value.runId === firstRelease.runId;
+    assert(image.image === config.images[component].repository
+      || (isFirstRelease && image.image === firstRelease.images[component]),
+    'Unexpected image repository');
     assert(digest.test(image.digest), 'Invalid registry digest');
     assert(digest.test(image.fingerprint), 'Invalid fingerprint');
     assert(sha.test(image.sourceCommit), 'Invalid image source commit');
@@ -81,7 +98,7 @@ export function validateManifest(value, config) {
 }
 
 export function journalBody(manifest) {
-  return `${journalMarker}\n\nRegensburg web prototype ${manifest.appVersion}\n\n` +
+  return `${journalMarker}\n\nRegensburg web ${manifest.appVersion}\n\n` +
     `Source: \`${manifest.sourceCommit}\`\n\n` +
     'The JSON below is the publication journal and release manifest. Preserve it for retries.\n\n' +
     '```json\n' + JSON.stringify(manifest, null, 2) + '\n```\n';
@@ -100,7 +117,7 @@ export function selectReleaseState(releases, runId, config) {
   const managed = releases.map((release) => ({ release, manifest: readJournal(release, config) }))
     .filter((entry) => entry.manifest);
   const pending = managed.filter(({ release }) => release.draft);
-  assert(pending.length <= 1, 'Multiple pending Regensburg web prototype releases require manual investigation');
+  assert(pending.length <= 1, 'Multiple pending Regensburg web releases require manual investigation');
   if (pending.length) {
     assert.equal(pending[0].manifest.runId, runId,
       `Publication is pending: rerun workflow ${pending[0].manifest.runId} before starting another release`);

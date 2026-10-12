@@ -7,8 +7,8 @@ test('addon deploys one reviewed release using only immutable image digests', ()
   const manifest = exampleManifest();
   const release = { tag_name: 'v0.1.0', body: journalBody(manifest), draft: false, prerelease: true };
   assert.throws(() => deploymentSelection(release, manifest), /opt-in/);
-  const selected = deploymentSelection(release, manifest, { allowPrototype: true });
+  const selected = deploymentSelection(release, manifest, { allowPrerelease: true });
   for (const c of components) assert.equal(selected.images[c], `${manifest[c].image}@${manifest[c].digest}`);
-  assert.throws(() => deploymentSelection({ ...release, draft: true }, manifest, { allowPrototype: true }), /completed/);
-  assert.throws(() => deploymentSelection(release, { ...manifest, sourceCommit: 'f'.repeat(40) }, { allowPrototype: true }), /disagree/);
+  assert.throws(() => deploymentSelection({ ...release, draft: true }, manifest, { allowPrerelease: true }), /completed/);
+  assert.throws(() => deploymentSelection(release, { ...manifest, sourceCommit: 'f'.repeat(40) }, { allowPrerelease: true }), /disagree/);
 });

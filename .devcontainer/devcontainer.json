@@ -1,5 +1,5 @@
 {
-  "name": "Regensburg web prototype",
+  "name": "Regensburg web",
   "dockerComposeFile": "compose.yml",
   "service": "dev",
   "workspaceFolder": "/workspace",

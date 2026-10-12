@@ -1,110 +1,114 @@
-# Regensburg web monorepo prototype
+# Regensburg Digitaler EnergieZwilling — web workspace
 
-One workspace for the public Astro frontend, admin Vite frontend, backend and
-energy calculation core. This is a review prototype, not a production migration.
-Addon, offline enrichment and Airflow remain in their original repositories.
+This repository contains the public frontend, administration frontend, backend,
+and energy calculation core for the Regensburg digital energy twin. The three
+applications share the core directly through the pnpm workspace. The core retains
+its own package name and version because other consumers may depend on its API.
 
-## Start development
+| Path | Purpose | Local address |
+| --- | --- | --- |
+| `apps/frontend` | Public Astro application | http://localhost:14321/en/ |
+| `apps/adminfrontend` | Administration Vite application | http://localhost:15173/ |
+| `apps/backend` | API, data access and migrations | http://localhost:15001/health |
+| `packages/energy-core` | Shared calculation library and CLI | Workspace dependency |
+| `.devcontainer` | Node, PostgreSQL, Redis and APISIX development services | http://localhost:15000/docs |
 
-Open this directory in VS Code and choose **Reopen in Container**. One container
-runs Node **24.21.0** and pnpm **11.22.0** as user `node`. The checked-in Compose
-project is `rg-web-prototype`; it has its own network and PostgreSQL volume.
+The addon, offline enrichment and Airflow projects have separate repositories.
+Their source history and this workspace's import provenance are recorded in
+[docs/import-provenance.json](docs/import-provenance.json).
+
+## Develop locally
+
+Use VS Code **Reopen in Container** from this directory. The devcontainer uses
+Node 24.21.0 and pnpm 11.22.0 as the `node` user. It runs a local PostgreSQL
+database, Redis and APISIX. Alternatively, start its services on the host:
 
 ```sh
-# Host (or let VS Code create the services)
 docker compose -f .devcontainer/compose.yml up -d --build
-# Inside the devcontainer
+```
+
+Then, inside the devcontainer:
+
+```sh
 pnpm install --frozen-lockfile
 pnpm prepare:workspace
+pnpm --filter ./apps/backend exec zenstack migrate deploy --schema src/zenstack/schema.zmodel
 pnpm dev
 ```
 
-| Service | Host URL |
-| --- | --- |
-| Public frontend | http://localhost:14321/en/ |
-| Admin frontend | http://localhost:15173/ |
-| APISIX / API / docs | http://localhost:15000/docs |
-| Direct backend | http://localhost:15001/health |
+VS Code runs the install and workspace preparation automatically when it creates
+the container. Run the migration command once for a new database, and again when
+new migrations are added. The `regensburg-web` Compose project uses a fresh
+`postgres_data` volume; the earlier development volume remains separate. The
+database credentials in Compose are only for local development.
 
-The core resolves through `workspace:*` in every app. No GitHub package token is
-needed to install it. All other current dependencies resolve from npmjs.org.
-`pnpm dev` builds prerequisites, runs all apps, watches core content, and restarts
-the backend when a core rebuild succeeds. Vite/Astro see the workspace build
-through their normal file watching. `pnpm dev:core`, `dev:frontend`, `dev:admin`
-and `dev:backend` can also run individually after `prepare:workspace`.
+`pnpm dev` starts all three applications, watches the core and restarts the backend
+after a successful core rebuild. For an individual application use `pnpm dev:frontend`,
+`pnpm dev:admin` or `pnpm dev:backend` after `pnpm prepare:workspace`. `pnpm dev:core`
+runs the core watcher.
 
-Before the first backend request needing database tables, apply existing
-migrations **inside this container**, whose DATABASE_URL targets the fresh
-prototype database:
+The map and address-resource URLs in Compose point to `example.invalid` until you
+configure real development resources. To use the admin UI with the local API,
+generate a development token inside the container:
 
 ```sh
-pnpm --filter ./apps/backend exec zenstack migrate deploy --schema src/zenstack/schema.zmodel
+pnpm --filter ./apps/backend jwt:dev --ttl 3600 --output raw
 ```
 
-No existing database or external network is used. Map data URLs default to
-`example.invalid`; configure real resources explicitly to test tiles, terrain and
-address search. No source `.env` values were imported. APISIX retains the existing
-local JWT route protection; its development key is public test configuration.
-Generate a development token with `pnpm --filter ./apps/backend jwt:dev --ttl 3600
---output raw` and set `VITE_DEV_ACCESS_TOKEN` only in the admin's ignored
-`.env.development.local`. Never use the prototype credentials in production.
+Copy `apps/adminfrontend/.env.development.local.example` to the ignored
+`apps/adminfrontend/.env.development.local`, and put the token in
+`VITE_DEV_ACCESS_TOKEN`. See the [admin setup](apps/adminfrontend/README.md) for
+the other local settings. These local credentials and tokens are not deployment
+configuration.
 
-## Root commands
+## Check and build
+
+Run these commands inside the devcontainer:
 
 ```sh
-pnpm check           # generate, type-check, 338 existing tests, release contract tests
-pnpm build           # core first, then all three production application builds
-pnpm run sbom        # scoped CycloneDX + CSV in each package (run is required)
-pnpm gen:api         # admin API client from the running prototype APISIX /docs/json
-pnpm core:pack       # independently versioned core tarball in .local/packages
-pnpm test:release    # mocks only: no registry/GitHub writes
+pnpm check           # generate prerequisites, type-check and run tests
+pnpm build           # build the core and all three applications
+pnpm test:release    # exercise release and deployment selection locally
+pnpm gen:api         # regenerate the admin API client from the running APISIX API
+pnpm core:pack       # pack the independently versioned core into .local/packages
+pnpm run sbom        # generate scoped CycloneDX and CSV inventories
 ```
 
-`pnpm sbom` without `run` invokes pnpm's built-in command, not the workspace script.
-Application checks explicitly generate ZenStack, fastify-toab registries and the
-admin route tree. `pnpm check` prepares the workspace once, then runs type checks
-and tests. Push and pull request CI runs this check in a single job, with no
-container image builds, SBOM generation or artifact uploads.
-Core exports are not rewritten by a build. The core CLI can
-also be run directly after building:
-`node packages/energy-core/dist/bin/generate-det-building-energy-profile.js --help`.
+`pnpm run sbom` uses the workspace script; `pnpm sbom` invokes pnpm's built-in
+command. GitHub CI performs a frozen install and `pnpm check`. Local verification
+history and remaining integration checks are in [docs/verification.md](docs/verification.md).
 
-Build separate production images from the repository root:
+To build application images from the repository root:
 
 ```sh
-docker buildx build --load -f apps/frontend/Dockerfile -t regensburg-web-prototype-frontend:validation .
-docker buildx build --load -f apps/adminfrontend/Dockerfile -t regensburg-web-prototype-adminfrontend:validation .
-docker buildx build --load -f apps/backend/Dockerfile -t regensburg-web-prototype-backend:validation .
+docker buildx build --load -f apps/frontend/Dockerfile -t regensburg-web-frontend:validation .
+docker buildx build --load -f apps/adminfrontend/Dockerfile -t regensburg-web-adminfrontend:validation .
+docker buildx build --load -f apps/backend/Dockerfile -t regensburg-web-backend:validation .
 ```
 
-Release CI exports only fingerprinted Git inputs and pins both build and runtime
-base digests. The backend retains ZenStack schema/migrations for deployment;
-startup does not migrate automatically. Frontend/admin images serve static
-content as UID 101 and write only `/tmp/regensburg-release.json` for release
-configuration. Set `APP_VERSION` at deployment time on both frontends; `/release.json`
-is not cached. Package and core API versions remain separately displayed.
+## Releases and deployment
 
-Read [release behavior](scripts/release/README.md), [addon contract and adoption](docs/adoption.md),
-[source provenance](docs/import-provenance.json), and [verification results](docs/verification.md).
+The manually dispatched [application release workflow](scripts/release/README.md)
+selects one application version and immutable digests for all three images. Current
+policy marks releases as prereleases. New images use
+`ghcr.io/csi-foxbyte/regensburg-web-{frontend,adminfrontend,backend}`. The existing
+v0.1.0 manifest retains its original image repositories and digests so that
+release recovery and deployment can still read that published selection. A new
+release builds fresh images in the new repositories.
 
-## SBOMs and openCode publication
+The backend does not apply database migrations at startup. Deployment must run
+the required migrations through its normal process. Both static frontends read
+`APP_VERSION` at runtime; `/release.json` exposes the selected application version.
+The core's npm version remains independent of application versions.
 
-GitHub releases generate fresh SBOMs without running the expensive license
-scan. Release tags contain application dependency and container runtime/OS
-CycloneDX inventories under `release/sboms/`. These inventories do not certify
-license compliance, and license findings do not block GitHub releases.
+The [addon selection contract](docs/adoption.md) explains how a separate deployment
+project can consume an exact completed release. Prerelease selection requires
+`--allow-prerelease`. The optional [core package workflow](.github/workflows/core-package.yml)
+publishes only a distinct test package, `@csi-foxbyte/regensburg-web-energy-core-test`,
+with a run-specific `-test.<run>.<attempt>` version. Publication under the core's
+existing package name needs a separate ownership and release decision.
 
-Before publishing a release to openCode, run the retained full local audit:
-
-```sh
-# Requires the project toolchain, Docker, ScanCode and Syft; see setup below.
-node scripts/compliance/audit.mjs opencode \
-  .local/opencode-audit-v0.1.0 release/manifest.json
-```
-
-The [audit instructions](scripts/compliance/README.md#run-the-full-audit-before-publishing-to-opencode)
-include a dedicated tools container, prerequisites, result interpretation and
-review records. The audit scans the pinned source/dependency contents and exact
-release images, and produces SPDX documents, original texts and notices. Resolve
-its findings and include the results before an openCode publication. Sanitization
-and transfer will be separate later stages; audit any changed final payload again.
+Release tags include CycloneDX source and runtime inventories. Before any openCode
+publication, run and review the [full local compliance audit](scripts/compliance/README.md);
+it covers the exact source, dependencies and selected images. Legal provenance and
+redistribution considerations are in [NOTICE](NOTICE).

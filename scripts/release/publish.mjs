@@ -65,7 +65,7 @@ if (state.mode === 'complete') {
   // block other runs and survive Actions artifact/cache expiration.
   release = api(`repos/${repository}/releases`, { method: 'POST', body: {
     tag_name: tag, target_commitish: manifest.sourceCommit,
-    name: `Regensburg web prototype ${manifest.appVersion}`, body: journalBody(manifest), draft: true, prerelease: config.prerelease,
+    name: `Regensburg web ${manifest.appVersion}`, body: journalBody(manifest), draft: true, prerelease: config.prerelease,
   } });
 }
 

@@ -1,9 +1,11 @@
 # Application release model
 
-`Release Regensburg prototype` is manually dispatched on `main`, selecting patch,
-minor or major. The first application version defaults to **0.1.0** in config.json.
-All releases are marked **prerelease** and use distinct `regensburg-web-prototype-*`
-GHCR image names. This default is not a production version allocation.
+`Release Regensburg web` is manually dispatched on `main`, selecting patch,
+minor or major. The first application version was **0.1.0**. Current releases
+are marked **prerelease** by `config.json` and new images use the three
+`regensburg-web-*` GHCR repositories. The published v0.1.0 manifest retains its
+original repositories and immutable digests. The first release after the name
+change rebuilds all three images in the new repositories.
 
 The independent identities are:
 
@@ -57,7 +59,7 @@ or delete a draft journal to bypass recovery. Retain images, manifests and SBOMs
 for the supported rollback lifetime. App-version tags have one serialized writer;
 manually racing registry mutations are outside this workflow's guarantees.
 
-The private target repo uses its automatic GITHUB_TOKEN for normal CI/release
+The target repository uses its automatic GITHUB_TOKEN for normal CI/release
 operations. An organization policy blocking package creation or branch writes is
 reported as a failed check; it must not silently substitute production packages.
 

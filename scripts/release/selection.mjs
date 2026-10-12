@@ -14,7 +14,8 @@ export function selectArtifacts(entries, config, previous, { resolveDigest, veri
       policy, baseImage, runtimeBaseImage, platform: config.platform, refreshEpoch: config.refreshEpoch,
     });
     const existing = previous?.[component];
-    const changed = !existing || existing.fingerprint !== inputFingerprint;
+    const changed = !existing || existing.image !== settings.repository
+      || existing.fingerprint !== inputFingerprint;
     if (!changed) verifyImage(existing);
     return [component, { changed, image: settings.repository, fingerprint: inputFingerprint,
       baseImage, runtimeBaseImage, platform: config.platform, refreshEpoch: config.refreshEpoch,

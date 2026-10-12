@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
     inputs:
       publish_test:
-        description: Publish a distinct prototype package (never the production name)
+        description: Publish a distinct test package without using the existing core package name
         type: boolean
         default: false
 permissions:
@@ -25,7 +25,7 @@ jobs:
           PUBLISH_TEST: ${{ inputs.publish_test }}
         run: |
           if [ "$PUBLISH_TEST" = true ]; then
-            node scripts/prepare-core-package.mjs --prototype
+            node scripts/prepare-core-package.mjs --test-package
           else
             node scripts/prepare-core-package.mjs
           fi

@@ -39,7 +39,7 @@ test('review decisions do not invalidate their own source rights subject', () =>
 test('first party compatibility reviews survive a new build identity but not changed licensing evidence', () => {
   const c = { ...component(), firstParty: true };
   const before = evaluate(c, policy, { components: [] });
-  c.version = '1-prototype.123.2';
+  c.version = '1-test.123.2';
   c.files[0].sha256 = 'b'.repeat(64);
   assert.equal(evaluate(c, policy, { components: [] }).evidenceHash, before.evidenceHash);
   c.files[0].copyrights.push('Copyright Another Owner');

@@ -4,8 +4,8 @@ import path from 'node:path';
 import { run, save } from './common.mjs';
 import { verifyReceipt } from './receipt.mjs';
 
-const publishTest = process.argv[2] === '--prototype';
-assert(process.argv.length === (publishTest ? 3 : 2), 'Only --prototype is supported');
+const publishTest = process.argv[2] === '--test-package';
+assert(process.argv.length === (publishTest ? 3 : 2), 'Only --test-package is supported');
 const sourceCommit = run('git', ['rev-parse', 'HEAD']);
 const root = path.resolve('.local', 'core-compliance');
 assert(!existsSync(root), 'Use a fresh core-compliance directory');
@@ -17,8 +17,8 @@ const generated = ['SPDX_energy-core.spdx.json', 'THIRD_PARTY_NOTICES.txt'].map(
 const previous = new Map(generated.filter(existsSync).map(file => [file, readFileSync(file)]));
 if (publishTest) {
   assert(/^\d+$/.test(process.env.GITHUB_RUN_ID || '') && /^\d+$/.test(process.env.GITHUB_RUN_ATTEMPT || ''));
-  pkg.name = '@csi-foxbyte/regensburg-energy-core-monorepo-prototype';
-  pkg.version += `-prototype.${process.env.GITHUB_RUN_ID}.${process.env.GITHUB_RUN_ATTEMPT}`;
+  pkg.name = '@csi-foxbyte/regensburg-web-energy-core-test';
+  pkg.version += `-test.${process.env.GITHUB_RUN_ID}.${process.env.GITHUB_RUN_ATTEMPT}`;
   pkg.repository = { type: 'git', url: 'git+https://github.com/csi-FOXBYTE/Regensburg_DigitalerEnergieZwilling_MonoRepo.git', directory: 'packages/energy-core' };
 }
 try {

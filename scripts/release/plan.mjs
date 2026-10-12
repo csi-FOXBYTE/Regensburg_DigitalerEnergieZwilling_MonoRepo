@@ -33,7 +33,7 @@ if (state.mode === 'resume') {
       'Published tag manifest differs from main');
   } else {
     assert(!allReleases.some((entry) => readJournal(entry, config)),
-      'Regensburg web prototype releases exist but main has no release manifest');
+      'Regensburg web releases exist but main has no release manifest');
   }
   const images = selectArtifacts(tree(sourceCommit), config, previous, { resolveDigest: registryDigest, verifyImage });
   for (const [component, image] of Object.entries(images)) {
