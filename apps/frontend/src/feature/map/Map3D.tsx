@@ -4,6 +4,7 @@ import {
   findExactBuildingFeature,
   hasExactBuildingId,
 } from '@/lib/building-target';
+import { createVerticalBuildingRay } from '@/lib/vertical-building-ray';
 import { useStore } from '@nanostores/react';
 import * as Cesium from 'cesium';
 import 'cesium/Build/Cesium/Widgets/widgets.css';
@@ -103,7 +104,9 @@ function isBuildingTargetFocusIntent(
   );
 }
 
-function getRequestedBuildingId(intent: BuildingTargetFocusIntent): string {
+function getRequestedBuildingId(
+  intent: BuildingTargetFocusIntent,
+): string | undefined {
   return intent.reason.type === 'address'
     ? intent.reason.address.buildingId
     : intent.reason.buildingId;
@@ -141,6 +144,8 @@ function findTargetFeatureByDrillPick(
   viewer: Cesium.Viewer,
   intent: BuildingTargetFocusIntent,
 ): Cesium.Cesium3DTileFeature | undefined {
+  const buildingId = getRequestedBuildingId(intent);
+  if (!buildingId) return undefined;
   const cartographic = Cesium.Cartographic.fromDegrees(
     intent.target.longitudeDegrees,
     intent.target.latitudeDegrees,
@@ -162,7 +167,33 @@ function findTargetFeatureByDrillPick(
       (picked): picked is Cesium.Cesium3DTileFeature =>
         picked instanceof Cesium.Cesium3DTileFeature,
     );
-  return findExactBuildingFeature(drilled, getRequestedBuildingId(intent));
+  return findExactBuildingFeature(drilled, buildingId);
+}
+
+async function findTargetFeatureByVerticalRay(
+  viewer: Cesium.Viewer,
+  intent: BuildingTargetFocusIntent,
+): Promise<Cesium.Cesium3DTileFeature | undefined> {
+  // Cesium exposes this method at runtime, but its published Scene type omits it.
+  const scene = viewer.scene as Cesium.Scene & {
+    drillPickFromRayMostDetailed: (
+      ray: Cesium.Ray,
+      limit?: number,
+    ) => Promise<{ object?: unknown }[]>;
+  };
+  const ray = createVerticalBuildingRay(
+    scene.globe.ellipsoid,
+    intent.target.longitudeDegrees,
+    intent.target.latitudeDegrees,
+  );
+  const hits = await scene.drillPickFromRayMostDetailed(ray, 10);
+  return hits
+    .map((hit) => hit.object)
+    .find(
+      (object): object is Cesium.Cesium3DTileFeature =>
+        object instanceof Cesium.Cesium3DTileFeature &&
+        !!adaptBuildingFeature(object).id,
+    );
 }
 
 function createAddressSelectionBox(
@@ -227,9 +258,9 @@ function findFeatureById(
 type PendingAddressSelection = {
   viewer: Cesium.Viewer;
   intent: BuildingTargetFocusIntent;
-  searchBox: Cesium.OrientedBoundingBox;
+  searchBox?: Cesium.OrientedBoundingBox;
   scannedTiles: Set<Cesium.Cesium3DTile>;
-  timeoutId: number;
+  timeoutId?: number;
   onComplete: (
     feature: Cesium.Cesium3DTileFeature | undefined,
     intent: BuildingTargetFocusIntent,
@@ -238,6 +269,8 @@ type PendingAddressSelection = {
 
 class AddressFeatureSelector {
   private pending: PendingAddressSelection | undefined;
+  private generation = 0;
+  private tilesetReady = false;
 
   start(
     viewer: Cesium.Viewer,
@@ -246,31 +279,44 @@ class AddressFeatureSelector {
   ) {
     if (!isBuildingTargetFocusIntent(intent)) return;
     this.cancel();
-    const timeoutId = window.setTimeout(
-      () => this.finishWithDrillPick(),
-      ADDRESS_SELECTION_TIMEOUT_MS,
-    );
+    const buildingId = getRequestedBuildingId(intent);
     this.pending = {
       viewer,
       intent,
-      searchBox: createAddressSelectionBox(viewer, intent),
+      searchBox: buildingId
+        ? createAddressSelectionBox(viewer, intent)
+        : undefined,
       scannedTiles: new Set(),
-      timeoutId,
+      timeoutId: buildingId
+        ? window.setTimeout(
+            () => this.finishWithDrillPick(),
+            ADDRESS_SELECTION_TIMEOUT_MS,
+          )
+        : undefined,
       onComplete,
     };
+    if (!buildingId && this.tilesetReady) this.finishWithDrillPick();
     viewer.scene.requestRender();
+  }
+
+  markTilesetReady() {
+    this.tilesetReady = true;
+    this.finishWithDrillPick();
   }
 
   inspectVisibleTile(tile: Cesium.Cesium3DTile) {
     const pending = this.pending;
     if (!pending || pending.scannedTiles.has(tile)) return;
     pending.scannedTiles.add(tile);
-    if (!tileIntersectsAddressSelectionBox(tile, pending.searchBox)) return;
+    const buildingId = getRequestedBuildingId(pending.intent);
+    if (
+      !buildingId ||
+      !pending.searchBox ||
+      !tileIntersectsAddressSelectionBox(tile, pending.searchBox)
+    )
+      return;
 
-    const feature = findFeatureById(
-      tile.content,
-      getRequestedBuildingId(pending.intent),
-    );
+    const feature = findFeatureById(tile.content, buildingId);
     if (!feature) return;
 
     const { intent, onComplete } = pending;
@@ -280,17 +326,47 @@ class AddressFeatureSelector {
 
   finishWithDrillPick() {
     const pending = this.pending;
-    if (!pending) return;
-    this.cancel();
-    pending.onComplete(
-      findTargetFeatureByDrillPick(pending.viewer, pending.intent),
+    if (!pending || !this.tilesetReady) return;
+    if (pending.timeoutId !== undefined) window.clearTimeout(pending.timeoutId);
+    this.pending = undefined;
+    const feature = findTargetFeatureByDrillPick(
+      pending.viewer,
       pending.intent,
+    );
+    if (feature) {
+      pending.onComplete(feature, pending.intent);
+      return;
+    }
+    if (pending.intent.reason.type === 'address') {
+      pending.onComplete(undefined, pending.intent);
+      return;
+    }
+    void this.finishWithVerticalRay(
+      pending.viewer,
+      pending.intent,
+      pending.onComplete,
     );
   }
 
+  private async finishWithVerticalRay(
+    viewer: Cesium.Viewer,
+    intent: BuildingTargetFocusIntent,
+    onComplete: PendingAddressSelection['onComplete'],
+  ) {
+    const generation = this.generation;
+    let feature: Cesium.Cesium3DTileFeature | undefined;
+    try {
+      feature = await findTargetFeatureByVerticalRay(viewer, intent);
+    } catch (error) {
+      console.error('Vertical building pick failed:', error);
+    }
+    if (generation === this.generation) onComplete(feature, intent);
+  }
+
   cancel() {
-    if (!this.pending) return;
-    window.clearTimeout(this.pending.timeoutId);
+    this.generation++;
+    if (this.pending?.timeoutId !== undefined)
+      window.clearTimeout(this.pending.timeoutId);
     this.pending = undefined;
   }
 }
@@ -467,7 +543,7 @@ export function Map3D({ children }: Map3DProps) {
               onAllTilesLoad={() => {
                 setLoading(false);
                 setLoadFailed(false);
-                addressFeatureSelectorRef.current.finishWithDrillPick();
+                addressFeatureSelectorRef.current.markTilesetReady();
               }}
               onTileVisible={(tile) => {
                 colorBuildingFeatures(tile.content, selectedBuildingId);

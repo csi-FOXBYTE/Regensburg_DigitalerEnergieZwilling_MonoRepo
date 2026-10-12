@@ -25,7 +25,7 @@ export type FocusCameraIntent = {
   target: CameraTarget;
   reason:
     | { type: 'address'; address: AddressCameraContext }
-    | { type: 'externalBuilding'; buildingId: string }
+    | { type: 'externalBuilding'; buildingId?: string }
     | { type: 'building' }
     | { type: 'sessionRestore' };
   accommodateMobileOverlay?: boolean;

@@ -9,7 +9,7 @@ global_rules:
   - id: cors
     plugins:
       cors:
-        allow_origins: "http://localhost:15173,http://127.0.0.1:15173,http://localhost:4173,http://localhost:3000,http://localhost:14321,http://127.0.0.1:14321"
+        allow_origins: "http://localhost:5173,http://127.0.0.1:5173,http://localhost:4173,http://localhost:3000,http://localhost:4321,http://127.0.0.1:4321"
         allow_methods: "GET,POST,PUT,PATCH,DELETE,OPTIONS"
         allow_headers: "Authorization,x-access-token,Content-Type,Accept,Origin,X-Requested-With"
         expose_headers: "Content-Disposition"

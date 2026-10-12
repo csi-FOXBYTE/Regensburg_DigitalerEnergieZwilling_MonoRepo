@@ -8,25 +8,24 @@ services:
     init: true
     volumes:
       - ..:/workspace
+    env_file:
+      - ../.env
     ports:
-      - "127.0.0.1:14321:4321"
-      - "127.0.0.1:15173:5173"
-      - "127.0.0.1:15001:5000"
+      - "127.0.0.1:4321:4321"
+      - "127.0.0.1:5173:5173"
+      - "127.0.0.1:5001:5000"
     environment:
       PACKAGE_TOKEN: ${PACKAGE_TOKEN:-}
       NODE_ENV: development
       HOSTNAME: 0.0.0.0
       PORT: "5000"
       DATABASE_URL: postgresql://regensburg:regensburg@postgres:5432/regensburg
-      APP_BASE_URL: http://localhost:15000
-      PUBLIC_CLIENT_BASE_URL: http://localhost:14321
-      ADMIN_CLIENT_BASE_URL: http://localhost:15173
+      APP_BASE_URL: http://localhost:5000
+      PUBLIC_CLIENT_BASE_URL: http://localhost:4321
+      ADMIN_CLIENT_BASE_URL: http://localhost:5173
       KEYCLOAK_JWKS_URI: http://placeholder/not-used-in-development
-      TILES_URL: https://example.invalid/tiles
-      TERRAIN_URL: https://example.invalid/terrain
-      ADDRESS_DATABASE_URL: https://example.invalid/addresses.sqlite
       REDIS_HOST: redis
-      VITE_API_BASE_URL: http://localhost:15000
+      VITE_API_BASE_URL: http://localhost:5000
     depends_on:
       postgres:
         condition: service_healthy
@@ -52,7 +51,7 @@ services:
     environment:
       APISIX_STAND_ALONE: "true"
     ports:
-      - "127.0.0.1:15000:9080"
+      - "127.0.0.1:5000:9080"
     depends_on: [dev]
 volumes:
   postgres_data:

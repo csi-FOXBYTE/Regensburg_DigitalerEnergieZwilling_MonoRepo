@@ -1,5 +1,5 @@
 export type ExternalBuildingTarget = {
-  buildingId: string;
+  buildingId?: string;
   latitudeDegrees: number;
   longitudeDegrees: number;
 };
@@ -27,8 +27,7 @@ export function parseExternalBuildingTarget(
   const latitudeText = parameters.get('lat');
   const longitudeText = parameters.get('lon');
   if (
-    buildingId === null ||
-    buildingId.trim() === '' ||
+    (buildingId !== null && buildingId.trim() === '') ||
     latitudeText === null ||
     latitudeText.trim() === '' ||
     longitudeText === null ||
@@ -52,7 +51,11 @@ export function parseExternalBuildingTarget(
 
   return {
     status: 'valid',
-    target: { buildingId, latitudeDegrees, longitudeDegrees },
+    target: {
+      ...(buildingId === null ? {} : { buildingId }),
+      latitudeDegrees,
+      longitudeDegrees,
+    },
   };
 }
 

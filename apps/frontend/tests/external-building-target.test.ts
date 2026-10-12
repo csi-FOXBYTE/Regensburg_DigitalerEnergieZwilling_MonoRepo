@@ -21,6 +21,13 @@ test('parses a complete external target and preserves its exact building ID', ()
   );
 });
 
+test('accepts coordinates without a building ID', () => {
+  assert.deepEqual(parseExternalBuildingTarget('lat=49.019&lon=12.097'), {
+    status: 'valid',
+    target: { latitudeDegrees: 49.019, longitudeDegrees: 12.097 },
+  });
+});
+
 test('ignores fragments without reserved external-target parameters', () => {
   assert.deepEqual(parseExternalBuildingTarget('foo=bar'), {
     status: 'absent',
@@ -31,6 +38,8 @@ test('rejects incomplete, blank, non-finite, and out-of-range targets', () => {
   const invalidFragments = [
     'buildingId=123&lat=49',
     'buildingId=%20&lat=49&lon=12',
+    'buildingId=&lat=49&lon=12',
+    'lat=49',
     'buildingId=123&lat=&lon=12',
     'buildingId=123&lat=NaN&lon=12',
     'buildingId=123&lat=Infinity&lon=12',
@@ -43,6 +52,18 @@ test('rejects incomplete, blank, non-finite, and out-of-range targets', () => {
       status: 'invalid',
     });
   }
+});
+
+test('a coordinate-only target suppresses resume and is consumed once', () => {
+  const lifecycle = new ExternalBuildingTargetLifecycle();
+  lifecycle.initialize('lat=49&lon=12', false);
+
+  assert.equal(lifecycle.suppressesSessionResume(), true);
+  assert.deepEqual(lifecycle.consumePendingTarget(), {
+    latitudeDegrees: 49,
+    longitudeDegrees: 12,
+  });
+  assert.equal(lifecycle.consumePendingTarget(), null);
 });
 
 test('valid targets suppress resume and can be consumed only once', () => {
