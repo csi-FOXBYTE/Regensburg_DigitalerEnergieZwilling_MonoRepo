@@ -26,9 +26,6 @@ services:
       KEYCLOAK_JWKS_URI: http://placeholder/not-used-in-development
       REDIS_HOST: redis
       VITE_API_BASE_URL: http://localhost:5000
-      # Local Matomo below; the browser on the host sends the events there.
-      MATOMO_URL: http://localhost:8091/matomo.php
-      MATOMO_SITE_ID: "1"
     depends_on:
       postgres:
         condition: service_healthy
@@ -56,9 +53,11 @@ services:
     ports:
       - "127.0.0.1:5000:9080"
     depends_on: [dev]
-  # Local web analytics (admin / admin-Passw0rd!), installed by matomo-setup.
+  # Optional local web analytics (admin / admin-Passw0rd!), installed by
+  # matomo-setup. Only started with --profile matomo, see README.md.
   matomo-db:
     image: mariadb:11
+    profiles: [matomo]
     environment:
       MARIADB_ROOT_PASSWORD: root
       MARIADB_DATABASE: matomo
@@ -70,8 +69,10 @@ services:
       test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
       interval: 3s
       retries: 40
+      start_period: 5m
   matomo:
     image: matomo:5.14.0-apache
+    profiles: [matomo]
     # Installs the local settings next to the config the installer writes.
     entrypoint:
       - bash
@@ -100,10 +101,12 @@ services:
         - "exit(@file_get_contents('http://localhost/matomo.php') === false ? 1 : 0);"
       interval: 3s
       retries: 40
+      start_period: 5m
   # Installs Matomo on first start (skipped later), applies the privacy
   # configuration and exits. Same specs as apps/frontend/tests/matomo.
   matomo-setup:
     image: mcr.microsoft.com/playwright:v1.62.1-noble
+    profiles: [matomo]
     ipc: host
     entrypoint:
       - bash
