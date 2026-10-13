@@ -12,6 +12,7 @@ its own package name and version because other consumers may depend on its API.
 | `apps/backend` | API, data access and migrations | http://localhost:5001/health |
 | `packages/energy-core` | Shared calculation library and CLI | Workspace dependency |
 | `.devcontainer` | Node, PostgreSQL, Redis and APISIX development services | http://localhost:5000/docs |
+| `.devcontainer` | Local Matomo for the web analytics (`admin` / `admin-Passw0rd!`) | http://localhost:8091/ |
 
 The addon, offline enrichment and Airflow projects have separate repositories.
 Their source history and this workspace's import provenance are recorded in
@@ -21,9 +22,9 @@ Their source history and this workspace's import provenance are recorded in
 
 Use VS Code **Reopen in Container** from this directory. The devcontainer uses
 Node 24.21.0 and pnpm 11.22.0 as the `node` user. It runs a local PostgreSQL
-database, Redis and APISIX. Before starting it, copy `.env.example` to `.env` in
-the repository root and replace the map resource URLs. The `.env` file is ignored
-by Git. Alternatively, start its services on the host:
+database, Redis, APISIX and Matomo. Before starting it, copy `.env.example` to
+`.env` in the repository root and replace the map resource URLs. The `.env` file
+is ignored by Git. Alternatively, start its services on the host:
 
 ```sh
 docker compose -f .devcontainer/compose.yml up -d --build
@@ -48,6 +49,14 @@ database credentials in Compose are only for local development.
 after a successful core rebuild. For an individual application use `pnpm dev:frontend`,
 `pnpm dev:admin` or `pnpm dev:backend` after `pnpm prepare:workspace`. `pnpm dev:core`
 runs the core watcher.
+
+The devcontainer installs and configures Matomo on its first start (the
+`matomo-setup` service, a few minutes for the browser image) and points the
+backend at it, so the public frontend tracks to http://localhost:8091/ after
+**Alle erlauben** in the consent dialog. Events appear under **Visitors > Visits
+Log**. `docker compose -f .devcontainer/compose.yml logs matomo-setup` shows the
+setup. The [Matomo test setup](apps/frontend/tests/matomo/README.md) is a
+separate, throwaway instance for automated checks.
 
 The map and address-resource URLs come from the root `.env` file. To use the
 admin UI with the local API,

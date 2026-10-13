@@ -32,7 +32,7 @@ test('install Matomo', async ({ page }) => {
     page.getByRole('heading', { name: 'Set up a Website' }),
   ).toBeVisible();
   await page.fill('input[name=siteName]', 'DEZ Sanierungstool (lokal)');
-  await page.fill('input[name=url]', 'localhost:4329');
+  await page.fill('input[name=url]', process.env.SITE_URL ?? 'localhost:4329');
   await page
     .locator('select[name=timezone]')
     .selectOption('UTC', { force: true });
