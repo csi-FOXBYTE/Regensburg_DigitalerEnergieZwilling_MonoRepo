@@ -4,6 +4,12 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Typography } from '@/components/ui/typography';
 import { EnergyReportDocument } from '@/feature/export/EnergyReportDocument';
 import { municipality } from '@/config/municipality';
+import {
+  trackContactRequested,
+  trackDonationCompleted,
+  trackDonationStarted,
+  trackPdfDownloaded,
+} from '@/lib/analytics/funnel';
 import { submitEnergyData } from '@/lib/api/public';
 import { downloadPdf } from '@/lib/downloadPdf';
 import { $building } from '@/lib/state/building';
@@ -118,6 +124,7 @@ export function NextStepsSection() {
               .join(', ')
           : '';
 
+        trackDonationStarted();
         const result = await submitEnergyData({
           input: calculationInput,
           configName: versionName,
@@ -131,6 +138,7 @@ export function NextStepsSection() {
         });
 
         if (result) {
+          trackDonationCompleted();
           toast.success(t('export.submissionSuccess'));
           const encodedToken = encodeURIComponent(result.deletionToken);
           const deletionLink = `${window.location.origin}/${localizedLocale}/delete/${encodedToken}`;
@@ -145,6 +153,7 @@ export function NextStepsSection() {
             />,
             t('export.reportTitle'),
           );
+          trackPdfDownloaded();
           return;
         }
       }
@@ -157,6 +166,7 @@ export function NextStepsSection() {
         />,
         t('export.reportTitle'),
       );
+      trackPdfDownloaded();
     } catch {
       toast.error(t('export.downloadError'));
     } finally {
@@ -243,6 +253,10 @@ export function NextStepsSection() {
                   href={step.link}
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={trackContactRequested}
+                  onAuxClick={(event) => {
+                    if (event.button === 1) trackContactRequested();
+                  }}
                   className="text-primary break-all underline"
                 >
                   {step.link}

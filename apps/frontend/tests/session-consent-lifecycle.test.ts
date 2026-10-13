@@ -47,7 +47,7 @@ test('initial dismissal and cancelled settings never persist a decision or a dra
   assert.equal($consentView.get(), 'initial');
   openConsentSettings();
   assert.equal($consentDraft.get().functional, false);
-  $consentDraft.set({ functional: true });
+  $consentDraft.set({ functional: true, analytics: false });
   dismissConsentDialog();
   assert.equal(consent.allows('functional'), false);
   assert.equal(storage.data.has(CONSENT_KEY), false);
@@ -61,7 +61,7 @@ test('initial dismissal and cancelled settings never persist a decision or a dra
   assert.equal($consentView.get(), 'initial', 'a new document asks again');
   confirmConsent({ functional: true });
   openConsentSettings();
-  $consentDraft.set({ functional: false });
+  $consentDraft.set({ functional: false, analytics: false });
   dismissConsentDialog();
   assert.equal(
     consent.allows('functional'),

@@ -85,7 +85,7 @@ Quelle: `raw/frontend-architecture.puml`
 <a id="consent-und-matomo-tracking"></a>
 ## Consent und Matomo-Tracking
 
-> **Umsetzungsstand:** Dieser Abschnitt beschreibt das Zielbild. Matomo ist noch nicht aktiviert und aktuell niedrig priorisiert. Da keine zugängliche Kundeninstanz vorhanden ist, müssen eine eigene Instanz sowie Betrieb und Zuständigkeiten abgestimmt werden; eine Umsetzung in Sprint 18 oder 19 ist offen.
+> **Umsetzungsstand:** Dieser Abschnitt beschreibt das Zielbild. Matomo ist noch nicht aktiviert und aktuell niedrig priorisiert. Da keine zugängliche Kundeninstanz vorhanden ist, müssen eine eigene Instanz sowie Betrieb und Zuständigkeiten abgestimmt werden; eine Umsetzung in Sprint 18 oder 19 ist offen. Die technische Anbindung ist bereits vorbereitet und bleibt ohne die Backend-Variablen `MATOMO_URL` und `MATOMO_SITE_ID` vollständig inaktiv; Details im [Matomo-Trackingkonzept](../system/06-matomo-trackingkonzept.md#technische-umsetzung).
 
 - Das Public-Frontend verwaltet den Consent-Status für Webanalyse unabhängig von technisch notwendiger lokaler Speicherung und der gesonderten Einwilligung zur Gebäudedatenspende.
 - Matomo-Ressourcen und der zentrale Tracking-Adapter werden erst nach gültigem Opt-in aktiviert.

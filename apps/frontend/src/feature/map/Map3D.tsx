@@ -22,6 +22,7 @@ import { Cesium3DTileset, ImageryLayer, Viewer } from 'resium';
 import { toast } from 'sonner';
 import { CameraController } from '../../lib/camera';
 import { getMapResources } from '../../lib/api/public';
+import { trackBuildingSelected } from '../../lib/analytics/funnel';
 import {
   type FocusCameraIntent,
   registerCameraOwner,
@@ -126,7 +127,7 @@ function selectFeatureForTarget(
 ) {
   const address =
     intent.reason.type === 'address' ? intent.reason.address : null;
-  setBuilding(
+  const selected = setBuilding(
     feature,
     {
       lon: intent.target.longitudeDegrees,
@@ -138,6 +139,8 @@ function selectFeatureForTarget(
       allowInvalidBuilding,
     },
   );
+  // External building links are not a selection made on the map or search.
+  if (selected && address) trackBuildingSelected();
 }
 
 function findTargetFeatureByDrillPick(
@@ -582,10 +585,13 @@ export function Map3D({ children }: Map3DProps) {
                 });
                 if (result === 'ignored') return;
 
-                setBuilding(tileFeature, {
-                  lon: target.longitudeDegrees,
-                  lat: target.latitudeDegrees,
-                });
+                if (
+                  setBuilding(tileFeature, {
+                    lon: target.longitudeDegrees,
+                    lat: target.latitudeDegrees,
+                  })
+                )
+                  trackBuildingSelected();
               }}
               url={tilesetUrl}
             />

@@ -3,12 +3,18 @@ import { atom } from 'nanostores';
 export const DAY = 24 * 60 * 60 * 1000;
 export const CONSENT_TTL = 180 * DAY;
 export const CONSENT_KEY = 'det_consent';
-export const purposes = [{ id: 'functional', version: 1 }] as const;
+/** A purpose's version is the decision version in which it was first offered. */
+export const purposes = [
+  { id: 'functional', version: 1 },
+  { id: 'analytics', version: 2 },
+] as const;
 export type Purpose = (typeof purposes)[number]['id'];
+export type PurposeVersion = (typeof purposes)[number]['version'];
 export type Choices = Record<Purpose, boolean>;
 export type ConsentDecision = {
   version: 1;
-  purposeVersion: 1;
+  /** Purposes newer than this were not offered and remain undecided. */
+  purposeVersion: PurposeVersion;
   choices: Choices;
   decidedAt: number;
   expiresAt: number;
@@ -18,16 +24,21 @@ export type BrowserStorage = Pick<
   'getItem' | 'setItem' | 'removeItem' | 'key' | 'length'
 >;
 
+const purposeVersionOf = (id: Purpose): PurposeVersion =>
+  purposes.find((purpose) => purpose.id === id)!.version;
+
 export function parseDecision(
   raw: string | null,
   now: number,
 ): ConsentDecision | null {
   try {
     const value = JSON.parse(raw ?? 'null');
+    const purposeVersion = value?.purposeVersion;
     if (
       value?.version !== 1 ||
-      value.purposeVersion !== 1 ||
+      (purposeVersion !== 1 && purposeVersion !== 2) ||
       typeof value.choices?.functional !== 'boolean' ||
+      (purposeVersion >= 2 && typeof value.choices.analytics !== 'boolean') ||
       !Number.isFinite(value.decidedAt) ||
       value.decidedAt > now ||
       value.expiresAt !== value.decidedAt + CONSENT_TTL ||
@@ -36,8 +47,11 @@ export function parseDecision(
       return null;
     return {
       version: 1,
-      purposeVersion: 1,
-      choices: { functional: value.choices.functional },
+      purposeVersion,
+      choices: {
+        functional: value.choices.functional,
+        analytics: purposeVersion >= 2 && value.choices.analytics,
+      },
       decidedAt: value.decidedAt,
       expiresAt: value.expiresAt,
     };
@@ -50,6 +64,8 @@ export function parseDecision(
 export class ConsentManager {
   readonly $decision = atom<ConsentDecision | null>(null);
   readonly $storageError = atom(false);
+  /** Purposes this deployment can actually offer; optional ones are enabled at runtime. */
+  readonly $availablePurposes = atom<readonly Purpose[]>(['functional']);
   private initialized = false;
   private observedRaw: string | null = null;
 
@@ -61,6 +77,15 @@ export class ConsentManager {
   reportStorageError = () => {
     this.$storageError.set(true);
   };
+
+  isAvailable(purpose: string): purpose is Purpose {
+    return this.$availablePurposes.get().includes(purpose as Purpose);
+  }
+
+  enablePurpose(purpose: Purpose): void {
+    if (!this.isAvailable(purpose))
+      this.$availablePurposes.set([...this.$availablePurposes.get(), purpose]);
+  }
 
   refresh(): void {
     try {
@@ -80,18 +105,38 @@ export class ConsentManager {
   allows(purpose: string): boolean {
     this.refresh();
     return (
-      purposes.some(({ id }) => id === purpose) &&
-      this.$decision.get()?.choices[purpose as Purpose] === true
+      this.isAvailable(purpose) &&
+      this.$decision.get()?.choices[purpose] === true
     );
   }
 
-  commit(choices: Choices): void {
+  /** True without a decision, or when an available purpose was not offered when deciding. */
+  needsDecision(): boolean {
+    this.refresh();
+    const decision = this.$decision.get();
+    return (
+      !decision ||
+      this.$availablePurposes
+        .get()
+        .some((id) => purposeVersionOf(id) > decision.purposeVersion)
+    );
+  }
+
+  commit(choices: Partial<Choices>): void {
     this.refresh();
     const decidedAt = this.now();
+    const available = this.$availablePurposes.get();
     const decision: ConsentDecision = {
       version: 1,
-      purposeVersion: 1,
-      choices: { functional: choices.functional === true },
+      // Record only what was offered, so a later purpose prompts again.
+      purposeVersion: Math.max(
+        ...available.map(purposeVersionOf),
+      ) as PurposeVersion,
+      choices: {
+        functional: choices.functional === true,
+        analytics:
+          available.includes('analytics') && choices.analytics === true,
+      },
       decidedAt,
       expiresAt: decidedAt + CONSENT_TTL,
     };

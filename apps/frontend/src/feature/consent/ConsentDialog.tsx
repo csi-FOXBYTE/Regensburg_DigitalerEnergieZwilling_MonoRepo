@@ -22,6 +22,7 @@ import {
 } from '@/lib/consent/dialog-state';
 // Load the shared grant/withdrawal effects on legal pages as well.
 import '@/lib/state/session/storage';
+import { initAnalytics } from '@/lib/analytics';
 import type { Locale } from '@/i18n/config';
 
 export default function ConsentDialog({
@@ -35,6 +36,8 @@ export default function ConsentDialog({
   const view = useStore($consentView);
   const draft = useStore($consentDraft);
   const storageError = useStore(consent.$storageError);
+  const availablePurposes = useStore(consent.$availablePurposes);
+  const analyticsAvailable = availablePurposes.includes('analytics');
   const [errorDismissed, setErrorDismissed] = useState(false);
   const trigger = useRef<HTMLButtonElement>(null);
   const fromFooter = useRef(false);
@@ -56,7 +59,9 @@ export default function ConsentDialog({
     ) : null;
 
   useEffect(() => {
-    initializeConsentDialog(autoPrompt);
+    // Offered purposes must be known first: a re-prompt arriving later would
+    // open on top of the resume and notice dialogs that wait for 'closed'.
+    void initAnalytics().then(() => initializeConsentDialog(autoPrompt));
   }, [autoPrompt]);
 
   return (
@@ -102,8 +107,12 @@ export default function ConsentDialog({
             >
               {t(
                 settings
-                  ? 'consent.settingsDescription'
-                  : 'consent.description',
+                  ? analyticsAvailable
+                    ? 'consent.settingsDescriptionWithAnalytics'
+                    : 'consent.settingsDescription'
+                  : analyticsAvailable
+                    ? 'consent.descriptionWithAnalytics'
+                    : 'consent.description',
               )}
             </DialogDescription>
           </DialogHeader>
@@ -126,30 +135,35 @@ export default function ConsentDialog({
                   {t('consent.necessaryDescription')}
                 </Typography>
               </section>
-              {purposes.map(({ id }) => (
-                <section key={id} className="border-t border-neutral-200 py-4">
-                  <div className="flex items-center justify-between gap-4">
-                    <label htmlFor={`consent-${id}`} className="font-bold">
-                      {t(`consent.${id}`)}
-                    </label>
-                    <Switch
-                      id={`consent-${id}`}
-                      aria-describedby={`consent-${id}-description`}
-                      checked={draft[id]}
-                      onCheckedChange={(checked) =>
-                        $consentDraft.set({ ...draft, [id]: checked })
-                      }
-                    />
-                  </div>
-                  <Typography
-                    id={`consent-${id}-description`}
-                    variant="small"
-                    className="mt-2"
+              {purposes
+                .filter(({ id }) => availablePurposes.includes(id))
+                .map(({ id }) => (
+                  <section
+                    key={id}
+                    className="border-t border-neutral-200 py-4"
                   >
-                    {t(`consent.${id}Description`)}
-                  </Typography>
-                </section>
-              ))}
+                    <div className="flex items-center justify-between gap-4">
+                      <label htmlFor={`consent-${id}`} className="font-bold">
+                        {t(`consent.${id}`)}
+                      </label>
+                      <Switch
+                        id={`consent-${id}`}
+                        aria-describedby={`consent-${id}-description`}
+                        checked={draft[id]}
+                        onCheckedChange={(checked) =>
+                          $consentDraft.set({ ...draft, [id]: checked })
+                        }
+                      />
+                    </div>
+                    <Typography
+                      id={`consent-${id}-description`}
+                      variant="small"
+                      className="mt-2"
+                    >
+                      {t(`consent.${id}Description`)}
+                    </Typography>
+                  </section>
+                ))}
             </div>
           ) : (
             <Typography className="border-l-2 pl-4">
@@ -160,12 +174,18 @@ export default function ConsentDialog({
           <div className="grid gap-2">
             <Button
               onClick={() =>
-                confirmConsent(settings ? draft : { functional: true })
+                confirmConsent(
+                  settings ? draft : { functional: true, analytics: true },
+                )
               }
             >
               {t(settings ? 'consent.save' : 'consent.allow')}
             </Button>
-            <Button onClick={() => confirmConsent({ functional: false })}>
+            <Button
+              onClick={() =>
+                confirmConsent({ functional: false, analytics: false })
+              }
+            >
               {t('consent.decline')}
             </Button>
             {!settings && (

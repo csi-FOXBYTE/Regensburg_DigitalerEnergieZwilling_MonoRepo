@@ -18,6 +18,7 @@ import {
   type BuildingState,
   unselectBuilding,
 } from '../../lib/state/building';
+import { trackInitialAssessmentCompleted } from '../../lib/analytics/funnel';
 import { getSession } from '../../lib/state/session/storage';
 import { loadSession, startOverSession } from '../../lib/state/session';
 import { $step, navigateToStep, Step } from '../../lib/state/ui/progress';
@@ -136,6 +137,7 @@ export default function BuildingWindow() {
   >(undefined);
 
   const gotoGeneralDataStep = useCallback(() => {
+    trackInitialAssessmentCompleted();
     navigateToStep(Step.GeneralData);
   }, []);
 

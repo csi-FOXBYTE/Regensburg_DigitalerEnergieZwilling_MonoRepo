@@ -1,7 +1,7 @@
 # Matomo-Trackingkonzept und Eventkatalog
 
 > **Status:** Fachlicher Zielstand, Stand 14. August 2026  
-> **Umsetzungsstand:** Matomo und Consent-Management sind im Public-Frontend noch nicht produktiv aktiviert und aktuell niedrig priorisiert. Entgegen der früheren Annahme steht keine zugängliche Matomo-Instanz des Auftraggebers bereit. Eine eigene Instanz sowie Betrieb und Zuständigkeiten müssen abgestimmt werden; die Umsetzung in Sprint 18 oder 19 ist nicht verbindlich zugesagt.  
+> **Umsetzungsstand:** Matomo und Consent-Management sind im Public-Frontend noch nicht produktiv aktiviert und aktuell niedrig priorisiert. Entgegen der früheren Annahme steht keine zugängliche Matomo-Instanz des Auftraggebers bereit. Eine eigene Instanz sowie Betrieb und Zuständigkeiten müssen abgestimmt werden; die Umsetzung in Sprint 18 oder 19 ist nicht verbindlich zugesagt. Die technische Anbindung ist im Public-Frontend vorbereitet und bleibt inaktiv, solange für die Umgebung keine Matomo-Instanz konfiguriert ist (siehe [Technische Umsetzung](#technische-umsetzung)).  
 > **Geltungsbereich:** Öffentlicher Teil des Sanierungstools des Digitalen Energie Zwillings (DEZ)
 
 ## Inhaltsverzeichnis
@@ -17,6 +17,7 @@
 9. [Betriebsparameter und Berichtszugriff](#betriebsparameter-und-berichtszugriff)
 10. [Abnahmekriterien](#abnahmekriterien)
 11. [Änderungsprozess](#aenderungsprozess)
+12. [Technische Umsetzung](#technische-umsetzung)
 
 <a id="ziel-und-auswertungszwecke"></a>
 
@@ -138,6 +139,40 @@ Die technische Erfassung verwendet semantische IDs statt instabiler Schrittzahle
 
 Vor Implementierung ist jede `step_id` genau einem fachlichen Abschlusskriterium und der zugehörigen Frontend-Route beziehungsweise UI-Zustandsänderung zuzuordnen. Ein Abbruchabschnitt ist der letzte vollständig bearbeitete Schritt einer gestarteten, nach dem festgelegten Session-Timeout nicht abgeschlossenen Sitzung.
 
+### Zuordnung der Abschlusskriterien
+
+Das Public-Frontend besitzt keine Routen je Schritt; die Schritte sind UI-Zustände einer Seite. Ereignisse werden ausschließlich durch ausdrückliche Nutzeraktionen ausgelöst. Wiederherstellungen aus dem Browser oder über Wiederherstellungslinks, Zurück-Navigation, Sprünge über die Fortschrittsleiste und „Neu beginnen“ erzeugen keine Ereignisse. Eine über einen Wiederherstellungslink direkt geöffnete Ergebnisseite zählt daher nicht als `tool_completed`.
+
+| `step_id` | Abschlusskriterium | Zusätzliche Ereignisse |
+| --- | --- | --- |
+| `landing` | „Jetzt starten“ auf der Einstiegsseite betätigt | `tool_started` |
+| `building_selection` | Gebäude per Klick in der Karte oder über die Adresssuche ausgewählt; Gebäudeverweise per externem Link zählen nicht | – |
+| `initial_assessment` | „Jetzt Sanierungsvorschlag ermitteln“ in der Ersteinschätzung betätigt; „Dort weitermachen“ setzt eine gespeicherte Bearbeitung fort und zählt nicht | – |
+| `building_data` | „Weiter“ im Schritt Allgemeine Daten betätigt | `building_type_confirmed` mit dem übernommenen oder geänderten Gebäudetyp |
+| `building_envelope` | „Weiter“ im Schritt Außenbauteile des Gebäudes betätigt | – |
+| `heating` | „Weiter“ im Schritt Wärmeversorgung betätigt | – |
+| `electricity_renewables` | „Weiter“ im Schritt Strom & erneuerbare Energien betätigt | – |
+| `renovation_measures` | „Ergebnis anzeigen“ im Schritt Sanierungsmaßnahmen betätigt | je ausgewählter Maßnahme `renovation_measure_confirmed` |
+| `results` | Ergebnisseite durch denselben Schritt erstmals erreicht | `tool_completed` |
+| `pdf_export` | PDF-Bericht erfolgreich erzeugt | `pdf_downloaded` mit `document_type = energy_report_pdf` |
+| `consulting_contact` | Link zur Energieberatung auf der Ergebnisseite angeklickt (auch Mittelklick) | `contact_requested` mit `contact_channel = energy_advice_link` |
+| `data_donation` | Einreichung der Datenspende vom Backend erfolgreich bestätigt | `donation_completed` |
+
+`donation_started` wird ausgelöst, wenn der Download mit gesetzter Einwilligung zur Datenspende gestartet wird, unmittelbar vor der Übermittlung an das Backend. Ein eigener Prozess zur Datenspende existiert derzeit nicht. Der im PDF-Bericht abgedruckte Beratungslink kann technisch nicht erfasst werden.
+
+**Fachlich zu klären:** `tool_started` entsteht nur über den Start-Button der Einstiegsseite. Sitzungen, die eine gespeicherte Bearbeitung fortsetzen, über einen externen Gebäudelink einsteigen oder nach dem Session-Timeout mitten im Ablauf neu beginnen, können `tool_completed` ohne `tool_started` enthalten. Mit den verbindlichen Definitionen kann die Abschlussquote dadurch über 100 % liegen und die Abbruchquote negativ werden. Vor Produktivbetrieb ist festzulegen, ob der Nenner auf Sitzungen mit `tool_started` und `tool_completed` eingeschränkt oder `tool_started` zusätzlich bei Fortsetzungen ausgelöst wird.
+
+### Kategorieschlüssel (Katalogversion 1)
+
+| Parameter | Zulässige Werte |
+| --- | --- |
+| `building_type_key` | `single_family`, `multi_family` |
+| `measure_key` | `envelope_roof`, `envelope_top_floor`, `envelope_bottom_floor`, `envelope_outer_walls`, `envelope_windows`, `envelope_roof_windows`, `heating_system_renewal`, `heating_air_source_heat_pump`, `heating_ground_source_heat_pump`, `heating_wood_pellet_boiler`, `heating_biogas_condensing_boiler`, `heating_district_heating`, `heating_surface_radiant` |
+| `document_type` | `energy_report_pdf` |
+| `contact_channel` | `energy_advice_link` |
+
+Die Maßnahmenschlüssel werden aus den Renovierungskennungen des Rechenkerns und der Standardkonfiguration abgebildet. Heizungsmaßnahmen, die eine später veröffentlichte Konfiguration ergänzt, haben keinen Schlüssel und werden nicht übertragen, bis der Katalog nach dem Änderungsprozess erweitert ist.
+
 <a id="kennzahlen"></a>
 
 ## Kennzahlen
@@ -203,3 +238,17 @@ Neue Events, Parameter, Funnel-Schritte, Werte oder Auswertungszwecke dürfen ni
 4. technische Umsetzung und automatisierte Prüfung,
 5. Aktualisierung der Datenschutzhinweise, sofern sich die dort beschriebene Verarbeitung ändert,
 6. Freigabe vor produktiver Aktivierung.
+
+<a id="technische-umsetzung"></a>
+
+## Technische Umsetzung
+
+- Das Backend liefert unter `GET /api/public/analytics-config` die Tracker-URL und Site-ID der Umgebung aus den Variablen `MATOMO_URL` und `MATOMO_SITE_ID`. Fehlt einer der Werte, ist die Antwort `{ "matomo": null }`; das Public-Frontend bietet die Webanalyse dann in den Datenschutzeinstellungen nicht an und sendet nichts.
+- Die Einwilligung zur Webanalyse ist ein eigener Zweck (`analytics`) neben der optionalen lokalen Speicherung. Entscheidungen, die vor dem Angebot der Webanalyse getroffen wurden, bleiben für die lokale Speicherung gültig; der Einwilligungsdialog wird nach Aktivierung jedoch einmalig erneut angezeigt. Der Dialog wartet beim Seitenaufruf höchstens drei Sekunden auf die Konfiguration, damit er nicht nachträglich über anderen Dialogen erscheint. Wer bei der erneuten Abfrage optionale Speicherung ablehnt, widerruft damit auch die bisher erteilte Einwilligung zur lokalen Speicherung; gespeicherte Bearbeitungsstände werden dann entfernt.
+- Der zentrale Tracking-Adapter (`apps/frontend/src/lib/analytics`) validiert Eventcode und Parameter gegen den versionierten Katalog, verwirft Ereignisse ohne Konfiguration oder Einwilligung ohne Zwischenspeicherung und dedupliziert je Sitzung.
+- Es wird kein Matomo-Skript geladen. Ereignisse werden über die Bulk-Schnittstelle der Matomo-HTTP-Tracking-API ohne Cookies und ohne Referrer übertragen. Ereignisse derselben Nutzeraktion werden gemeinsam gesendet, und eine Übertragung beginnt erst nach Abschluss der vorherigen. Parallele Anfragen würden in Matomo einen neuen Besuch doppelt anlegen und die Reihenfolge der Ereignisse vertauschen, auf der die Kennzahl „Abbruchabschnitte“ beruht. Als Seitenadresse wird ausschließlich die Startadresse der Sprachversion übergeben; Seitentitel, Referrer und benutzerdefinierte Dimensionen werden nicht gesetzt.
+- Der Sitzungsbezug ist eine zufällige 16-stellige Hex-Kennung im Session Storage des Browser-Tabs (`det_analytics_session`). Nach 30 Minuten Inaktivität wird eine neue Kennung erzeugt; dieser Wert ist als Betriebsparameter noch freizugeben. Bei Widerruf wird der Eintrag gelöscht.
+- Die Kennzahlen dieses Konzepts sind als geprüfte Referenzimplementierung (`computeKpis`) hinterlegt.
+- Pflichtkonfiguration der Matomo-Instanz für diesen Tracker: `[Tracker] trust_visitors_cookies = 1` in `config.ini.php` und „Disable all tracking cookies“ (`forceCookielessTracking`) **ausgeschaltet**. Andernfalls ignoriert Matomo den gesendeten Sitzungsbezug und fasst alle Nutzenden mit gleichem gekürztem IP-Präfix und gleichem Browser zu einem Besuch zusammen; Starts, Abschlussquote und Abbruchabschnitte wären dann falsch. Der Tracker setzt unabhängig davon keine Cookies, und Matomo setzt über die Tracking-API ohne aktivierte Drittanbieter-Cookies keine.
+- Für die übrigen Datenschutzeinstellungen ist vorgesehen: IP-Anonymisierung um 3 Bytes, auch für die Anreicherung; Referrer nicht speichern; Geolokalisierung deaktiviert; „Randomize config_ID“ ausgeschaltet. Die lokale Testumgebung (`apps/frontend/tests/matomo`) wendet diese Konfiguration automatisch an.
+- Die Browser-Tests unter `apps/frontend/tests/e2e/analytics.spec.ts` simulieren Konfiguration und Matomo-Endpunkt und prüfen Ruhezustand, erneute Abfrage, Ablehnung, Ereignisfolge, Deduplizierung und Widerruf. Zusätzlich wurde im Oktober 2026 einmalig gegen eine lokale Matomo-5.14-Instanz mit Standardeinstellungen getestet: Ein vollständiger Durchlauf ergab genau einen Besuch mit allen Ereignissen in Auslösereihenfolge, Antworten ohne `Set-Cookie`, als Seitenadresse ausschließlich die Startadresse der Sprachversion und nach Widerruf keine weiteren Ereignisse. Die Testumgebung dafür ist noch nicht im Repository abgelegt. Die Ereignisse der Datenspende sind nur durch Unit-Tests abgedeckt, weil ein Browser-Durchlauf echte Einreichungen im Backend erzeugen würde.
