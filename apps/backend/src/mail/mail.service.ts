@@ -32,7 +32,9 @@ const mailService = createService("mail", async () => {
 
   const transport = nodemailer.createTransport({
     url: smtpUrl,
-    requireTLS: url.protocol === "smtp:",
+    requireTLS:
+      url.protocol === "smtp:" &&
+      !(process.env.NODE_ENV === "development" && url.hostname === "mailpit"),
   });
 
   return {
