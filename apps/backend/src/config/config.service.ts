@@ -208,7 +208,7 @@ const configService = createService("config", async ({ services }) => {
     if (target == null) {
       throw new AppError({ status: "NOT_FOUND", code: 404, message: `Version "${versionName}" not found` });
     }
-    const result = validateConfig(JSON.parse(target.calculationConfig));
+    const result = validateAndMigrate(JSON.parse(target.calculationConfig));
     if (!result.success) {
       throw new AppError({ status: "BAD_REQUEST", code: 400, message: `Config "${versionName}" is invalid and cannot be activated: ${result.issues.map(i => `${i.path}: ${i.message}`).join(", ")}` });
     }
@@ -216,7 +216,11 @@ const configService = createService("config", async ({ services }) => {
       await tx.config.updateMany({ where: { isActive: true }, data: { isActive: false } });
       return tx.config.update({
         where: { versionName },
-        data: { isActive: true, publishedAt: new Date() },
+        data: {
+          isActive: true,
+          publishedAt: new Date(),
+          ...(result.migrated ? { calculationConfig: JSON.stringify(result.data) } : {}),
+        },
       });
     });
   }

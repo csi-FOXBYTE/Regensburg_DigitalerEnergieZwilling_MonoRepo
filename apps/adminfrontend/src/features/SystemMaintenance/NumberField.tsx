@@ -21,7 +21,7 @@ export function NumberField({
 
   return (
     <TextField
-      size="small"
+      size="medium"
       type="number"
       label={label}
       sx={{ minWidth: 260, flex: "0 1 300px" }}

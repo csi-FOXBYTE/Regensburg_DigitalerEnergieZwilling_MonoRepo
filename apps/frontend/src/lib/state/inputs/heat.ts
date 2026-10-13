@@ -1,4 +1,5 @@
 import {
+  isCarrierCompatible,
   isHeatingSystemCompatible,
   type RangeKey,
 } from '@csi-foxbyte/regensburg_digitalerenergiezwilling_energycalculationcore';
@@ -11,6 +12,7 @@ import {
   $resolvedInput,
   $resolvedInputState,
 } from '../computed/resolved-input';
+import { $calculationInput } from '../computed/calculation-input';
 import { $inputState } from './atoms';
 import { buildingOrNewerYearOptions } from './general';
 
@@ -41,8 +43,11 @@ export const primaryEnergyCarrierField = makeFieldStore({
   resettable: true,
 });
 
-export const primaryEnergyCarrierOptions = makeSelectionStore(
-  (config) => config.heat.primaryEnergyCarriers,
+export const primaryEnergyCarrierOptions = computed(
+  [$config, $calculationInput],
+  (config, input) => config.heat.primaryEnergyCarriers.filter((carrier) =>
+    isCarrierCompatible(carrier, input),
+  ),
 );
 
 bindFieldToOptions(primaryEnergyCarrierField, primaryEnergyCarrierOptions);

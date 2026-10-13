@@ -107,12 +107,12 @@ describe("validateConfig — household electricity", () => {
 describe("validateConfig — multiple simultaneous issues", () => {
   test("collects all issues before returning", () => {
     const cfg = fresh();
-    cfg.heat.defaultPrimaryEnergyCarrier = "x";
+    cfg.heat.defaultPrimaryEnergyCarrierPriority = ["x"];
     cfg.heat.defaultElectricityType = "y";
     const result = validateConfig(cfg);
     assert.strictEqual(result.success, false);
     if (!result.success) {
-      assert.ok(result.issues.some((i) => i.path === "heat.defaultPrimaryEnergyCarrier"));
+      assert.ok(result.issues.some((i) => i.path === "heat.defaultPrimaryEnergyCarrierPriority"));
       assert.ok(result.issues.some((i) => i.path === "heat.defaultElectricityType"));
       assert.ok(result.issues.length >= 2);
     }
@@ -128,10 +128,33 @@ describe("validateConfig — heat catalogue", () => {
     assertFailed(validateConfig(cfg), "heat.primaryEnergyCarrierData");
   });
 
-  test("fails when defaultPrimaryEnergyCarrier is not in primaryEnergyCarriers", () => {
+  test("fails when priority contains a carrier outside the catalogue", () => {
     const cfg = fresh();
-    cfg.heat.defaultPrimaryEnergyCarrier = "oil";
-    assertFailed(validateConfig(cfg), "heat.defaultPrimaryEnergyCarrier");
+    cfg.heat.defaultPrimaryEnergyCarrierPriority = ["oil"];
+    assertFailed(validateConfig(cfg), "heat.defaultPrimaryEnergyCarrierPriority");
+  });
+
+  test("fails when priority repeats a carrier", () => {
+    const cfg = fresh();
+    cfg.heat.defaultPrimaryEnergyCarrierPriority = ["gas", "gas"];
+    assertFailed(validateConfig(cfg), "heat.defaultPrimaryEnergyCarrierPriority");
+  });
+
+  test("fails when every default carrier requires unavailable supply", () => {
+    const cfg = fresh();
+    cfg.heat.primaryEnergyCarriers[0]!.requirements = { gas: true };
+    assertFailed(validateConfig(cfg), "heat.defaultPrimaryEnergyCarrierPriority");
+  });
+
+  test("does not require direct heating for the electricity fallback", () => {
+    const cfg = structuredClone(DEFAULT_CONFIG);
+    const electricSystems = cfg.heat.allowedHeatingSystemTypesByCarrier.find(
+      (entry) => entry.key === "none",
+    )!;
+    electricSystems.allowedValues = electricSystems.allowedValues.filter(
+      (value) => value !== "electric_direct_heater",
+    );
+    assertPassed(validateConfig(cfg));
   });
 
   test("fails when a heatingSystemType has no heatingPerformanceFactor entry", () => {

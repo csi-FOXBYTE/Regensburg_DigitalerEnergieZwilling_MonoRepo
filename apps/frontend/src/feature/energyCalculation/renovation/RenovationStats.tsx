@@ -13,7 +13,7 @@ import { Typography } from '../../../components/ui/typography';
 import { $energyEfficiencyClasses } from '../../../lib/state/calculation-config';
 import { $currentEnergyState } from '../../../lib/state/computed/current-energy-state';
 import { $renovatedEnergyState } from '../../../lib/state/computed/renovated-energy-state';
-import { primaryEnergyCarrierOptions } from '../../../lib/state/inputs/heat';
+import { $config } from '../../../lib/state/calculation-config';
 
 type StatDetail = {
   label: string;
@@ -256,7 +256,7 @@ export default function RenovationStats({
   const effClasses = useStore($energyEfficiencyClasses);
   const before = useStore($currentEnergyState);
   const after = useStore($renovatedEnergyState);
-  const energyCarrierOptions = useStore(primaryEnergyCarrierOptions);
+  const energyCarrierOptions = useStore($config).heat.primaryEnergyCarriers;
   const classIndex = new Map(
     Array.from(effClasses.keys()).map((cls, i) => [cls, i]),
   );

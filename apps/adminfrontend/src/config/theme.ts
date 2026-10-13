@@ -218,7 +218,7 @@ const theme = createTheme({
       styleOverrides: {
         inputSizeSmall: {
           padding: "4px 8px",
-          fontSize: "0.875rem",
+          fontSize: "1rem",
         },
       },
     },

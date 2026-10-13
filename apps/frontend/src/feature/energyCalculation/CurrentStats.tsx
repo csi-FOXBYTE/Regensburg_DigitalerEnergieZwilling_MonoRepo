@@ -7,7 +7,7 @@ import { Paper } from '../../components/ui/paper';
 import { Separator } from '../../components/ui/separator';
 import { Typography } from '../../components/ui/typography';
 import { $currentEnergyState } from '../../lib/state/computed/current-energy-state';
-import { primaryEnergyCarrierOptions } from '../../lib/state/inputs/heat';
+import { $config } from '../../lib/state/calculation-config';
 
 type StatDetail = {
   label: string;
@@ -148,7 +148,7 @@ export default function CurrentStats({
   const { t, i18n } = useTranslation('energyCalculation');
   const { t: tCommon } = useTranslation('common');
   const currentStats = useStore($currentEnergyState);
-  const energyCarrierOptions = useStore(primaryEnergyCarrierOptions);
+  const energyCarrierOptions = useStore($config).heat.primaryEnergyCarriers;
   const formatValue = (value: number, fractionDigits = 0) =>
     value.toLocaleString('de-DE', {
       minimumFractionDigits: fractionDigits,

@@ -69,7 +69,7 @@ export const DETHeatConfigSchema = z.object({
   ventilationHeatLossCorrectionFactor: z.number(),
   thermalBridgeSurcharge: z.number().min(0),
   heatingDegreeDays: z.number(),
-  defaultPrimaryEnergyCarrier: z.string(),
+  defaultPrimaryEnergyCarrierPriority: z.array(z.string()).min(1),
   defaultHeatingSystemType: keyedValues(z.string(), z.string()),
   defaultHeatingSurfaceType: z.string(),
   globalDefaultSource: z.string(),
@@ -82,12 +82,25 @@ export const DETHeatConfigSchema = z.object({
 });
 export type DETHeatConfig = z.infer<typeof DETHeatConfigSchema>;
 
-export function isCarrierCompatible(carrier: CarrierSelection, input: DETInput): boolean {
+export function isCarrierCompatible(
+  carrier: CarrierSelection,
+  input: { heat: Pick<DETInput["heat"], "hasStorage" | "hasGasSupply"> },
+): boolean {
   const { requirements } = carrier;
   if (!requirements) return true;
   if (requirements.storage !== undefined && requirements.storage !== (input.heat.hasStorage ?? false)) return false;
   if (requirements.gas !== undefined && requirements.gas !== (input.heat.hasGasSupply ?? true)) return false;
   return true;
+}
+
+export function findAvailableDefaultCarrier(
+  heat: DETHeatConfig,
+  input: { heat: Pick<DETInput["heat"], "hasStorage" | "hasGasSupply"> },
+): string | undefined {
+  return heat.defaultPrimaryEnergyCarrierPriority.find((value) => {
+    const carrier = heat.primaryEnergyCarriers.find((entry) => entry.value === value);
+    return carrier != null && isCarrierCompatible(carrier, input);
+  });
 }
 
 export function isHeatingSystemCompatible(

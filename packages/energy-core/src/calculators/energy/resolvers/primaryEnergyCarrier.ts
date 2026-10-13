@@ -2,6 +2,7 @@ import type { Resolver } from "../../../engine/index.js";
 import type { DETCalculatorRegistry, DETCalculatorContext } from "../";
 import type { PrimaryEnergyCarrierData } from "../../../types/config/heat.js";
 import { resolveKeyedValue } from "../../../types/keyed-values.js";
+import { findAvailableDefaultCarrier } from "../../../types/config/heat.js";
 
 declare module "../" {
   interface DETCalculatorRegistry {
@@ -17,7 +18,9 @@ export const primaryEnergyCarrier = {
   resolve: (ctx) => {
     const override = ctx.input.input.heat.primaryEnergyCarrier;
     if (override != null) return override;
-    return ctx.input.config.heat.defaultPrimaryEnergyCarrier;
+    const selected = findAvailableDefaultCarrier(ctx.input.config.heat, ctx.input.input);
+    if (selected == null) throw new Error("No available default primary energy carrier");
+    return selected;
   },
 } satisfies Resolver<DETCalculatorContext, DETCalculatorRegistry, "primaryEnergyCarrier">;
 

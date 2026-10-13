@@ -68,7 +68,7 @@ export function baseConfig(): DETConfig {
       ventilationHeatLossCorrectionFactor: 0.8,
       thermalBridgeSurcharge: 0.1,
       heatingDegreeDays: 3000,
-      defaultPrimaryEnergyCarrier: "gas",
+      defaultPrimaryEnergyCarrierPriority: ["gas"],
       defaultHeatingSystemType: [{ key: "gas", value: "boiler" }],
       defaultHeatingSurfaceType: "radiator",
       globalDefaultSource: "unbekannter Quelle",

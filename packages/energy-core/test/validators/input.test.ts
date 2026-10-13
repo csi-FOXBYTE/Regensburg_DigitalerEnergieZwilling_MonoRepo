@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { validateInput } from "../../src/validators/index.js";
 import type { ValidationResult } from "../../src/validators/index.js";
 import { baseConfig, baseInput, basePreRenovation } from "./fixtures.js";
+import { DEFAULT_CONFIG } from "../../src/types/config/default-config.js";
 
 type Config = ReturnType<typeof baseConfig>;
 type Input = ReturnType<typeof baseInput>;
@@ -262,6 +263,18 @@ describe("validateInput — heat", () => {
     input.heat = { primaryEnergyCarrier: "gas", hasGasSupply: true };
 
     assertPassed(validateInput(input, localCfg));
+  });
+
+  test("checks an explicit heating system against the available default carrier", () => {
+    const localCfg = structuredClone(DEFAULT_CONFIG);
+    const input = freshInput();
+    input.heat = {
+      hasGasSupply: false,
+      hasStorage: false,
+      heatingSystemType: "standard_boiler_70_55",
+    };
+
+    assertFailed(validateInput(input, localCfg), "heat.heatingSystemType");
   });
 
   test("fails when a submitted heating system requires unavailable geothermal energy", () => {
