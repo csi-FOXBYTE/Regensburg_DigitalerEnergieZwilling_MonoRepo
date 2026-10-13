@@ -1,4 +1,6 @@
-import { Box, MenuItem, TextField, Tooltip, Typography } from "@mui/material";
+import { Add, ArrowDownward, ArrowUpward, DeleteOutline } from "@mui/icons-material";
+import { Box, Button, IconButton, Menu, MenuItem, TextField, Tooltip, Typography } from "@mui/material";
+import { useState } from "react";
 import { config, updateConfig, updateSimpleValue } from "../../../hooks/store";
 import { CollapsibleSection } from "../CollapsibleSection";
 import { InterpolationEditor } from "../InterpolationEditor";
@@ -13,6 +15,12 @@ export default function ComunityParameterSection({
   expandedSections: Record<string, boolean>;
   toggleSection: (section: string) => void;
 }) {
+  const [addCarrierAnchor, setAddCarrierAnchor] = useState<HTMLElement | null>(null);
+  const availableToAdd = configStore.heat.primaryEnergyCarriers.filter(
+    (carrier) =>
+      !configStore.heat.defaultPrimaryEnergyCarrierPriority.includes(carrier.value),
+  );
+
   return (
     <CollapsibleSection
       sectionKey="communityParams"
@@ -30,18 +38,26 @@ export default function ComunityParameterSection({
           Daten. Quelle und Datum können unabhängig voneinander überschrieben
           werden.
         </Typography>
-        <Box sx={{ display: "flex", gap: 2, mb: 3 }}>
+        <Box
+          sx={{
+            display: "grid",
+            gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr)",
+            gap: 2,
+            mb: 3,
+          }}
+        >
           <TextField
-            size="small"
+            size="medium"
             label="Globale Quelle"
+            slotProps={{ inputLabel: { shrink: true } }}
             value={configStore.heat.globalDefaultSource}
             onChange={(event) =>
               updateSimpleValue("heat.globalDefaultSource", event.target.value)
             }
-            sx={{ flex: 1 }}
+            fullWidth
           />
           <TextField
-            size="small"
+            size="medium"
             type="date"
             label="Globaler Datenstand"
             value={configStore.heat.globalDefaultDate.slice(0, 10)}
@@ -49,6 +65,7 @@ export default function ComunityParameterSection({
               updateSimpleValue("heat.globalDefaultDate", event.target.value)
             }
             slotProps={{ inputLabel: { shrink: true } }}
+            fullWidth
           />
         </Box>
         <Typography variant="body1" fontWeight={"bold"} mb={1}>
@@ -58,43 +75,146 @@ export default function ComunityParameterSection({
         <Box
           sx={{
             display: "grid",
-            gridTemplateColumns: "1fr 200px 2rem 1fr 200px",
-            gap: 1.5,
-            alignItems: "center",
+            gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr)",
+            gap: 2,
+            alignItems: "start",
             mb: 3,
           }}
         >
-          <Typography>Primärenergieträger</Typography>
-          <Tooltip
-            title={
-              configStore.heat.primaryEnergyCarriers.find(
-                (c) => c.value === configStore.heat.defaultPrimaryEnergyCarrier,
-              )?.localization.de ?? ""
-            }
-            placement="top"
-            arrow
-            slotProps={{ tooltip: { sx: { fontSize: "0.85rem" } } }}
-          >
-            <TextField
-              select
-              size="small"
-              value={configStore.heat.defaultPrimaryEnergyCarrier}
-              onChange={(e) =>
-                updateSimpleValue(
-                  "heat.defaultPrimaryEnergyCarrier",
-                  e.target.value,
-                )
-              }
-            >
-              {configStore.heat.primaryEnergyCarriers.map((carrier) => (
-                <MenuItem key={carrier.value} value={carrier.value}>
-                  {carrier.localization.de}
-                </MenuItem>
-              ))}
-            </TextField>
-          </Tooltip>
-          <Box />
-          <Typography>Standard-Stromtyp</Typography>
+          <Box sx={{ gridColumn: "1 / -1" }}>
+            <Typography mb={1}>
+              Standard-Energieträger nach Verfügbarkeit
+            </Typography>
+            <Typography variant="body2" color="text.secondary" mb={1}>
+              Der erste verfügbare Energieträger wird verwendet. Das
+              Standard-Heizsystem des gewählten Energieträgers wird übernommen.
+            </Typography>
+            {configStore.heat.defaultPrimaryEnergyCarrierPriority.map(
+              (value, index) => (
+                <Box
+                  key={`${value}-${index}`}
+                  sx={{ display: "flex", gap: 1, mb: 1, alignItems: "center" }}
+                >
+                  <Typography sx={{ minWidth: 24 }}>{index + 1}.</Typography>
+                  <TextField
+                    select
+                    size="medium"
+                    aria-label={`Energieträger Priorität ${index + 1}`}
+                    value={value}
+                    onChange={(event) =>
+                      updateConfig((draft) => {
+                        draft.heat.defaultPrimaryEnergyCarrierPriority[index] =
+                          event.target.value;
+                      })
+                    }
+                    sx={{ minWidth: 180, flex: 1 }}
+                  >
+                    {configStore.heat.primaryEnergyCarriers
+                      .filter(
+                        (carrier) =>
+                          carrier.value === value ||
+                          !configStore.heat.defaultPrimaryEnergyCarrierPriority.includes(
+                            carrier.value,
+                          ),
+                      )
+                      .map((carrier) => (
+                        <MenuItem key={carrier.value} value={carrier.value}>
+                          {carrier.localization.de ?? carrier.value}
+                        </MenuItem>
+                      ))}
+                  </TextField>
+                  <IconButton
+                    size="small"
+                    aria-label={`Energieträger auf Position ${index + 1} nach oben verschieben`}
+                    disabled={index === 0}
+                    onClick={() =>
+                      updateConfig((draft) => {
+                        const priority =
+                          draft.heat.defaultPrimaryEnergyCarrierPriority;
+                        [priority[index - 1], priority[index]] = [
+                          priority[index]!,
+                          priority[index - 1]!,
+                        ];
+                      })
+                    }
+                  >
+                    <ArrowUpward fontSize="small" />
+                  </IconButton>
+                  <IconButton
+                    size="small"
+                    aria-label={`Energieträger auf Position ${index + 1} nach unten verschieben`}
+                    disabled={
+                      index ===
+                      configStore.heat.defaultPrimaryEnergyCarrierPriority.length - 1
+                    }
+                    onClick={() =>
+                      updateConfig((draft) => {
+                        const priority =
+                          draft.heat.defaultPrimaryEnergyCarrierPriority;
+                        [priority[index], priority[index + 1]] = [
+                          priority[index + 1]!,
+                          priority[index]!,
+                        ];
+                      })
+                    }
+                  >
+                    <ArrowDownward fontSize="small" />
+                  </IconButton>
+                  <IconButton
+                    size="small"
+                    aria-label={`Energieträger auf Position ${index + 1} entfernen`}
+                    color="error"
+                    disabled={
+                      configStore.heat.defaultPrimaryEnergyCarrierPriority.length === 1
+                    }
+                    onClick={() =>
+                      updateConfig((draft) => {
+                        draft.heat.defaultPrimaryEnergyCarrierPriority.splice(
+                          index,
+                          1,
+                        );
+                      })
+                    }
+                  >
+                    <DeleteOutline fontSize="small" />
+                  </IconButton>
+                </Box>
+              ),
+            )}
+            {availableToAdd.length > 0 && (
+              <>
+                <Button
+                  size="small"
+                  variant="outlined"
+                  startIcon={<Add />}
+                  onClick={(event) => setAddCarrierAnchor(event.currentTarget)}
+                >
+                  Energieträger hinzufügen
+                </Button>
+                <Menu
+                  anchorEl={addCarrierAnchor}
+                  open={Boolean(addCarrierAnchor)}
+                  onClose={() => setAddCarrierAnchor(null)}
+                >
+                  {availableToAdd.map((carrier) => (
+                    <MenuItem
+                      key={carrier.value}
+                      onClick={() => {
+                        updateConfig((draft) => {
+                          draft.heat.defaultPrimaryEnergyCarrierPriority.push(
+                            carrier.value,
+                          );
+                        });
+                        setAddCarrierAnchor(null);
+                      }}
+                    >
+                      {carrier.localization.de ?? carrier.value}
+                    </MenuItem>
+                  ))}
+                </Menu>
+              </>
+            )}
+          </Box>
           <Tooltip
             title={
               configStore.heat.electricityTypes.find(
@@ -107,7 +227,9 @@ export default function ComunityParameterSection({
           >
             <TextField
               select
-              size="small"
+              size="medium"
+              label="Standard-Stromtyp"
+              slotProps={{ inputLabel: { shrink: true } }}
               value={configStore.heat.defaultElectricityType}
               onChange={(e) =>
                 updateSimpleValue("heat.defaultElectricityType", e.target.value)
@@ -120,7 +242,6 @@ export default function ComunityParameterSection({
               ))}
             </TextField>
           </Tooltip>
-          <Typography>Heizflächenart</Typography>
           <Tooltip
             title={
               configStore.heat.heatingSurfaceTypes.find(
@@ -133,7 +254,9 @@ export default function ComunityParameterSection({
           >
             <TextField
               select
-              size="small"
+              size="medium"
+              label="Heizflächenart"
+              slotProps={{ inputLabel: { shrink: true } }}
               value={configStore.heat.defaultHeatingSurfaceType}
               onChange={(e) =>
                 updateSimpleValue(
@@ -149,9 +272,6 @@ export default function ComunityParameterSection({
               ))}
             </TextField>
           </Tooltip>
-          <Box />
-          <Box />
-          <Box />
         </Box>
 
         <Typography variant="body1" fontWeight={"bold"} mb={1}>

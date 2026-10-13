@@ -106,9 +106,9 @@ export function GeneralParametersSection({
 
   const gridSx = {
     display: "grid",
-    gridTemplateColumns: "1fr 140px 2rem 1fr 140px",
-    gap: 1.5,
-    alignItems: "center",
+    gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr)",
+    gap: 2,
+    alignItems: "start",
   };
 
   return (
@@ -157,10 +157,10 @@ export function GeneralParametersSection({
           Geometrische Annahmen
         </Typography>
         <Box sx={{ ...gridSx, mb: 3 }}>
-          <Typography>Geschossdeckenstärke [m]</Typography>
           <TextField
-            size="small"
+            size="medium"
             type="number"
+            label="Geschossdeckenstärke [m]"
             value={configStore.general.assumedFloorSlabThickness}
             onChange={(e) =>
               updateSimpleValue(
@@ -169,11 +169,10 @@ export function GeneralParametersSection({
               )
             }
           />
-          <Box />
-          <Typography>Geschosshöhe Innenraum [m]</Typography>
           <TextField
-            size="small"
+            size="medium"
             type="number"
+            label="Geschosshöhe Innenraum [m]"
             value={configStore.general.assumedInteriorStoryHeight}
             onChange={(e) =>
               updateSimpleValue(
@@ -183,12 +182,10 @@ export function GeneralParametersSection({
             }
           />
 
-          <Typography>
-            Faktor Nutzfläche über beheiztes Gebäudevolumen
-          </Typography>
           <TextField
-            size="small"
+            size="medium"
             type="number"
+            label="Faktor Nutzfläche / beheiztes Gebäudevolumen"
             value={configStore.general.usableFloorAreaFactor}
             onChange={(e) =>
               updateSimpleValue(
@@ -197,11 +194,10 @@ export function GeneralParametersSection({
               )
             }
           />
-          <Box />
-          <Typography>Faktor Nettogrundfläche über Wohnfläche</Typography>
           <TextField
-            size="small"
+            size="medium"
             type="number"
+            label="Faktor Nettogrundfläche / Wohnfläche"
             value={configStore.general.netFloorAreaFromLivingAreaFactor}
             onChange={(e) =>
               updateSimpleValue(
@@ -211,13 +207,11 @@ export function GeneralParametersSection({
             }
           />
 
-          <Typography>
-            Faktor Lüftungswärmeverlust (Gesamtluftwechsel ohne mechanische
-            Lüftung)
-          </Typography>
           <TextField
-            size="small"
+            size="medium"
             type="number"
+            label="Faktor Lüftungswärmeverlust"
+            helperText="Gesamtluftwechsel ohne mechanische Lüftung"
             value={configStore.heat.ventilationHeatLossCorrectionFactor}
             onChange={(e) =>
               updateSimpleValue(
@@ -226,11 +220,10 @@ export function GeneralParametersSection({
               )
             }
           />
-          <Box />
-          <Typography>Wärmebrückenzuschlag ΔU_WB [W/(m²K)]</Typography>
           <TextField
-            size="small"
+            size="medium"
             type="number"
+            label="Wärmebrückenzuschlag ΔU_WB [W/(m²K)]"
             value={configStore.heat.thermalBridgeSurcharge}
             onChange={(e) =>
               updateSimpleValue(
@@ -255,12 +248,10 @@ export function GeneralParametersSection({
                 const mitKeller = entry.value.find((v) => v.key === true);
                 return (
                   <Fragment key={entry.key}>
-                    <Typography>
-                      {lookUpForNames(entry.key)} ohne Keller
-                    </Typography>
                     <TextField
-                      size="small"
+                      size="medium"
                       type="number"
+                      label={`${lookUpForNames(entry.key)} ohne Keller`}
                       value={ohneKeller?.value ?? ""}
                       onChange={(e) =>
                         updateNetFloorAreaFromUsableFloorAreaFactor(
@@ -270,13 +261,10 @@ export function GeneralParametersSection({
                         )
                       }
                     />
-                    <Box />
-                    <Typography>
-                      {lookUpForNames(entry.key)} mit Keller
-                    </Typography>
                     <TextField
-                      size="small"
+                      size="medium"
                       type="number"
+                      label={`${lookUpForNames(entry.key)} mit Keller`}
                       value={mitKeller?.value ?? ""}
                       onChange={(e) =>
                         updateNetFloorAreaFromUsableFloorAreaFactor(
@@ -301,10 +289,10 @@ export function GeneralParametersSection({
             {configStore.heat.internalGainsFactorByBuildingType.map(
               (entry: { key: string; value: number }) => (
                 <Fragment key={entry.key}>
-                  <Typography>{lookUpForNames(entry.key)}</Typography>
                   <TextField
-                    size="small"
+                    size="medium"
                     type="number"
+                    label={lookUpForNames(entry.key)}
                     value={entry.value}
                     onChange={(e) =>
                       updateInternalGainsFactorByBuildingType(
@@ -313,71 +301,67 @@ export function GeneralParametersSection({
                       )
                     }
                   />
-                  <Box />
-                  <Box />
-                  <Box />
                 </Fragment>
               ),
             )}
           </Box>
         </Box>
 
-        <Box sx={{ width: "50%" }}>
+        <Box>
           <Typography variant="body1" fontWeight={"bold"} mb={1}>
             Faktor beheiztes Luftvolumen
           </Typography>
-          {configStore.general.heatedAirVolumeCorrectionFactor.map(
-            (
-              item: { from?: number; to?: number; value: number },
-              index: number,
-            ) => (
-              <Box
-                key={index}
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 0.5,
-                  mb: 0.25,
-                }}
-              >
-                <Typography sx={{ flex: 1 }}>
-                  {item.from &&
-                    item.to &&
-                    `ab ${item.from} bis ${item.to} Geschosse`}
-                  {item.from && !item.to && `ab ${item.from} Geschosse`}
-                  {!item.from && item.to && `bis ${item.to} Geschosse`}
-                </Typography>
-                <TextField
-                  size="small"
-                  type="number"
-                  value={item.value}
-                  onChange={(e) =>
-                    updateCorrectionFactor(index, (draft) => {
-                      draft.value = parseFloat(e.target.value);
-                    })
-                  }
-                  sx={{ width: 100 }}
-                />
-                <IconButton
-                  size="small"
-                  onClick={() => handleEditCorrectionFactor(index)}
+          <Box sx={gridSx}>
+            {configStore.general.heatedAirVolumeCorrectionFactor.map(
+              (
+                item: { from?: number; to?: number; value: number },
+                index: number,
+              ) => (
+                <Box
+                  key={index}
+                  sx={{ display: "flex", alignItems: "start", gap: 1 }}
                 >
-                  <Edit fontSize="small" />
-                </IconButton>
-                <IconButton
-                  size="small"
-                  onClick={() =>
-                    handleDeleteConfirm(() => {
-                      deleteCorrectionFactor(index);
-                      toast.success("Korrekturfaktor gelöscht");
-                    })
-                  }
-                >
-                  <Delete fontSize="small" />
-                </IconButton>
-              </Box>
-            ),
-          )}
+                  <TextField
+                    size="medium"
+                    type="number"
+                    label={
+                      item.from && item.to
+                        ? `ab ${item.from} bis ${item.to} Geschosse`
+                        : item.from
+                          ? `ab ${item.from} Geschosse`
+                          : item.to
+                            ? `bis ${item.to} Geschosse`
+                            : "Alle Geschosse"
+                    }
+                    value={item.value}
+                    onChange={(e) =>
+                      updateCorrectionFactor(index, (draft) => {
+                        draft.value = parseFloat(e.target.value);
+                      })
+                    }
+                    sx={{ flex: 1, minWidth: 0 }}
+                  />
+                  <IconButton
+                    size="small"
+                    onClick={() => handleEditCorrectionFactor(index)}
+                  >
+                    <Edit fontSize="small" />
+                  </IconButton>
+                  <IconButton
+                    size="small"
+                    onClick={() =>
+                      handleDeleteConfirm(() => {
+                        deleteCorrectionFactor(index);
+                        toast.success("Korrekturfaktor gelöscht");
+                      })
+                    }
+                  >
+                    <Delete fontSize="small" />
+                  </IconButton>
+                </Box>
+              ),
+            )}
+          </Box>
           <IconButton
             size="small"
             onClick={handleAddCorrectionFactor}

@@ -305,7 +305,7 @@ export const DEFAULT_CONFIG: DETConfig = {
       },
     ],
 
-    defaultPrimaryEnergyCarrier: "natural_gas",
+    defaultPrimaryEnergyCarrierPriority: ["natural_gas", "heating_oil", "none"],
     defaultHeatingSystemType: [
       { key: "heating_oil", value: "standard_boiler_70_55" },
       { key: "natural_gas", value: "standard_boiler_70_55" },

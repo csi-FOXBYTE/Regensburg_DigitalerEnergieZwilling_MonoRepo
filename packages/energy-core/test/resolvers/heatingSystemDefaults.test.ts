@@ -43,6 +43,45 @@ describe("heating system defaults", () => {
     assert.equal(ctx.get("heatingSystemType"), "standard_boiler_70_55");
   });
 
+  test("falls back to oil when gas is unavailable and storage is available", () => {
+    const input = baseInput();
+    input.heat = { hasGasSupply: false, hasStorage: true };
+    const ctx = DETEnergyCaluclator({ config: DEFAULT_CONFIG, input });
+
+    assert.equal(ctx.get("primaryEnergyCarrier"), "heating_oil");
+    assert.equal(ctx.get("heatingSystemType"), "standard_boiler_70_55");
+  });
+
+  test("uses the configured electricity heating system without gas or storage", () => {
+    const input = baseInput();
+    input.heat = { hasGasSupply: false, hasStorage: false };
+    const ctx = DETEnergyCaluclator({ config: DEFAULT_CONFIG, input });
+
+    assert.equal(ctx.get("primaryEnergyCarrier"), "none");
+    assert.equal(ctx.get("heatingSystemType"), "air_source_heat_pump_55_45");
+    assert.equal(ctx.get("electricalRatio"), 1);
+  });
+
+  test("follows a changed default heating system for the fallback carrier", () => {
+    const config = structuredClone(DEFAULT_CONFIG);
+    config.heat.defaultHeatingSystemType.find((entry) => entry.key === "none")!.value =
+      "electric_direct_heater";
+    const input = baseInput();
+    input.heat = { hasGasSupply: false, hasStorage: false };
+    const ctx = DETEnergyCaluclator({ config, input });
+
+    assert.equal(ctx.get("primaryEnergyCarrier"), "none");
+    assert.equal(ctx.get("heatingSystemType"), "electric_direct_heater");
+  });
+
+  test("keeps the configured heat pump for an explicitly selected electricity carrier", () => {
+    const input = baseInput();
+    input.heat = { primaryEnergyCarrier: "none", hasGasSupply: false };
+    const ctx = DETEnergyCaluclator({ config: DEFAULT_CONFIG, input });
+
+    assert.equal(ctx.get("heatingSystemType"), "air_source_heat_pump_55_45");
+  });
+
   test("interpolates the heating performance factor by usable floor area", () => {
     const ctx = mockCtx(
       {},

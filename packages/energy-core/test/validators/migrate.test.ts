@@ -95,7 +95,7 @@ describe("detectMigrations", () => {
   test("returns empty when any issue is not fixable", () => {
     const issues = [
       MISSING_RECOMMENDED,
-      { path: "heat.defaultPrimaryEnergyCarrier", message: "not in primaryEnergyCarriers" },
+      { path: "heat.defaultPrimaryEnergyCarrierPriority", message: "Default carrier priority contains duplicates" },
     ];
     assert.strictEqual(detectMigrations({}, issues).length, 0);
   });
@@ -283,6 +283,35 @@ describe("add-thermal-bridge-surcharge migrator", () => {
   });
 });
 
+describe("add-default-carrier-priority migrator", () => {
+  test("preserves the previous default and adds available fallback carriers", () => {
+    const raw = structuredClone(DEFAULT_CONFIG) as any;
+    delete raw.heat.defaultPrimaryEnergyCarrierPriority;
+    raw.heat.defaultPrimaryEnergyCarrier = "heating_oil";
+
+    const result = validateAndMigrate(raw);
+
+    assert.equal(result.success, true);
+    assert.equal(result.migrated, true);
+    if (!result.success) return;
+    assert.deepEqual(result.data.heat.defaultPrimaryEnergyCarrierPriority,
+      ["heating_oil", "natural_gas", "none"]);
+    assert.equal("defaultPrimaryEnergyCarrier" in result.data.heat, false);
+  });
+
+  test("migrates a small catalogue without adding unavailable entries", () => {
+    const raw = structuredClone(baseConfig()) as any;
+    delete raw.heat.defaultPrimaryEnergyCarrierPriority;
+    raw.heat.defaultPrimaryEnergyCarrier = "gas";
+
+    const result = validateAndMigrate(raw);
+
+    assert.equal(result.success, true);
+    if (!result.success) return;
+    assert.deepEqual(result.data.heat.defaultPrimaryEnergyCarrierPriority, ["gas"]);
+  });
+});
+
 // ── validateAndMigrate ────────────────────────────────────────────────────────
 
 describe("validateAndMigrate", () => {
@@ -328,7 +357,7 @@ describe("validateAndMigrate", () => {
 
   test("returns failure, migrated:false for non-migratable errors", () => {
     const raw = structuredClone(baseConfig()) as any;
-    raw.heat.defaultPrimaryEnergyCarrier = "nonexistent";
+    raw.heat.defaultPrimaryEnergyCarrierPriority = ["nonexistent"];
     const result = validateAndMigrate(raw);
     assert.strictEqual(result.success, false);
     assert.strictEqual(result.migrated, false);

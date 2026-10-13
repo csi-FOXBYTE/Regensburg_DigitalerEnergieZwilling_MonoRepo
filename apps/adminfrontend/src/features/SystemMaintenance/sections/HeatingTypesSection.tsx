@@ -503,20 +503,31 @@ export default function HeatingTypesSection({
                               </Typography>
                               {perfEntry?.value.map((datedEntry, yearIndex) => (
                                 <Paper key={yearIndex} variant="outlined" sx={{ p: 2, mb: 2 }}>
-                                  <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
-                                    <Typography variant="body2">Baualtersklasse</Typography>
-                                    <InlineYearBandCell
-                                      from={"from" in datedEntry ? datedEntry.from : undefined}
-                                      to={"to" in datedEntry ? datedEntry.to : undefined}
-                                      onCommit={(from, to) =>
-                                        updateHeatingPerformanceFactorYearBand(
-                                          item.value,
-                                          yearIndex,
-                                          from,
-                                          to,
-                                        )
-                                      }
-                                    />
+                                  <Box
+                                    sx={{
+                                      display: "flex",
+                                      alignItems: "start",
+                                      gap: 2,
+                                      mb: 2,
+                                    }}
+                                  >
+                                    <Box sx={{ flex: 1 }}>
+                                      <Typography variant="body2" mb={0.5}>
+                                        Baualtersklasse
+                                      </Typography>
+                                      <InlineYearBandCell
+                                        from={"from" in datedEntry ? datedEntry.from : undefined}
+                                        to={"to" in datedEntry ? datedEntry.to : undefined}
+                                        onCommit={(from, to) =>
+                                          updateHeatingPerformanceFactorYearBand(
+                                            item.value,
+                                            yearIndex,
+                                            from,
+                                            to,
+                                          )
+                                        }
+                                      />
+                                    </Box>
                                     <IconButton
                                       size="small"
                                       aria-label="Baualtersklasse entfernen"
@@ -530,7 +541,7 @@ export default function HeatingTypesSection({
                                   </Box>
                                   <MuiTextField
                                     select
-                                    size="small"
+                                    size="medium"
                                     label="Faktormodell"
                                     value={
                                       typeof datedEntry.value === "number" ? "constant" : "interpolation"
@@ -822,23 +833,20 @@ export default function HeatingTypesSection({
                               <Box
                                 sx={{
                                   display: "flex",
-                                  alignItems: "center",
+                                  alignItems: "start",
+                                  flexWrap: "wrap",
                                   gap: 3,
                                 }}
                               >
                                 <Box
                                   sx={{
-                                    display: "flex",
-                                    alignItems: "center",
-                                    gap: 1,
+                                    flex: "1 1 420px",
                                   }}
                                 >
-                                  <Typography variant="body2">
-                                    Stromanteil
-                                  </Typography>
                                   <MuiTextField
-                                    size="small"
+                                    size="medium"
                                     type="number"
+                                    label="Stromanteil"
                                     value={
                                       configStore.heat.electricalRatio.find(
                                         (e) => e.key === item.value,
@@ -851,7 +859,7 @@ export default function HeatingTypesSection({
                                       )
                                     }
                                     inputProps={{ min: 0, max: 1, step: 0.01 }}
-                                    sx={{ width: 100 }}
+                                    fullWidth
                                   />
                                 </Box>
                                 <FormControlLabel
