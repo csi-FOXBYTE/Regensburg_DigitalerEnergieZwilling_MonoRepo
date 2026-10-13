@@ -110,13 +110,13 @@ export function setBuilding(
   feature: BuildingFeatureSource,
   coordinates: BuildingCoordinates,
   options: BuildingSelectionOptions = {},
-) {
+): boolean {
   const adapted = adaptBuildingFeature(feature);
   if (
     (!adapted.isValidBuilding && !options.allowInvalidBuilding) ||
     !adapted.id
   )
-    return;
+    return false;
 
   const address = adapted.properties.address;
   const properties =
@@ -132,6 +132,7 @@ export function setBuilding(
     coordinates,
     properties,
   });
+  return true;
 }
 
 export function unselectBuilding() {

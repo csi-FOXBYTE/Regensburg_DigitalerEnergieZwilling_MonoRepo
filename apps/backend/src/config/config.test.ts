@@ -103,3 +103,49 @@ describe("map resources route", () => {
     });
   });
 });
+
+describe("analytics config route", () => {
+  const previousMatomoUrl = process.env.MATOMO_URL;
+  const previousMatomoSiteId = process.env.MATOMO_SITE_ID;
+
+  after(() => {
+    if (previousMatomoUrl === undefined)
+      Reflect.deleteProperty(process.env, "MATOMO_URL");
+    else process.env.MATOMO_URL = previousMatomoUrl;
+
+    if (previousMatomoSiteId === undefined)
+      Reflect.deleteProperty(process.env, "MATOMO_SITE_ID");
+    else process.env.MATOMO_SITE_ID = previousMatomoSiteId;
+  });
+
+  it("stays dormant unless both Matomo values are valid", async (t) => {
+    const app = await createTestApp();
+    t.after(() => app.close());
+    const fetchConfig = async () => {
+      const response = await app.inject({
+        method: "GET",
+        url: "/api/public/analytics-config",
+      });
+      assert.equal(response.statusCode, 200);
+      assert.equal(response.headers["cache-control"], "public, max-age=300");
+      return response.json();
+    };
+
+    Reflect.deleteProperty(process.env, "MATOMO_URL");
+    Reflect.deleteProperty(process.env, "MATOMO_SITE_ID");
+    assert.deepEqual(await fetchConfig(), { matomo: null });
+
+    process.env.MATOMO_URL = "https://matomo.example/matomo.php";
+    assert.deepEqual(await fetchConfig(), { matomo: null });
+
+    for (const siteId of ["0", "-1", "1.5", "abc", " "]) {
+      process.env.MATOMO_SITE_ID = siteId;
+      assert.deepEqual(await fetchConfig(), { matomo: null });
+    }
+
+    process.env.MATOMO_SITE_ID = "7";
+    assert.deepEqual(await fetchConfig(), {
+      matomo: { trackerUrl: "https://matomo.example/matomo.php", siteId: 7 },
+    });
+  });
+});

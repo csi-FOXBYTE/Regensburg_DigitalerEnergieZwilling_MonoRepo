@@ -259,20 +259,23 @@ Dabei werden insbesondere IP-Adresse, Zeitpunkt, Challenge-Daten, Prüfergebnis 
 
 ## 12. Webanalyse mit Matomo
 
-> **Noch nicht implementiert:** Die Webanalyse mit Matomo ist derzeit nicht aktiv. Es werden deshalb keine Matomo-Skripte geladen und keine Analyseereignisse an Matomo übermittelt. Vor einer künftigen Aktivierung müssen eine eigene Instanz bereitgestellt und Betrieb, Zuständigkeit sowie Datenschutzparameter festgelegt werden.
+> **Noch nicht implementiert:** Die Webanalyse mit Matomo ist derzeit nicht aktiv. Es werden deshalb keine Matomo-Skripte geladen und keine Analyseereignisse an Matomo übermittelt. Vor einer künftigen Aktivierung müssen eine eigene Instanz bereitgestellt und Betrieb, Zuständigkeit sowie Datenschutzparameter festgelegt werden. Die technische Anbindung ist vorbereitet; solange für die Umgebung keine Matomo-Instanz konfiguriert ist, wird die Webanalyse in den Datenschutzeinstellungen nicht angeboten.
 
 Falls Matomo künftig gesondert aktiviert wird, verwenden wir es zur statistischen Auswertung der Nutzung des Sanierungstools. Die dafür noch bereitzustellende Matomo-Instanz wird unter [interne Matomo-URL ergänzen] in der CIVITAS/CORE-Umgebung der Stadt Regensburg betrieben. Zuständig ist [zuständige Stelle der Stadt Regensburg oder beauftragter Betreiber ergänzen]. Eine Übermittlung der Analysedaten an Matomo Cloud findet nicht statt.
 
-Matomo wird erst nach Ihrer vorherigen Einwilligung aktiviert. Ohne Einwilligung werden keine Matomo-Tracking-Skripte geladen und keine Analyseereignisse übermittelt. Sie können Ihre Entscheidung jederzeit über „Cookie-Einstellungen“ ändern.
+Matomo wird erst nach Ihrer vorherigen Einwilligung aktiviert. Ohne Einwilligung werden keine Analyseereignisse übermittelt und keine Analyseereignisse für eine spätere Übermittlung zwischengespeichert. Matomo-Skripte werden auch nach einer Einwilligung nicht geladen; das Sanierungstool sendet ausschließlich die unten genannten Ereignisse direkt an die Matomo-Instanz. Sie können Ihre Entscheidung jederzeit über „Datenschutzeinstellungen“ ändern. Nach einem Widerruf werden keine weiteren Ereignisse übermittelt und die Session-ID wird aus Ihrem Browser entfernt.
 
-Nach Ihrer Einwilligung werden [eingesetzte Cookies oder andere Speichertechniken mit Namen und Laufzeiten ergänzen] sowie folgende Daten verarbeitet:
+Für die Webanalyse werden keine Cookies gesetzt. Nach Ihrer Einwilligung speichert das Sanierungstool im Sitzungsspeicher des Browser-Tabs (Session Storage, Eintrag `det_analytics_session`) eine zufällig erzeugte Session-ID, den Zeitpunkt der letzten Aktivität und die bereits übermittelten Ereignisarten, damit wiederholte Aktionen nicht mehrfach gezählt werden. Der Eintrag wird beim Schließen des Tabs vom Browser gelöscht. Nach 30 Minuten ohne Aktivität wird eine neue Session-ID erzeugt.
 
-- eine zufällig erzeugte Session-ID zur statistischen Zuordnung zusammengehöriger Nutzungsvorgänge,
-- aufgerufene Seiten und Funktionen sowie vollständig bearbeitete Abschnitte des Sanierungschecks,
+Nach Ihrer Einwilligung werden folgende Daten verarbeitet:
+
+- die zufällig erzeugte Session-ID zur statistischen Zuordnung zusammengehöriger Nutzungsvorgänge,
+- vollständig bearbeitete Abschnitte des Sanierungschecks,
 - Beginn und Abschluss des Sanierungschecks,
 - PDF-Export, Aufruf des Beratungskontakts sowie Beginn und Abschluss der freiwilligen Datenbereitstellung,
 - bestätigter Gebäudetyp und ausgewählte Sanierungsmaßnahmen als fachlich vorgegebene Kategorieschlüssel,
-- Zeitpunkte, Verweildauer und technische Fehler,
+- die Startadresse der gewählten Sprachversion ohne weitere Pfadangaben, Parameter oder URL-Fragmente,
+- Zeitpunkte der Ereignisse,
 - Browser-, Geräte- und Betriebssystemmerkmale in gekürzter Form.
 
 An Matomo werden insbesondere keine Gebäude-ID, Adresse, Hausnummer, Koordinaten, Einreichungs- oder Löschkennung, Kontaktdaten, Freitexte, exakten Verbrauchs- oder Kostenwerte sowie keine vollständigen Eingabe-, Ergebnis- oder Einreichungsdaten übermittelt. Die eigentlichen Daten einer freiwilligen Gebäudedatenspende werden über einen von Matomo getrennten technischen Weg verarbeitet.
