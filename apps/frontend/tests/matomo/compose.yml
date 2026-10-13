@@ -1,0 +1,90 @@
+# Local Matomo for trying out and testing the web analytics. Not for production.
+# Start with ./matomo.sh up (see README.md in this directory).
+name: dez-matomo-local
+
+services:
+  matomo-db:
+    image: mariadb:11
+    environment:
+      MARIADB_ROOT_PASSWORD: root
+      MARIADB_DATABASE: matomo
+      MARIADB_USER: matomo
+      MARIADB_PASSWORD: matomo
+    volumes:
+      - matomo-db:/var/lib/mysql
+    healthcheck:
+      test: ['CMD', 'healthcheck.sh', '--connect', '--innodb_initialized']
+      interval: 3s
+      retries: 40
+
+  matomo:
+    image: matomo:5.14.0-apache
+    environment:
+      MATOMO_DATABASE_HOST: matomo-db
+      MATOMO_DATABASE_ADAPTER: mysql
+      MATOMO_DATABASE_TABLES_PREFIX: matomo_
+      MATOMO_DATABASE_USERNAME: matomo
+      MATOMO_DATABASE_PASSWORD: matomo
+      MATOMO_DATABASE_DBNAME: matomo
+    ports:
+      - '127.0.0.1:${MATOMO_PORT:-8090}:80'
+    volumes:
+      - matomo-data:/var/www/html
+    depends_on:
+      matomo-db:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'php',
+          '-r',
+          "exit(@file_get_contents('http://localhost/matomo.php') === false ? 1 : 0);",
+        ]
+      interval: 3s
+      retries: 40
+
+  # Builds the public frontend from this checkout and serves it. API calls,
+  # address database and tiles come from the deployed test system.
+  web:
+    image: node:24.21.0
+    command: ['bash', '/harness/build-and-serve.sh']
+    environment:
+      UPSTREAM: ${UPSTREAM:-https://det.rg.foxbyte.de}
+      MATOMO_TRACKER_URL: http://localhost:${MATOMO_PORT:-8090}/matomo.php
+      MATOMO_SITE_ID: '1'
+      npm_config_store_dir: /pnpm-store
+    ports:
+      - '127.0.0.1:${WEB_PORT:-4329}:4321'
+    volumes:
+      - ../../../..:/src:ro
+      - ./:/harness:ro
+      - dist:/dist
+      - pnpm-store:/pnpm-store
+    healthcheck:
+      test: ['CMD', 'curl', '-fs', 'http://localhost:4321/de/']
+      interval: 5s
+      retries: 60
+      start_period: 15m
+
+  # Browser tests against the real Matomo: ./matomo.sh test
+  playwright:
+    image: mcr.microsoft.com/playwright:v1.62.1-noble
+    profiles: [tools]
+    ipc: host
+    entrypoint: ['bash', '/harness/run-playwright.sh']
+    environment:
+      UPSTREAM: ${UPSTREAM:-https://det.rg.foxbyte.de}
+      NPM_CONFIG_UPDATE_NOTIFIER: 'false'
+    volumes:
+      - ./:/harness:ro
+      - dist:/dist:ro
+      - playwright-modules:/runner/node_modules
+      - ./results:/results
+
+volumes:
+  matomo-db:
+  matomo-data:
+  dist:
+  pnpm-store:
+  playwright-modules:
