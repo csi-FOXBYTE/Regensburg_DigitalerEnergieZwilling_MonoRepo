@@ -18,7 +18,8 @@ services:
       retries: 40
 
   matomo:
-    image: matomo:5.14.0-apache
+    # The image that ships (password login only, no MATOMO_OIDC_* variables).
+    build: ../../../../images/matomo
     environment:
       MATOMO_DATABASE_HOST: matomo-db
       MATOMO_DATABASE_ADAPTER: mysql

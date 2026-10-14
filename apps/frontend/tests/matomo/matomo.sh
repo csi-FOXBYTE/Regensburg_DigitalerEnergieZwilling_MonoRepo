@@ -17,7 +17,7 @@ reset_visits() {
 
 case "${1:-}" in
   up)
-    compose up -d matomo-db matomo web
+    compose up -d --build matomo-db matomo web
     compose up -d --wait matomo
     echo 'Installing Matomo (skipped if already installed) ...'
     compose run --rm playwright install.spec.ts
