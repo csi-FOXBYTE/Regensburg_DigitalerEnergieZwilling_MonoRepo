@@ -2,11 +2,17 @@
 
 The official `matomo:5.14.0-apache` image plus the
 [LoginOIDC](https://github.com/dominik-th/matomo-plugin-LoginOIDC) plugin
-(5.0.0), so Matomo users log in via the platform Keycloak. On every start the
-entrypoint copies the plugin and [common.config.ini.php](common.config.ini.php)
-into the volume, writes the Keycloak settings from the environment and
-activates the plugin once Matomo is installed. Settings from the config file
-are read-only in the Matomo UI.
+(5.0.0), so Matomo users log in via the platform Keycloak, and the small
+[NoPasswordReset](plugins/NoPasswordReset/NoPasswordReset.php) plugin. On every
+start the entrypoint copies the plugins and
+[common.config.ini.php](common.config.ini.php) into the volume, writes the
+Keycloak settings from the environment and activates the plugins once Matomo is
+installed. Settings from the config file are read-only in the Matomo UI.
+
+The password form stays on the login page; LoginOIDC cannot remove it. So that
+it is no way around Keycloak and its role check, normal users get a random
+password nobody keeps, and NoPasswordReset blocks *Lost your password?* while
+LoginOIDC is configured (also once Matomo can send mail for e-mail reports).
 
 Without `MATOMO_OIDC_ISSUER` the image behaves like the official one (password
 login only), as in the devcontainer.
@@ -66,8 +72,9 @@ login; anyone else who needs superuser access logs in with a password too.
 2. Restart the container. The log says `Activated plugin LoginOIDC`, and the
    login page shows **Keycloak**.
 3. For each person with `matomoViewer` or `matomoAdmin`, create a Matomo user
-   whose login is their Keycloak username and grant the matching access to the
-   DEZ site (*View* or *Admin*). Their first Keycloak login links the accounts.
+   whose login is their Keycloak username, with a random password that is not
+   kept, and grant the matching access to the DEZ site (*View* or *Admin*).
+   Their first Keycloak login links the accounts.
    Keycloak users without a Matomo user are rejected. When a role is removed,
    also delete or downgrade the Matomo user: an open Matomo session lasts until
    it expires.

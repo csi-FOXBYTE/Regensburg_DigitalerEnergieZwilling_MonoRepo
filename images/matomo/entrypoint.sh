@@ -1,8 +1,8 @@
 #!/bin/bash
 # Prepares Matomo on every start, then hands over to the official entrypoint:
-# copies the LoginOIDC plugin and the config into the volume, adds the Keycloak
-# settings from the environment and activates the plugin once Matomo is
-# installed.
+# copies the plugins (LoginOIDC, NoPasswordReset) and the config into the
+# volume, adds the Keycloak settings from the environment and activates the
+# plugins once Matomo is installed.
 set -euo pipefail
 cd /var/www/html
 
@@ -12,8 +12,11 @@ cd /var/www/html
 mkdir -p config plugins
 config=config/common.config.ini.php
 cp /opt/matomo-config/common.config.ini.php "$config"
-rm -rf plugins/LoginOIDC
-cp -r /opt/matomo-plugins/LoginOIDC plugins/LoginOIDC
+plugins=(LoginOIDC NoPasswordReset)
+for plugin in "${plugins[@]}"; do
+  rm -rf "plugins/$plugin"
+  cp -r "/opt/matomo-plugins/$plugin" "plugins/$plugin"
+done
 
 check_ini_value() {
   case "$2" in
@@ -63,14 +66,15 @@ bypassTwoFa = 0
 EOF
 fi
 
-chown -R www-data:www-data plugins/LoginOIDC config
+for plugin in "${plugins[@]}"; do chown -R www-data:www-data "plugins/$plugin"; done
+chown -R www-data:www-data config
 
 # Activation needs a finished installation; the first start skips it.
 if [ -n "$oidc_enabled" ]; then
   if grep -q '^\[database\]' config/config.ini.php 2>/dev/null \
     && ! grep -q '^installation_in_progress' config/config.ini.php; then
-    su -s /bin/bash www-data -c './console plugin:activate LoginOIDC' \
-      || echo >&2 'warning: could not activate LoginOIDC'
+    su -s /bin/bash www-data -c "./console plugin:activate ${plugins[*]}" \
+      || echo >&2 "warning: could not activate ${plugins[*]}"
   else
     echo >&2 'LoginOIDC: Matomo is not installed yet; restart after the installation to activate it'
   fi

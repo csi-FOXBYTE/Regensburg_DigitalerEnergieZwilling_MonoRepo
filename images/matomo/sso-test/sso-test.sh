@@ -25,13 +25,16 @@ case "${1:-}" in
     token=$(api --data method=UsersManager.createAppSpecificTokenAuth \
       --data userLogin=admin --data-urlencode "passwordConfirmation=$ADMIN_PASSWORD" \
       --data description=sso-test | sed -E 's/.*"value":"([^"]+)".*/\1/')
+    # As in production: a random password nobody keeps, so the password form
+    # is no way around Keycloak.
     for login in anna carla; do
       if api --data method=UsersManager.userExists --data "userLogin=$login" \
         --data "token_auth=$token" | grep -q true; then
         echo "$login already exists"
       else
         api --data method=UsersManager.addUser --data "userLogin=$login" \
-          --data-urlencode "password=$login-Passw0rd!" --data "email=$login@example.invalid" \
+          --data "password=$(od -An -N24 -tx1 /dev/urandom | tr -d ' \n')" \
+          --data "email=$login@example.invalid" \
           --data initialIdSite=1 --data-urlencode "passwordConfirmation=$ADMIN_PASSWORD" \
           --data "token_auth=$token"
         echo
