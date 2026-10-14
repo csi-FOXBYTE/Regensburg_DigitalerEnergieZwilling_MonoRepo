@@ -53,8 +53,12 @@ A local Matomo for the web analytics is optional and not started by default.
 To use it, start it on the host:
 
 ```sh
-docker compose -f .devcontainer/compose.yml --profile matomo up -d
+docker compose -f .devcontainer/compose.yml --profile matomo up -d --build matomo matomo-setup
 ```
+
+Always name the services: the same file defines the devcontainer, so a bare
+`up --build` recreates it and `down` stops it (`down -v` also deletes the dev
+database).
 
 The first start installs and configures it (the `matomo-setup` service, a few
 minutes for the browser image); `docker compose -f .devcontainer/compose.yml
