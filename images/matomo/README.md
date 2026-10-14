@@ -47,10 +47,12 @@ login; anyone else who needs superuser access logs in with a password too.
 1. Start Matomo with the variables above and install it once (web installer,
    or headless with
    [install.spec.ts](../../apps/frontend/tests/matomo/install.spec.ts)). The
-   superuser created here is the break-glass account: keep its password in the
-   secret store and enable two-factor authentication.
-2. Restart the container. The log no longer says that Matomo is not installed,
-   and the login page shows **Keycloak**.
+   superuser created here is the break-glass account: give it a login that is
+   never a Keycloak username (e.g. `matomo-breakglass`), keep its password in
+   the secret store and enable two-factor authentication. It logs in with its
+   password only.
+2. Restart the container. The log says `Activated plugin LoginOIDC`, and the
+   login page shows **Keycloak**.
 3. For each person, create a Matomo user whose login is their Keycloak
    username and grant site access. Their first Keycloak login links the
    accounts. Keycloak users without a Matomo user are rejected.
