@@ -71,14 +71,13 @@ services:
       retries: 40
       start_period: 5m
   matomo:
-    image: matomo:5.14.0-apache
+    build: ../images/matomo
     profiles: [matomo]
-    # Installs the local settings next to the config the installer writes.
-    entrypoint:
-      - bash
-      - -c
-      - mkdir -p config && cp /matomo-dev/common.config.ini.php config/ && exec /entrypoint.sh apache2-foreground
     environment:
+      # Matomo is reached as localhost:8091 from the browser and as
+      # http://matomo from the setup container. No MATOMO_OIDC_* variables:
+      # password login only.
+      MATOMO_DISABLE_TRUSTED_HOST_CHECK: "1"
       MATOMO_DATABASE_HOST: matomo-db
       MATOMO_DATABASE_ADAPTER: mysql
       MATOMO_DATABASE_TABLES_PREFIX: matomo_
@@ -89,7 +88,6 @@ services:
       - "127.0.0.1:8091:80"
     volumes:
       - matomo_data:/var/www/html
-      - ./matomo:/matomo-dev:ro
     depends_on:
       matomo-db:
         condition: service_healthy

@@ -53,6 +53,7 @@ angebunden werden.
 ### Rolle von Keycloak
 
 - Keycloak wird für die OIDC-basierte Authentifizierung genutzt. APISIX schützt die administrativen Routen und prüft OIDC vorgelagert. Das Backend vertraut dieser Prüfung nicht allein, sondern validiert das weitergeleitete Access Token produktiv und unabhängig per RS256 gegen die konfigurierte Keycloak-JWKS-Quelle und erzwingt Rollen und Berechtigungen selbst.
+- Matomo wird als eigener Container aus [images/matomo](../../../../images/matomo/README.md) ausgeliefert und nutzt denselben Keycloak über einen eigenen vertraulichen Client `matomo`. Das Client-Secret wird als Datei aus dem Secrets-Management eingebunden; Matomo muss Token- und Userinfo-Endpunkt des Realms direkt erreichen.
 - Für direkte S3-Protokollzugriffe wird standardmäßig nicht direkt mit Keycloak-Token authentifiziert, sondern mit technischen Datendienst-Credentials.
 - Optional kann Keycloak angebunden werden, wenn der Datendienst OIDC-Föderation/STS für kurzlebige Credentials unterstützt.
 

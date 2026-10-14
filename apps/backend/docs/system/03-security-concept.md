@@ -129,6 +129,11 @@ Ein Status `⚠️` bezeichnet eine vorhandene Umsetzung mit noch fehlendem voll
   - `"/api/admin/*"` ist per Default geschützt; APISIX erzwingt den externen Routenschutz.
   - Das Backend nimmt Access Tokens aus `X-Access-Token` oder `Authorization: Bearer` entgegen, validiert sie produktiv per RS256/JWKS und wertet danach Claims/Rollen für die fachliche Zugriffskontrolle aus.
   - `"/api/public/*"` ist per Default nicht über Backend-Auth-Middleware geschützt; Absicherung erfolgt über APISIX-Policies plus serverseitige Validierung.
+- Matomo-Zugriff:
+  - Login über Keycloak per OIDC mit dem Plugin LoginOIDC; Image, Variablen und Keycloak-Client sind in [images/matomo](../../../../images/matomo/README.md) beschrieben.
+  - Keine Selbstregistrierung: Ein Keycloak-Nutzer kommt nur hinein, wenn in Matomo ein Nutzer mit seinem Keycloak-Benutzernamen angelegt ist. Site-Rechte werden in Matomo vergeben.
+  - Die Verknüpfung läuft über `preferred_username`. Im Realm darf der Benutzername deshalb nicht durch Nutzer änderbar sein.
+  - Der bei der Installation angelegte Superuser behält den Passwort-Login als Notfallzugang; Passwort im Secret-Management, Zwei-Faktor-Authentifizierung aktiv.
 
 ---
 
