@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { copyFileSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
-import { assertTagDigest, components, journalBody, manifestPath, readJournal,
+import { assertTagDigest, components, journalBody, manifestComponents, manifestPath, readJournal,
   selectReleaseState, validateManifest } from './core.mjs';
 import { api, command, config, git, readManifest, registryDigest, releases, summary } from './io.mjs';
 import { verifyImage } from './evidence.mjs';
@@ -47,7 +47,7 @@ if (state.mode === 'complete') {
   validateManifest(manifest, config);
   manifest.sboms = verifySboms(process.env.SBOM_DIR, manifest);
   if (plan.previous && components.every((component) =>
-    manifest[component].digest === plan.previous[component].digest)) {
+    manifest[component].digest === plan.previous[component]?.digest)) {
     summary('All resulting image digests match the last release; no version bump.');
     process.exit(0);
   }
@@ -74,7 +74,7 @@ assert.deepEqual(verifySboms(process.env.SBOM_DIR, manifest), manifest.sboms,
   'Fresh SBOM selection must match the publication journal');
 assert.equal(manifest.runId, runId);
 assert.deepEqual(readJournal(release, config), manifest);
-for (const component of components) {
+for (const component of manifestComponents(manifest)) {
   const image = manifest[component];
   verifyImage(image);
   const tag = `${image.image}:${manifest.appVersion}`;

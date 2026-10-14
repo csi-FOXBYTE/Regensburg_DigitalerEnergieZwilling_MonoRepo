@@ -3,7 +3,7 @@ import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { digest, json, run, save } from '../compliance/common.mjs';
-import { components } from './core.mjs';
+import { components, manifestComponents } from './core.mjs';
 import { sbomEvidence, sbomPath, verifyImage } from './evidence.mjs';
 import { sbomSelection, verifySboms } from './sboms.mjs';
 
@@ -40,7 +40,7 @@ document('source.cdx.json', { bomFormat: 'CycloneDX', specVersion: '1.6', versio
   metadata: { component: { type: 'application', name: sourcePackage.name, version: sourcePackage.version,
     'bom-ref': `regensburg:source:${selection.sourceCommit}`,
     licenses: [{ expression: sourcePackage.license || 'NOASSERTION' }] } }, components: [] });
-for (const component of components) {
+for (const component of manifestComponents(selection)) {
   const image = selection[component];
   verifyImage(image);
   const reference = `${image.image}@${image.digest}`;

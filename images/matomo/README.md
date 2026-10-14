@@ -83,3 +83,10 @@ login; anyone else who needs superuser access logs in with a password too.
 
 [sso-test/](sso-test/README.md) starts this image next to a throwaway Keycloak
 with test users and lists the checks.
+
+## Release
+
+The release pipeline builds this image as `ghcr.io/csi-foxbyte/regensburg-web-matomo`
+next to the app images and records it in `release/manifest.json` as `matomo`
+(see [scripts/release/README.md](../../scripts/release/README.md#matomo-image)).
+Deploy it by that digest. Releases up to v1.7.3 contain no Matomo image.

@@ -53,5 +53,8 @@ writeFileSync(`${process.env.RELEASE_DIR}/plan.json`, `${JSON.stringify(plan, nu
 outputs({
   mode: plan.mode,
   matrix: JSON.stringify({ include: components.filter((component) => plan.images?.[component].changed)
-    .map((component) => ({ component, ...plan.images[component] })) }),
+    .map((component) => ({ component, ...plan.images[component],
+      // Docker context inside the exported build inputs, and the Dockerfile in it.
+      contextPath: config.images[component].context ?? '.',
+      dockerfile: config.images[component].dockerfile ?? `apps/${component}/Dockerfile` })) }),
 });
