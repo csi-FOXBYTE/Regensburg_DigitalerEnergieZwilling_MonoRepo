@@ -52,3 +52,8 @@ superuser.
 3. For each person, create a Matomo user whose login is their Keycloak
    username and grant site access. Their first Keycloak login links the
    accounts. Keycloak users without a Matomo user are rejected.
+
+## Testing the Keycloak login
+
+[sso-test/](sso-test/README.md) starts this image next to a throwaway Keycloak
+with test users and lists the checks.

@@ -1,0 +1,56 @@
+{
+  "realm": "dez",
+  "enabled": true,
+  "editUsernameAllowed": false,
+  "clients": [
+    {
+      "clientId": "matomo",
+      "name": "Matomo",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "matomo-dev-secret",
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "redirectUris": [
+        "http://localhost:8093/index.php?module=LoginOIDC&action=callback&provider=oidc"
+      ],
+      "attributes": {
+        "post.logout.redirect.uris": "http://localhost:8093/*"
+      },
+      "defaultClientScopes": ["basic", "profile", "email", "roles", "web-origins", "acr"]
+    }
+  ],
+  "users": [
+    {
+      "username": "anna",
+      "enabled": true,
+      "email": "anna@example.invalid",
+      "emailVerified": true,
+      "firstName": "Anna",
+      "lastName": "Matomo",
+      "credentials": [{ "type": "password", "value": "anna", "temporary": false }]
+    },
+    {
+      "username": "ben",
+      "enabled": true,
+      "email": "ben@example.invalid",
+      "emailVerified": true,
+      "firstName": "Ben",
+      "lastName": "Ohne-Matomo",
+      "credentials": [{ "type": "password", "value": "ben", "temporary": false }]
+    },
+    {
+      "username": "admin",
+      "enabled": true,
+      "email": "kc-admin@example.invalid",
+      "emailVerified": true,
+      "firstName": "Same",
+      "lastName": "Name-As-Superuser",
+      "credentials": [{ "type": "password", "value": "admin", "temporary": false }]
+    }
+  ]
+}
