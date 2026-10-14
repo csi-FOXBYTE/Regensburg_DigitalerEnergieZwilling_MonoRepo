@@ -292,11 +292,20 @@ Gebäudetypen und Sanierungsmaßnahmen werden nur anhand festgelegter Kategorien
 
 ### Verarbeitung in Matomo
 
-Welche der übermittelten Angaben Matomo speichert und in welcher Form, richtet sich nach der Konfiguration der Matomo-Instanz: [Datenschutzeinstellungen der Matomo-Instanz ergänzen, insbesondere Maskierung der IP-Adresse, Geolokalisierung, Speicherung von Referrern sowie daraus abgeleitete Merkmale wie Browser, Betriebssystem und Gerätetyp]. Technisch erforderliche IP-Verarbeitungen auf Ebene von Webserver und APISIX richten sich nach Abschnitt 4.
+Die Matomo-Instanz ist zum Start nach der CNIL-Compliance-Richtlinie von Matomo für datensparsame Reichweitenmessung konfiguriert. Es handelt sich um Anfangseinstellungen, die sich künftig ändern können; wesentliche Änderungen werden in diesen Datenschutzhinweisen nachgetragen. Derzeit gilt:
+
+- Die IP-Adresse wird vor der Speicherung vollständig maskiert (bei IPv4 0.0.0.0) und auch für die weitere Auswertung nur maskiert verwendet. Eine Geolokalisierung findet nicht statt.
+- Referrer werden nicht gespeichert.
+- Von Browser und Betriebssystem wird nur die Hauptversion gespeichert; Gerätemodell und Bildschirmauflösung werden nicht erfasst.
+- Matomo setzt keine Cookies.
+- Zusammengehörige Ereignisse werden über die zufällige Session-ID zugeordnet.
+- Das Besucher-Log und Besucherprofile sind deaktiviert; einzelne Sitzungen sind in der Matomo-Oberfläche nicht einsehbar. Zahlen in Berichten zu Teilmengen werden auf Zehnerwerte gerundet.
+
+Technisch erforderliche IP-Verarbeitungen auf Ebene von Webserver und APISIX richten sich nach Abschnitt 4.
 
 ### Speicherdauer, Zugriff und Rechtsgrundlage
 
-Die Analysedaten werden für [Aufbewahrungsfrist ergänzen] gespeichert. Zugriff erhalten [berechtigte Rollen und Berichtsempfänger ergänzen].
+Die einzelnen Ereignisse einschließlich Session-ID werden nach den derzeitigen Einstellungen nach 180 Tagen gelöscht. Daraus erstellte aggregierte Berichte ohne Bezug zu einzelnen Sitzungen werden für [Aufbewahrungsfrist der Berichte ergänzen] gespeichert. Zugriff erhalten [berechtigte Rollen und Berichtsempfänger ergänzen].
 
 Rechtsgrundlagen sind Art. 6 Abs. 1 Buchst. a DSGVO sowie für die Speicherung der Session-ID im Browser § 25 Abs. 1 TDDDG. Ein Widerruf wirkt für die Zukunft und berührt nicht die Rechtmäßigkeit der bis dahin erfolgten Verarbeitung.
 
