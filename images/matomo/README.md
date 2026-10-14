@@ -25,8 +25,10 @@ login only), as in the devcontainer.
 
 The fixed settings are: no self-signup (`allowSignup = 0`), and a Keycloak user
 is linked to the Matomo user whose login equals their `preferred_username`
-(`autoLinking = 1`). Password login stays available for the break-glass
-superuser.
+(`autoLinking = 1`). Superusers cannot log in via Keycloak
+(`disableSuperuser = 1`), so a Keycloak account that happens to share a
+superuser's login cannot take it over. The break-glass superuser keeps password
+login; anyone else who needs superuser access logs in with a password too.
 
 ## Keycloak client
 

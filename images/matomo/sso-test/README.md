@@ -35,7 +35,7 @@ with their username as password:
 | --- | --- | --- |
 | `anna` | `anna`, view access to site 1 | Normal Keycloak login |
 | `ben` | none | Must be rejected |
-| `admin` | `admin` is the break-glass superuser | Shows whether a Keycloak user can take over the superuser |
+| `admin` | `admin` is the break-glass superuser | Must not be able to take over the superuser |
 
 Use a private browser window per test, so no session is left over.
 
@@ -49,5 +49,5 @@ Use a private browser window per test, so no session is left over.
 | B4 | Keycloak button, log in as `ben` | Matomo shows an error, no user `ben` appears under *Administration > System > Users* |
 | B5 | As `anna`: log out in Matomo, then click the Keycloak button again | Logout ends on Keycloak's "logged out" page (no redirect back, Matomo sends no `post_logout_redirect_uri`); the next login asks for the password again |
 | B6 | Password form, `admin` / `admin-Passw0rd!` | Works |
-| B7 | Keycloak button, log in as Keycloak user `admin` | With `disableSuperuser = 0` this logs in as the Matomo superuser. Note the result: it decides whether the setting must change |
+| B7 | Keycloak button, log in as Keycloak user `admin` | Matomo shows an error that superusers cannot log in this way (`disableSuperuser = 1`); you are not logged in |
 | B8 | `MATOMO_OIDC_CLIENT_ID= docker compose -f images/matomo/sso-test/compose.yml up -d matomo`, then `logs matomo` | Container stops with "MATOMO_OIDC_CLIENT_ID: is required with MATOMO_OIDC_ISSUER". Restore with the same command without the variable |

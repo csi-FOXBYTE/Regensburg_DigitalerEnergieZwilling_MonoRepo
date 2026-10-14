@@ -53,7 +53,7 @@ scope = "openid email profile"
 userinfoId = "$userinfo_id"
 allowSignup = 0
 autoLinking = 1
-disableSuperuser = 0
+disableSuperuser = 1
 disableDirectLoginUrl = 1
 bypassTwoFa = 0
 EOF

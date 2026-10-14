@@ -133,6 +133,7 @@ Ein Status `⚠️` bezeichnet eine vorhandene Umsetzung mit noch fehlendem voll
   - Login über Keycloak per OIDC mit dem Plugin LoginOIDC; Image, Variablen und Keycloak-Client sind in [images/matomo](../../../../images/matomo/README.md) beschrieben.
   - Keine Selbstregistrierung: Ein Keycloak-Nutzer kommt nur hinein, wenn in Matomo ein Nutzer mit seinem Keycloak-Benutzernamen angelegt ist. Site-Rechte werden in Matomo vergeben.
   - Die Verknüpfung läuft über `preferred_username`. Im Realm darf der Benutzername deshalb nicht durch Nutzer änderbar sein.
+  - Superuser können sich nicht über Keycloak anmelden (`disableSuperuser = 1`). So kann ein Keycloak-Konto mit gleichem Benutzernamen keinen Superuser übernehmen.
   - Der bei der Installation angelegte Superuser behält den Passwort-Login als Notfallzugang; Passwort im Secret-Management, Zwei-Faktor-Authentifizierung aktiv.
 
 ---
