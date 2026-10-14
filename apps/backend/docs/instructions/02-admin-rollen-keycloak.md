@@ -4,7 +4,7 @@
 
 Diese Anleitung richtet sich an die technische Administration der Regensburger CIVITAS/CORE-Keycloak-Instanz. Sie beschreibt die Zuweisung vorhandener DEZ-Client-Rollen zu vorhandenen Benutzerkonten.
 
-Die Installation des DEZ, die Anlage des OIDC-Clients und die Erstellung der Client-Rollen sind nicht Bestandteil dieser Anleitung. Das DEZ-Add-on legt die Rollen `admin`, `manager` und `maintainer` für den konfigurierten OIDC-Client an.
+Die Installation des DEZ, die Anlage des OIDC-Clients und die Erstellung der Client-Rollen sind nicht Bestandteil dieser Anleitung. Das DEZ-Add-on legt die Rollen `admin`, `manager`, `maintainer`, `matomoAdmin` und `matomoViewer` für den konfigurierten OIDC-Client an.
 
 Die Regensburger CIVITAS/CORE-Keycloak-Instanz verwendet für diesen Betrieb einen Realm. Legen Sie keinen zusätzlichen Realm für den DEZ an.
 
@@ -15,6 +15,10 @@ Die Regensburger CIVITAS/CORE-Keycloak-Instanz verwendet für diesen Betrieb ein
 | `manager` | Dashboard und fachliche Bearbeitung von Einreichungen |
 | `maintainer` | Systempflege und Konfigurationsverwaltung |
 | `admin` | Vollzugriff auf Einreichungen und Systempflege |
+| `matomoViewer` | Lesender Zugriff auf die Matomo-Berichte des DEZ |
+| `matomoAdmin` | Lesender Zugriff und Verwaltung der Matomo-Website des DEZ, etwa Ziele, Funnels und Segmente |
+
+Die Matomo-Rollen gelten nur für Matomo. Sie geben keinen Zugriff auf Bereiche des Admin-Frontends. Umgekehrt enthält `admin` keinen Zugriff auf Matomo. Weisen Sie die Matomo-Rollen nur den freigegebenen Berichtsempfängern gemäß [Matomo-Trackingkonzept](../system/06-matomo-trackingkonzept.md#betriebsparameter-und-berichtszugriff) zu. `matomoAdmin` schließt die Rechte von `matomoViewer` ein; eine zusätzliche Zuweisung von `matomoViewer` ist nicht erforderlich.
 
 ## Rolle zuweisen
 
@@ -28,7 +32,7 @@ Die Regensburger CIVITAS/CORE-Keycloak-Instanz verwendet für diesen Betrieb ein
 8. Klicken Sie auf **Assign role**.
 9. Filtern Sie nach Client-Rollen.
 10. Wählen Sie den für den DEZ konfigurierten OIDC-Client aus. Der Standardname lautet `digital-energy-twin`.
-11. Markieren Sie `manager`, `maintainer` oder `admin`.
+11. Markieren Sie `manager`, `maintainer`, `admin`, `matomoViewer` oder `matomoAdmin`.
 12. Klicken Sie auf **Assign**, um die Zuweisung zu bestätigen.
 13. Prüfen Sie, ob die Rolle unter den zugewiesenen Rollen erscheint.
 
@@ -50,5 +54,10 @@ Prüfen Sie nach der erneuten Anmeldung die sichtbaren Bereiche:
 - `manager`: **Dashboard** und **Gebäudeliste**
 - `maintainer`: **Systempflege**
 - `admin`: **Dashboard**, **Gebäudeliste** und **Systempflege**
+
+Prüfen Sie für die Matomo-Rollen die Anmeldung an Matomo:
+
+- `matomoViewer`: Die Berichte der DEZ-Website sind sichtbar. Die Website-Verwaltung ist nicht verfügbar.
+- `matomoAdmin`: Die Berichte und die Verwaltung der DEZ-Website sind verfügbar.
 
 Prüfen Sie die Client-ID und die Rollenzuweisung, wenn kein Bereich oder ein unzulässiger Bereich erscheint. Weisen Sie keine Realm-Rolle gleichen Namens als Ersatz für die erforderliche Client-Rolle zu.
