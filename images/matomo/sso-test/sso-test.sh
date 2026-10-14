@@ -15,15 +15,7 @@ case "${1:-}" in
   up)
     compose up -d --build --wait keycloak matomo
     echo 'Installing Matomo (skipped if already installed) ...'
-    # Docker Desktop on WSL sometimes shows a bind mount empty to the first
-    # container after a restart; wait until the harness is visible.
-    for attempt in 1 2 3 4 5; do
-      compose run --rm -T --entrypoint test playwright -f /harness/run-playwright.sh \
-        2> /dev/null && break
-      [ "$attempt" = 5 ] && { echo 'error: /harness is empty in the container' >&2; exit 1; }
-      sleep 2
-    done
-    compose run --rm playwright install.spec.ts
+    compose run --build --rm playwright install.spec.ts
     echo 'Restarting Matomo so the entrypoint activates LoginOIDC ...'
     compose restart matomo
     compose up -d --wait matomo

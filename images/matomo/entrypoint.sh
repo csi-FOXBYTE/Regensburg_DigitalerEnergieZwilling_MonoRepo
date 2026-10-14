@@ -33,9 +33,13 @@ if [ -n "${MATOMO_OIDC_ISSUER:-}" ]; then
   : "${MATOMO_OIDC_CLIENT_ID:?is required with MATOMO_OIDC_ISSUER}"
   : "${MATOMO_OIDC_CLIENT_SECRET_FILE:?is required with MATOMO_OIDC_ISSUER}"
   endpoint=${MATOMO_OIDC_ISSUER%/}/protocol/openid-connect
+  # Token and userinfo are called by Matomo itself, e.g. via an internal URL.
+  backchannel=${MATOMO_OIDC_BACKCHANNEL_URL:-$MATOMO_OIDC_ISSUER}
+  backchannel=${backchannel%/}/protocol/openid-connect
   client_secret=$(cat "$MATOMO_OIDC_CLIENT_SECRET_FILE")
   userinfo_id=${MATOMO_OIDC_USERINFO_ID:-preferred_username}
   check_ini_value MATOMO_OIDC_ISSUER "$endpoint"
+  check_ini_value MATOMO_OIDC_BACKCHANNEL_URL "$backchannel"
   check_ini_value MATOMO_OIDC_CLIENT_ID "$MATOMO_OIDC_CLIENT_ID"
   check_ini_value MATOMO_OIDC_CLIENT_SECRET_FILE "$client_secret"
   check_ini_value MATOMO_OIDC_USERINFO_ID "$userinfo_id"
@@ -44,8 +48,8 @@ if [ -n "${MATOMO_OIDC_ISSUER:-}" ]; then
 [LoginOIDC]
 authenticationName = "Keycloak"
 authorizeUrl = "$endpoint/auth"
-tokenUrl = "$endpoint/token"
-userinfoUrl = "$endpoint/userinfo"
+tokenUrl = "$backchannel/token"
+userinfoUrl = "$backchannel/userinfo"
 endSessionUrl = "$endpoint/logout"
 clientId = "$MATOMO_OIDC_CLIENT_ID"
 clientSecret = "$client_secret"

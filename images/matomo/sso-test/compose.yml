@@ -10,18 +10,14 @@ services:
     environment:
       KC_BOOTSTRAP_ADMIN_USERNAME: admin
       KC_BOOTSTRAP_ADMIN_PASSWORD: admin
-      # Matomo shares this container's network (see below), so the browser and
-      # Matomo both reach Keycloak as http://localhost:8092 and the token
-      # issuer matches on both sides. No hosts entry or proxy exception needed.
+      # Tokens are issued for http://localhost:8092, where the browser reaches
+      # Keycloak. Matomo calls it as http://keycloak:8092 (backchannel URL);
+      # Keycloak checks the issuer against this hostname, not the request.
       KC_HOSTNAME: http://localhost:8092
       KC_HTTP_PORT: '8092'
       KC_HEALTH_ENABLED: 'true'
     ports:
       - '127.0.0.1:8092:8092'
-      - '127.0.0.1:8093:80' # Matomo
-    networks:
-      default:
-        aliases: [matomo] # for the installer
     volumes:
       - ./realm-dez.json:/opt/keycloak/data/import/realm-dez.json:ro
     healthcheck:
@@ -50,8 +46,6 @@ services:
 
   matomo:
     build: ..
-    # Recreate Matomo after recreating Keycloak (sso-test.sh down, then up).
-    network_mode: service:keycloak
     environment:
       MATOMO_DATABASE_HOST: matomo-db
       MATOMO_DATABASE_ADAPTER: mysql
@@ -63,8 +57,11 @@ services:
       # the installer.
       MATOMO_DISABLE_TRUSTED_HOST_CHECK: '1'
       MATOMO_OIDC_ISSUER: ${MATOMO_OIDC_ISSUER-http://localhost:8092/realms/dez}
+      MATOMO_OIDC_BACKCHANNEL_URL: http://keycloak:8092/realms/dez
       MATOMO_OIDC_CLIENT_ID: ${MATOMO_OIDC_CLIENT_ID-matomo}
       MATOMO_OIDC_CLIENT_SECRET_FILE: /run/secrets/matomo-client-secret
+    ports:
+      - '127.0.0.1:8093:80'
     volumes:
       - matomo-data:/var/www/html
       - ./client-secret.txt:/run/secrets/matomo-client-secret:ro
@@ -85,17 +82,21 @@ services:
       retries: 40
 
   # Runs install.spec.ts from the frontend's Matomo harness: ./sso-test.sh up
+  # The harness is copied in at build time: Docker Desktop on WSL sometimes
+  # showed it as an empty bind mount.
   playwright:
-    image: mcr.microsoft.com/playwright:v1.62.1-noble
+    build:
+      context: ../../../apps/frontend/tests/matomo
+      dockerfile_inline: |
+        FROM mcr.microsoft.com/playwright:v1.62.1-noble
+        COPY . /harness
     profiles: [tools]
     ipc: host
     entrypoint: ['bash', '/harness/run-playwright.sh']
     environment:
       NPM_CONFIG_UPDATE_NOTIFIER: 'false'
     volumes:
-      - ../../../apps/frontend/tests/matomo:/harness:ro
       - playwright-modules:/runner/node_modules
-      - ./results:/results
 
 volumes:
   matomo-db:

@@ -11,10 +11,10 @@ client secret are fixed test values.
   devcontainer
 - Free local ports 8092 (Keycloak) and 8093 (Matomo)
 
-Matomo runs in the Keycloak container's network, so the browser and Matomo
-both reach Keycloak as `http://localhost:8092`. Otherwise Keycloak would
-reject the token at the userinfo endpoint because the issuer differs. After
-recreating Keycloak, recreate Matomo too (`down`, then `up`).
+The browser reaches Keycloak as `http://localhost:8092`, Matomo as
+`http://keycloak:8092` (`MATOMO_OIDC_BACKCHANNEL_URL`). Keycloak issues the
+tokens for `localhost:8092` either way, so no hosts entry or proxy exception is
+needed.
 
 ## Use
 

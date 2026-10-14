@@ -19,6 +19,7 @@ login only), as in the devcontainer.
 | `MATOMO_OIDC_ISSUER` | for SSO | Realm URL, e.g. `https://keycloak.example/realms/dez`. |
 | `MATOMO_OIDC_CLIENT_ID` | for SSO | Keycloak client ID, e.g. `matomo`. |
 | `MATOMO_OIDC_CLIENT_SECRET_FILE` | for SSO | Path to a mounted file with the client secret. |
+| `MATOMO_OIDC_BACKCHANNEL_URL` | no | Realm URL Matomo itself uses for the token and userinfo calls, e.g. the internal Keycloak service. Default: `MATOMO_OIDC_ISSUER`. Keycloak must still issue tokens for `MATOMO_OIDC_ISSUER` (its configured hostname). |
 | `MATOMO_OIDC_USERINFO_ID` | no | Claim used as the Matomo login. Default `preferred_username`. |
 | `MATOMO_BEHIND_TLS_PROXY` | no | `1` when TLS ends at a proxy, so Matomo builds `https` URLs. |
 | `MATOMO_DISABLE_TRUSTED_HOST_CHECK` | no | `1` for local development only. |
@@ -40,7 +41,8 @@ login; anyone else who needs superuser access logs in with a password too.
   `preferred_username`.
 - The realm must not let users change their username ("Edit username" off);
   otherwise a renamed account could take over another Matomo login.
-- Matomo must reach the realm's token and userinfo endpoints directly.
+- Matomo must reach the realm's token and userinfo endpoints directly, at
+  `MATOMO_OIDC_ISSUER` or `MATOMO_OIDC_BACKCHANNEL_URL`.
 - Only users with the client role `matomoViewer` or `matomoAdmin` of the DEZ
   client (`digital-energy-twin`) may log in. LoginOIDC cannot read roles, so
   Keycloak enforces this: the `matomo` client gets its own browser flow (client
