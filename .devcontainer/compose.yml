@@ -114,6 +114,8 @@ services:
       - bash /harness/run-playwright.sh install.spec.ts && cd /runner && npx playwright test configure.spec.ts
     environment:
       SITE_URL: localhost:4321
+      # Unlike the test instance: this one disables the visits log.
+      MATOMO_COMPLIANCE_POLICY: cnil_v1
       NPM_CONFIG_UPDATE_NOTIFIER: "false"
     volumes:
       - ../apps/frontend/tests/matomo:/harness:ro

@@ -62,8 +62,10 @@ logs matomo-setup` shows the progress. Then set
 `MATOMO_URL=http://localhost:8091/matomo.php` and `MATOMO_SITE_ID=1` in `.env`
 and rebuild the devcontainer so the backend picks them up. The public frontend
 then tracks to http://localhost:8091/ (`admin` / `admin-Passw0rd!`) after
-**Alle erlauben** in the consent dialog. Events appear under **Visitors > Visits
-Log**. Use the same command to start Matomo again later. The
+**Alle erlauben** in the consent dialog. The instance enforces the CNIL
+compliance policy, which disables the visits log; events appear in the
+aggregated reports under **Behaviour > Events**. Use the same command to start
+Matomo again later. The
 [Matomo test setup](apps/frontend/tests/matomo/README.md) is a separate,
 throwaway instance for automated checks.
 
