@@ -1,6 +1,6 @@
 # Datenschutzhinweise für das öffentliche Sanierungstool
 
-> **Status:** Entwurf, Stand 6. August 2026  
+> **Status:** Entwurf, Stand 14. Oktober 2026  
 > **Geltungsbereich:** Öffentlicher/bürgerseitiger Teil des Digitalen Energie Zwillings (DEZ)  
 > **Freigabe:** Vor Veröffentlichung durch Betreiber, zuständige Dienststelle und behördlichen Datenschutzbeauftragten zu prüfen. Eckige Klammern kennzeichnen noch zu ergänzende oder verbindlich festzulegende Angaben.
 
@@ -42,7 +42,7 @@ Das Sanierungstool kann ohne Registrierung und ohne Benutzerkonto verwendet werd
 
 Die Berechnung erfolgt grundsätzlich in Ihrem Browser. Ihre Eingaben werden dabei zunächst nur auf Ihrem Endgerät gespeichert. Eine Übermittlung Ihrer Gebäude- und Berechnungsdaten an die Stadt Regensburg erfolgt nur, wenn Sie der freiwilligen Bereitstellung ausdrücklich zustimmen.
 
-Unabhängig davon fallen beim Aufruf des Angebots technisch erforderliche Verbindungs- und Protokolldaten an. Die Kartenansicht lädt 3D-Gebäude- und Geländedaten aus der CIVITAS/CORE-Umgebung der Stadt Regensburg sowie die TopPlusOpen-Light-Terrain-Textur von `intergeo38.bayernwolke.de`. Einzelheiten finden Sie in den folgenden Abschnitten.
+Unabhängig davon fallen beim Aufruf des Angebots technisch erforderliche Verbindungs- und Protokolldaten an. Die Kartenansicht lädt 3D-Gebäude- und Geländedaten aus der CIVITAS/CORE-Umgebung der Stadt Regensburg sowie die TopPlusOpen-Light-Terrain-Textur von `intergeo38.bayernwolke.de`. Eine Webanalyse mit Matomo findet nur mit Ihrer gesonderten Einwilligung statt (Abschnitt 12). Einzelheiten finden Sie in den folgenden Abschnitten.
 
 ## 4. Aufruf der Webseite und technische Protokolldaten
 
@@ -259,13 +259,21 @@ Dabei werden insbesondere IP-Adresse, Zeitpunkt, Challenge-Daten, Prüfergebnis 
 
 ## 12. Webanalyse mit Matomo
 
-> **Noch nicht implementiert:** Die Webanalyse mit Matomo ist derzeit nicht aktiv. Es werden deshalb keine Matomo-Skripte geladen und keine Analyseereignisse an Matomo übermittelt. Vor einer künftigen Aktivierung müssen eine eigene Instanz bereitgestellt und Betrieb, Zuständigkeit sowie Datenschutzparameter festgelegt werden. Die technische Anbindung ist vorbereitet; solange für die Umgebung keine Matomo-Instanz konfiguriert ist, wird die Webanalyse in den Datenschutzeinstellungen nicht angeboten.
+> **Aktivierung ausstehend:** Die Webanalyse ist technisch umgesetzt, wird aber nur angeboten, wenn für die Umgebung eine Matomo-Instanz konfiguriert ist. Andernfalls erscheint sie nicht in den Datenschutzeinstellungen und es werden keine Analyseereignisse übermittelt. Vor der Aktivierung müssen Betrieb, Zuständigkeit sowie die unten offenen Angaben festgelegt werden. [Hinweis nach Aktivierung entfernen.]
 
-Falls Matomo künftig gesondert aktiviert wird, verwenden wir es zur statistischen Auswertung der Nutzung des Sanierungstools. Die dafür noch bereitzustellende Matomo-Instanz wird unter [interne Matomo-URL ergänzen] in der CIVITAS/CORE-Umgebung der Stadt Regensburg betrieben. Zuständig ist [zuständige Stelle der Stadt Regensburg oder beauftragter Betreiber ergänzen]. Eine Übermittlung der Analysedaten an Matomo Cloud findet nicht statt.
+Ist die Webanalyse aktiviert, verwenden wir Matomo zur statistischen Auswertung der Nutzung des Sanierungstools. Die Matomo-Instanz wird unter [interne Matomo-URL ergänzen] in der CIVITAS/CORE-Umgebung der Stadt Regensburg betrieben. Zuständig ist [zuständige Stelle der Stadt Regensburg oder beauftragter Betreiber ergänzen]. Eine Übermittlung der Analysedaten an Matomo Cloud findet nicht statt.
 
-Matomo wird erst nach Ihrer vorherigen Einwilligung aktiviert. Ohne Einwilligung werden keine Analyseereignisse übermittelt und keine Analyseereignisse für eine spätere Übermittlung zwischengespeichert. Matomo-Skripte werden auch nach einer Einwilligung nicht geladen; das Sanierungstool sendet ausschließlich die unten genannten Ereignisse direkt an die Matomo-Instanz. Sie können Ihre Entscheidung jederzeit über „Datenschutzeinstellungen“ ändern. Nach einem Widerruf werden keine weiteren Ereignisse übermittelt und die Session-ID wird aus Ihrem Browser entfernt.
+### Einwilligung und Widerruf
 
-Für die Webanalyse werden keine Cookies gesetzt. Nach Ihrer Einwilligung speichert das Sanierungstool im Sitzungsspeicher des Browser-Tabs (Session Storage, Eintrag `det_analytics_session`) eine zufällig erzeugte Session-ID, den Zeitpunkt der letzten Aktivität und die bereits übermittelten Ereignisarten, damit wiederholte Aktionen nicht mehrfach gezählt werden. Der Eintrag wird beim Schließen des Tabs vom Browser gelöscht. Nach 30 Minuten ohne Aktivität wird eine neue Session-ID erzeugt.
+Die Webanalyse findet nur nach Ihrer vorherigen Einwilligung statt. Sie ist ein eigener Zweck in den Datenschutzeinstellungen und unabhängig von der lokalen Speicherung (Abschnitt 5) und der freiwilligen Datenbereitstellung (Abschnitt 8). Ohne Einwilligung werden keine Analyseereignisse übermittelt und auch nicht für eine spätere Übermittlung zwischengespeichert; Nutzungsvorgänge vor einer Einwilligung werden nicht nachträglich übertragen. Es wird kein Matomo-Skript geladen, auch nicht nach einer Einwilligung. Das Sanierungstool sendet ausschließlich die unten genannten Ereignisse direkt an die Matomo-Instanz.
+
+Sie können Ihre Einwilligung jederzeit über „Datenschutzeinstellungen“ im Fußbereich widerrufen, indem Sie „Webanalyse“ ausschalten und die Auswahl speichern. „Optionale ablehnen“ widerruft die Webanalyse ebenfalls, schaltet aber zugleich die optionale lokale Speicherung ab (Abschnitt 5). Ab dann werden keine weiteren Ereignisse übermittelt, auch nicht aus anderen geöffneten Tabs des Sanierungstools, und die Session-ID wird aus Ihrem Browser entfernt. Die Einwilligung gilt so lange wie Ihre übrige Datenschutzentscheidung (Abschnitt 5); danach findet keine Webanalyse mehr statt, bis Sie erneut zustimmen. Bereits vor dem Widerruf übermittelte Ereignisse bleiben bis zum Ablauf der unten genannten Speicherdauer in Matomo gespeichert.
+
+### Speicherung im Browser
+
+Für die Webanalyse werden keine Cookies gesetzt. Nach Ihrer Einwilligung speichert das Sanierungstool im Sitzungsspeicher des Browser-Tabs (Session Storage, Eintrag `det_analytics_session`) eine zufällig erzeugte Session-ID, den Zeitpunkt der letzten Aktivität und die bereits übermittelten Ereignisarten, damit wiederholte Aktionen nicht mehrfach gezählt werden. Der Eintrag wird beim Schließen des Tabs vom Browser gelöscht. Nach 30 Minuten ohne Aktivität wird eine neue Session-ID erzeugt. Die Session-ID wird nicht aus Nutzungs- oder Gebäudedaten abgeleitet.
+
+### Verarbeitete Daten
 
 Nach Ihrer Einwilligung werden folgende Daten verarbeitet:
 
@@ -276,17 +284,21 @@ Nach Ihrer Einwilligung werden folgende Daten verarbeitet:
 - bestätigter Gebäudetyp und ausgewählte Sanierungsmaßnahmen als fachlich vorgegebene Kategorieschlüssel,
 - die Startadresse der gewählten Sprachversion ohne weitere Pfadangaben, Parameter oder URL-Fragmente,
 - Zeitpunkte der Ereignisse,
-- Browser-, Geräte- und Betriebssystemmerkmale in gekürzter Form.
+- die technisch mit jeder Anfrage übermittelten Angaben, insbesondere IP-Adresse, Browserkennung (User-Agent) und Spracheinstellung des Browsers.
 
-An Matomo werden insbesondere keine Gebäude-ID, Adresse, Hausnummer, Koordinaten, Einreichungs- oder Löschkennung, Kontaktdaten, Freitexte, exakten Verbrauchs- oder Kostenwerte sowie keine vollständigen Eingabe-, Ergebnis- oder Einreichungsdaten übermittelt. Die eigentlichen Daten einer freiwilligen Gebäudedatenspende werden über einen von Matomo getrennten technischen Weg verarbeitet.
+An Matomo werden insbesondere keine Gebäude-ID, Adresse, Hausnummer, Koordinaten, Einreichungs- oder Löschkennung, Kontaktdaten, Freitexte, exakten Verbrauchs- oder Kostenwerte sowie keine vollständigen Eingabe-, Ergebnis- oder Einreichungsdaten übermittelt. Seitentitel und Referrer werden nicht übermittelt. Die eigentlichen Daten einer freiwilligen Gebäudedatenspende werden über einen von Matomo getrennten technischen Weg verarbeitet.
 
 Gebäudetypen und Sanierungsmaßnahmen werden nur anhand festgelegter Kategorien ausgewertet. Berichte werden aggregiert erstellt. Die zugrunde liegenden Ereignisse können innerhalb einer eingewilligten Sitzung über die zufällige Session-ID zusammengeführt werden und werden deshalb nicht allein aufgrund der aggregierten Berichte als anonym behandelt.
 
-Die IP-Adresse wird in Matomo nicht als Analysemerkmal oder Besucherkennung verwendet und nicht in die Analysedaten übernommen. Technisch erforderliche IP-Verarbeitungen auf Ebene von Webserver und APISIX richten sich ausschließlich nach Abschnitt 4.
+### Verarbeitung in Matomo
+
+Welche der übermittelten Angaben Matomo speichert und in welcher Form, richtet sich nach der Konfiguration der Matomo-Instanz: [Datenschutzeinstellungen der Matomo-Instanz ergänzen, insbesondere Maskierung der IP-Adresse, Geolokalisierung, Speicherung von Referrern sowie daraus abgeleitete Merkmale wie Browser, Betriebssystem und Gerätetyp]. Technisch erforderliche IP-Verarbeitungen auf Ebene von Webserver und APISIX richten sich nach Abschnitt 4.
+
+### Speicherdauer, Zugriff und Rechtsgrundlage
 
 Die Analysedaten werden für [Aufbewahrungsfrist ergänzen] gespeichert. Zugriff erhalten [berechtigte Rollen und Berichtsempfänger ergänzen].
 
-Rechtsgrundlagen sind Art. 6 Abs. 1 Buchst. a DSGVO sowie, soweit Informationen auf dem Endgerät gespeichert oder ausgelesen werden, § 25 Abs. 1 TDDDG.
+Rechtsgrundlagen sind Art. 6 Abs. 1 Buchst. a DSGVO sowie für die Speicherung der Session-ID im Browser § 25 Abs. 1 TDDDG. Ein Widerruf wirkt für die Zukunft und berührt nicht die Rechtmäßigkeit der bis dahin erfolgten Verarbeitung.
 
 ## 13. Schriftarten
 
@@ -366,4 +378,4 @@ Trotz technischer und organisatorischer Schutzmaßnahmen kann eine Datenübertra
 
 Diese Datenschutzhinweise werden angepasst, wenn sich Funktionen, Datenflüsse, Empfänger oder Rechtsgrundlagen ändern.
 
-Stand: 6. August 2026
+Stand: 14. Oktober 2026
