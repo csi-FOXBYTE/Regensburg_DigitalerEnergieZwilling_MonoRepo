@@ -10,10 +10,11 @@ client secret are fixed test values.
 - Docker with Compose v2, run from a host shell (WSL, Git Bash), not from the
   devcontainer
 - Free local ports 8092 (Keycloak) and 8093 (Matomo)
-- `127.0.0.1 keycloak` in the hosts file of the machine running the browser
-  (on WSL: `C:\Windows\System32\drivers\etc\hosts`, edited as administrator).
-  The browser and Matomo must both reach Keycloak as `http://keycloak:8092`,
-  otherwise Keycloak rejects the token at the userinfo endpoint.
+
+Matomo runs in the Keycloak container's network, so the browser and Matomo
+both reach Keycloak as `http://localhost:8092`. Otherwise Keycloak would
+reject the token at the userinfo endpoint because the issuer differs. After
+recreating Keycloak, recreate Matomo too (`down`, then `up`).
 
 ## Use
 
@@ -26,7 +27,7 @@ images/matomo/sso-test/sso-test.sh down  # stop and delete everything, including
 | What | Address | Login |
 | --- | --- | --- |
 | Matomo | http://localhost:8093/ | break-glass `admin` / `admin-Passw0rd!` |
-| Keycloak admin console | http://keycloak:8092/admin/ | `admin` / `admin` (master realm) |
+| Keycloak admin console | http://localhost:8092/admin/ | `admin` / `admin` (master realm) |
 
 The realm `dez` comes from [realm-dez.json](realm-dez.json). Its users log in
 with their username as password:

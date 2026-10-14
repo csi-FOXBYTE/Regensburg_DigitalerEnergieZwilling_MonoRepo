@@ -10,13 +10,18 @@ services:
     environment:
       KC_BOOTSTRAP_ADMIN_USERNAME: admin
       KC_BOOTSTRAP_ADMIN_PASSWORD: admin
-      # The browser and Matomo both reach Keycloak as http://keycloak:8092, so
-      # the token issuer matches on both sides (needs the hosts entry).
-      KC_HOSTNAME: http://keycloak:8092
+      # Matomo shares this container's network (see below), so the browser and
+      # Matomo both reach Keycloak as http://localhost:8092 and the token
+      # issuer matches on both sides. No hosts entry or proxy exception needed.
+      KC_HOSTNAME: http://localhost:8092
       KC_HTTP_PORT: '8092'
       KC_HEALTH_ENABLED: 'true'
     ports:
       - '127.0.0.1:8092:8092'
+      - '127.0.0.1:8093:80' # Matomo
+    networks:
+      default:
+        aliases: [matomo] # for the installer
     volumes:
       - ./realm-dez.json:/opt/keycloak/data/import/realm-dez.json:ro
     healthcheck:
@@ -45,6 +50,8 @@ services:
 
   matomo:
     build: ..
+    # Recreate Matomo after recreating Keycloak (sso-test.sh down, then up).
+    network_mode: service:keycloak
     environment:
       MATOMO_DATABASE_HOST: matomo-db
       MATOMO_DATABASE_ADAPTER: mysql
@@ -55,15 +62,15 @@ services:
       # Reached as localhost:8093 from the browser and as http://matomo from
       # the installer.
       MATOMO_DISABLE_TRUSTED_HOST_CHECK: '1'
-      MATOMO_OIDC_ISSUER: ${MATOMO_OIDC_ISSUER-http://keycloak:8092/realms/dez}
+      MATOMO_OIDC_ISSUER: ${MATOMO_OIDC_ISSUER-http://localhost:8092/realms/dez}
       MATOMO_OIDC_CLIENT_ID: ${MATOMO_OIDC_CLIENT_ID-matomo}
       MATOMO_OIDC_CLIENT_SECRET_FILE: /run/secrets/matomo-client-secret
-    ports:
-      - '127.0.0.1:8093:80'
     volumes:
       - matomo-data:/var/www/html
       - ./client-secret.txt:/run/secrets/matomo-client-secret:ro
     depends_on:
+      keycloak:
+        condition: service_healthy
       matomo-db:
         condition: service_healthy
     healthcheck:

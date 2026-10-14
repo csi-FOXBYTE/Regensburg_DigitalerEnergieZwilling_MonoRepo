@@ -38,10 +38,9 @@ case "${1:-}" in
     cat << EOF
 
 Matomo:    $MATOMO/  (break-glass superuser admin / $ADMIN_PASSWORD)
-Keycloak:  http://keycloak:8092/admin/  (admin / admin, realm dez)
+Keycloak:  http://localhost:8092/admin/  (admin / admin, realm dez)
 Keycloak users (password = username): anna (has a Matomo user), ben (has none),
 admin (same name as the Matomo superuser).
-Needs "127.0.0.1 keycloak" in the hosts file of the machine running the browser.
 EOF
     ;;
   logs) compose logs -f matomo keycloak ;;
