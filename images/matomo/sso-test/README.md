@@ -29,14 +29,19 @@ images/matomo/sso-test/sso-test.sh down  # stop and delete everything, including
 | Matomo | http://localhost:8093/ | break-glass `admin` / `admin-Passw0rd!` |
 | Keycloak admin console | http://localhost:8092/admin/ | `admin` / `admin` (master realm) |
 
-The realm `dez` comes from [realm-dez.json](realm-dez.json). Its users log in
-with their username as password:
+The realm `dez` comes from [realm-dez.json](realm-dez.json). As in production,
+the client `digital-energy-twin` holds the roles `matomoViewer` and
+`matomoAdmin` (`matomoAdmin` includes `matomoViewer`). The `matomo` client uses
+its own browser flow `matomo browser`: after the login, or with an existing
+Keycloak session, the subflow `matomo role gate` denies users who have neither
+role. The users log in with their username as password:
 
-| Keycloak user | Matomo user | Purpose |
-| --- | --- | --- |
-| `anna` | `anna`, view access to site 1 | Normal Keycloak login |
-| `ben` | none | Must be rejected |
-| `admin` | `admin` is the break-glass superuser | Must not be able to take over the superuser |
+| Keycloak user | Role | Matomo user | Purpose |
+| --- | --- | --- | --- |
+| `anna` | `matomoViewer` | `anna`, view access to site 1 | Normal Keycloak login |
+| `ben` | `matomoViewer` | none | Rejected by Matomo |
+| `carla` | none | `carla`, view access to site 1 | Rejected by Keycloak |
+| `admin` | `matomoAdmin` | `admin` is the break-glass superuser | Must not be able to take over the superuser |
 
 Use a private browser window per test, so no session is left over.
 
@@ -52,3 +57,6 @@ Use a private browser window per test, so no session is left over.
 | B6 | Password form, `admin` / `admin-Passw0rd!` | Works |
 | B7 | Keycloak button, log in as Keycloak user `admin` | Matomo shows "OAuth login disabled for superusers." and you are not logged in |
 | B8 | `MATOMO_OIDC_CLIENT_ID= docker compose -f images/matomo/sso-test/compose.yml up -d matomo`, then `logs matomo` | Container stops with "MATOMO_OIDC_CLIENT_ID: is required with MATOMO_OIDC_ISSUER". Restore with the same command without the variable |
+| B9 | Keycloak button, log in as `carla` | Keycloak shows "Kein Zugriff auf Matomo: …" and does not return to Matomo. If `carla` gets in, a role name in the flow is wrong: the Keycloak log then says "Invalid role name submitted" |
+| B10 | Log in as `carla` at http://localhost:8092/realms/dez/account first, then click the Keycloak button in Matomo | Denied as in B9, although a Keycloak session exists |
+| B11 | Keycloak admin console, realm `dez`: *Users > anna > Role mapping*, unassign `matomoViewer`; then log in as `anna` in a new private window | Denied as in B9. Assign the role again afterwards |

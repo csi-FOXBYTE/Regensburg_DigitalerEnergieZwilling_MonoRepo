@@ -207,7 +207,7 @@ Vor Produktivbetrieb sind verbindlich zu dokumentieren und freizugeben:
 - Sitzungs- und Inaktivitäts-Timeout,
 - IP-Anonymisierung und Ausschluss der IP-Adresse als Analysekennung,
 - Aufbewahrungs-, Lösch- und gegebenenfalls Aggregationsfristen,
-- Rollen, Rechte und konkrete Berichtsempfänger (Login über Keycloak, Rechtevergabe in Matomo, siehe [Sicherheitskonzept](03-security-concept.md#identitaet-zugriff-und-rollen)),
+- Rollen, Rechte und konkrete Berichtsempfänger (Login über Keycloak mit den Rollen `matomoViewer`/`matomoAdmin`, Rechtevergabe in Matomo, siehe [Sicherheitskonzept](03-security-concept.md#identitaet-zugriff-und-rollen)),
 - Mindestfallzahl für Auswertungen von Maßnahmenkombinationen,
 - freigegebene Versionen der Event-, Funnel- und Parameter-Allow-Lists.
 

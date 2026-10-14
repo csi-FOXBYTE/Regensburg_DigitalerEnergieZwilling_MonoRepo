@@ -41,6 +41,16 @@ login; anyone else who needs superuser access logs in with a password too.
 - The realm must not let users change their username ("Edit username" off);
   otherwise a renamed account could take over another Matomo login.
 - Matomo must reach the realm's token and userinfo endpoints directly.
+- Only users with the client role `matomoViewer` or `matomoAdmin` of the DEZ
+  client (`digital-energy-twin`) may log in. LoginOIDC cannot read roles, so
+  Keycloak enforces this: the `matomo` client gets its own browser flow (client
+  *Advanced > Authentication flow overrides*) that denies users without either
+  role, also when they already have a Keycloak session. Removing the role
+  blocks the next Matomo login. The flow `matomo browser` in
+  [sso-test/realm-dez.json](sso-test/realm-dez.json) is the reference.
+  A misspelled role name lets everyone in (Keycloak only logs "Invalid role
+  name submitted"), so after setting it up check that a user without either
+  role is denied.
 
 ## First deployment
 
@@ -53,9 +63,12 @@ login; anyone else who needs superuser access logs in with a password too.
    password only.
 2. Restart the container. The log says `Activated plugin LoginOIDC`, and the
    login page shows **Keycloak**.
-3. For each person, create a Matomo user whose login is their Keycloak
-   username and grant site access. Their first Keycloak login links the
-   accounts. Keycloak users without a Matomo user are rejected.
+3. For each person with `matomoViewer` or `matomoAdmin`, create a Matomo user
+   whose login is their Keycloak username and grant the matching access to the
+   DEZ site (*View* or *Admin*). Their first Keycloak login links the accounts.
+   Keycloak users without a Matomo user are rejected. When a role is removed,
+   also delete or downgrade the Matomo user: an open Matomo session lasts until
+   it expires.
 
 ## Testing the Keycloak login
 

@@ -55,6 +55,8 @@ Prüfen Sie nach der erneuten Anmeldung die sichtbaren Bereiche:
 - `maintainer`: **Systempflege**
 - `admin`: **Dashboard**, **Gebäudeliste** und **Systempflege**
 
+Die Matomo-Rollen steuern, wer sich über Keycloak an Matomo anmelden darf. Konten ohne `matomoViewer` oder `matomoAdmin` weist Keycloak bei der Matomo-Anmeldung ab, auch bei bestehender Keycloak-Sitzung. Die Rechte in Matomo selbst werden dort vergeben: Für jede Person legt die Matomo-Administration einen Matomo-Nutzer mit dem Keycloak-Benutzernamen als Login an und vergibt für die DEZ-Website das zur Rolle passende Recht (*View* für `matomoViewer`, *Admin* für `matomoAdmin`). Ohne diesen Matomo-Nutzer lehnt Matomo die Anmeldung ab. Teilen Sie der Matomo-Administration deshalb jede Zuweisung und jedes Entfernen einer Matomo-Rolle mit. Nach dem Entfernen ist keine neue Anmeldung mehr möglich; eine geöffnete Matomo-Sitzung bleibt bis zu ihrem Ablauf bestehen, bis die Matomo-Administration den Matomo-Nutzer löscht.
+
 Prüfen Sie für die Matomo-Rollen die Anmeldung an Matomo:
 
 - `matomoViewer`: Die Berichte der DEZ-Website sind sichtbar. Die Website-Verwaltung ist nicht verfügbar.

@@ -21,26 +21,29 @@ case "${1:-}" in
     compose up -d --wait matomo
     compose logs matomo | grep -i loginoidc || true
 
-    echo "Creating the Matomo user anna (Keycloak user ben stays without one) ..."
+    echo 'Creating the Matomo users anna and carla (ben stays without one) ...'
     token=$(api --data method=UsersManager.createAppSpecificTokenAuth \
       --data userLogin=admin --data-urlencode "passwordConfirmation=$ADMIN_PASSWORD" \
       --data description=sso-test | sed -E 's/.*"value":"([^"]+)".*/\1/')
-    if api --data method=UsersManager.userExists --data userLogin=anna \
-      --data "token_auth=$token" | grep -q true; then
-      echo 'anna already exists'
-    else
-      api --data method=UsersManager.addUser --data userLogin=anna \
-        --data-urlencode 'password=anna-Passw0rd!' --data email=anna@example.invalid \
-        --data initialIdSite=1 --data-urlencode "passwordConfirmation=$ADMIN_PASSWORD" \
-        --data "token_auth=$token"
-      echo
-    fi
+    for login in anna carla; do
+      if api --data method=UsersManager.userExists --data "userLogin=$login" \
+        --data "token_auth=$token" | grep -q true; then
+        echo "$login already exists"
+      else
+        api --data method=UsersManager.addUser --data "userLogin=$login" \
+          --data-urlencode "password=$login-Passw0rd!" --data "email=$login@example.invalid" \
+          --data initialIdSite=1 --data-urlencode "passwordConfirmation=$ADMIN_PASSWORD" \
+          --data "token_auth=$token"
+        echo
+      fi
+    done
     cat << EOF
 
 Matomo:    $MATOMO/  (break-glass superuser admin / $ADMIN_PASSWORD)
 Keycloak:  http://localhost:8092/admin/  (admin / admin, realm dez)
-Keycloak users (password = username): anna (has a Matomo user), ben (has none),
-admin (same name as the Matomo superuser).
+Keycloak users (password = username), see README.md: anna (role + Matomo user),
+ben (role, no Matomo user), carla (Matomo user, no role), admin (role, same name
+as the Matomo superuser).
 EOF
     ;;
   logs) compose logs -f matomo keycloak ;;
