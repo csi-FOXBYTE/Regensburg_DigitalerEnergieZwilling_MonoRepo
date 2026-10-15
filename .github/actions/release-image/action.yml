@@ -3,7 +3,7 @@ description: Build a fingerprinted context and push a unique GHCR build tag.
 inputs:
   component:
     required: true
-    description: frontend, adminfrontend or backend
+    description: frontend, adminfrontend, backend or matomo
   image:
     required: true
     description: GHCR image repository
@@ -21,7 +21,10 @@ inputs:
     description: Explicit external dependency refresh revision
   context:
     required: true
-    description: Exported build context
+    description: Docker build context inside the exported build inputs
+  dockerfile:
+    required: true
+    description: Dockerfile path relative to the build context
   username:
     required: true
     description: GitHub actor
@@ -45,7 +48,7 @@ runs:
       id: build
       with:
         context: ${{ inputs.context }}
-        file: ${{ inputs.context }}/apps/${{ inputs.component }}/Dockerfile
+        file: ${{ inputs.context }}/${{ inputs.dockerfile }}
         platforms: ${{ inputs.platform }}
         push: true
         sbom: true

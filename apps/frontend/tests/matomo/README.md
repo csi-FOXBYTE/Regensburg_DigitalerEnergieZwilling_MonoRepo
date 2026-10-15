@@ -41,8 +41,9 @@ are built when you open them.
 
 ## How it works
 
-- `matomo-db` and `matomo` run MariaDB and the official `matomo:5.14.0-apache`
-  image. `install.spec.ts` clicks through the web installer once and creates
+- `matomo-db` and `matomo` run MariaDB and the
+  [Matomo image](../../../../images/matomo/README.md) that ships, without
+  Keycloak login. `install.spec.ts` clicks through the web installer once and creates
   site 1. `configure.spec.ts` and `matomo.sh` then apply the configuration the
   tracker is designed for, which a production instance needs as well:
   - `[Tracker] trust_visitors_cookies = 1`, so a visit is the tab session the
@@ -50,7 +51,10 @@ are built when you open them.
     browser into one visit.
   - "Disable all tracking cookies" **off**: when on, Matomo ignores the session
     reference with the same effect. The tracker sets no cookies either way.
-  - IP anonymised by 3 bytes, no referrer, geolocation disabled.
+  - IP fully masked, no referrer, geolocation disabled. The devcontainer
+    instance also enforces the CNIL compliance policy
+    (`MATOMO_COMPLIANCE_POLICY=cnil_v1`), which this one leaves off because it
+    disables the visits log the funnel check reads.
 - `web` copies this checkout, builds `apps/frontend` and serves it with
   `serve.mjs`. The server answers `/api/public/analytics-config` with the local
   Matomo, as the backend does when `MATOMO_URL` and `MATOMO_SITE_ID` are set.

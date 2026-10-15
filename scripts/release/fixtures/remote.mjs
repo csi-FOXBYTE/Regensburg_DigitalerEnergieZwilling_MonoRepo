@@ -47,8 +47,8 @@ if (tool === 'gh') {
   else if (args[0] === 'rm') result();
   else if (args[2] === 'inspect') {
     if (state.failAt === 'missing-image') fail('manifest unknown');
-    const image = Object.values({ frontend: manifest.frontend, adminfrontend: manifest.adminfrontend, backend: manifest.backend })
-      .find((entry) => reference.startsWith(entry.image));
+    const image = ['frontend', 'adminfrontend', 'backend', 'matomo'].map((component) => manifest[component])
+      .find((entry) => entry && reference.startsWith(entry.image));
     const digest = reference.includes('@') ? image.digest : state.tags[reference];
     if (!digest) fail('manifest unknown');
     result(`Digest: ${digest}\n`);

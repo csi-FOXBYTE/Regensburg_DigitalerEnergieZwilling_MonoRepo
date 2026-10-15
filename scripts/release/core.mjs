@@ -1,7 +1,10 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 
-export const components = ['frontend', 'adminfrontend', 'backend'];
+export const components = ['frontend', 'adminfrontend', 'backend', 'matomo'];
+// Images added after the first releases. Manifests published before them stay
+// valid without them; every new release selects all components.
+const laterComponents = ['matomo'];
 export const manifestPath = 'release/manifest.json';
 export const journalMarker = '<!-- regensburg-release-v2 -->';
 const sha = /^[a-f0-9]{40}$/;
@@ -48,6 +51,12 @@ export function isBuildInput(file, component) {
   if (file.split('/').some(part => ['node_modules', '.git', '.local', '.devcontainer',
     '.pnpm-store', '.tanstack', 'dist', '.build', '.dev', '.astro', 'coverage', '.cache'].includes(part)
     || part.startsWith('.env'))) return false;
+  // Matomo is no pnpm app: only its own image directory, without the local
+  // login test and the documentation.
+  if (component === 'matomo') {
+    return file.startsWith('images/matomo/') && !file.startsWith('images/matomo/sso-test/')
+      && !file.endsWith('.md');
+  }
   if (/(^|\/)SBOM\.(cdx\.json|csv)$/.test(file) || file.endsWith('.tsbuildinfo')) return false;
   if (file.startsWith('apps/frontend/public/cesium/')) return false;
   if (file.startsWith(`apps/${component}/`) || file.startsWith('packages/energy-core/')) return true;
@@ -65,13 +74,19 @@ export function fingerprint(entries, inputs) {
   })).digest('hex')}`;
 }
 
+// The components a manifest records: all current ones, except images added
+// after that manifest was published.
+export function manifestComponents(manifest) {
+  return components.filter((component) => !laterComponents.includes(component) || manifest[component] !== undefined);
+}
+
 export function validateManifest(value, config) {
   assert.equal(value.schema, 2, 'Unknown manifest schema');
   assert(semver.test(value.appVersion), 'Invalid app version');
   assert(sha.test(value.sourceCommit), 'Invalid release source commit');
   assert(/^\d+$/.test(value.runId), 'Invalid release run ID');
   assert(value.previousVersion === null || semver.test(value.previousVersion));
-  for (const component of components) {
+  for (const component of manifestComponents(value)) {
     const image = value[component];
     assert(image && typeof image === 'object', 'Missing image record');
     const isFirstRelease = value.appVersion === firstRelease.appVersion
@@ -97,7 +112,9 @@ export function validateManifest(value, config) {
   if (value.sboms) {
     assert.equal(value.sboms.schema, 1, 'Unknown SBOM receipt schema');
     assert.equal(value.sboms.sourceCommit, value.sourceCommit, 'SBOM/source mismatch');
-    for (const component of components) {
+    assert.deepEqual(Object.keys(value.sboms.images).sort(), manifestComponents(value).sort(),
+      'SBOM/image selection mismatch');
+    for (const component of manifestComponents(value)) {
       assert.deepEqual(value.sboms.images[component], {
         digest: value[component].digest, sourceCommit: value[component].sourceCommit, build: value[component].build,
       }, 'SBOM/image selection mismatch');

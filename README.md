@@ -53,8 +53,12 @@ A local Matomo for the web analytics is optional and not started by default.
 To use it, start it on the host:
 
 ```sh
-docker compose -f .devcontainer/compose.yml --profile matomo up -d
+docker compose -f .devcontainer/compose.yml --profile matomo up -d --build matomo matomo-setup
 ```
+
+Always name the services: the same file defines the devcontainer, so a bare
+`up --build` recreates it and `down` stops it (`down -v` also deletes the dev
+database).
 
 The first start installs and configures it (the `matomo-setup` service, a few
 minutes for the browser image); `docker compose -f .devcontainer/compose.yml
@@ -62,8 +66,10 @@ logs matomo-setup` shows the progress. Then set
 `MATOMO_URL=http://localhost:8091/matomo.php` and `MATOMO_SITE_ID=1` in `.env`
 and rebuild the devcontainer so the backend picks them up. The public frontend
 then tracks to http://localhost:8091/ (`admin` / `admin-Passw0rd!`) after
-**Alle erlauben** in the consent dialog. Events appear under **Visitors > Visits
-Log**. Use the same command to start Matomo again later. The
+**Alle erlauben** in the consent dialog. The instance enforces the CNIL
+compliance policy, which disables the visits log; events appear in the
+aggregated reports under **Behaviour > Events**. Use the same command to start
+Matomo again later. The
 [Matomo test setup](apps/frontend/tests/matomo/README.md) is a separate,
 throwaway instance for automated checks.
 

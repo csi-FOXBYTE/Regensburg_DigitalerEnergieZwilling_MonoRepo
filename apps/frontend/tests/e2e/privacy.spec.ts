@@ -25,9 +25,10 @@ test.describe('privacy notice', () => {
       }),
     ).toBeVisible();
     await expect(
-      page.getByText('Die Webanalyse mit Matomo ist derzeit nicht aktiv.', {
-        exact: false,
-      }),
+      page.getByText(
+        'Die Webanalyse ist technisch umgesetzt, wird aber nur angeboten',
+        { exact: false },
+      ),
     ).toBeVisible();
     await expect(
       page.getByRole('heading', { level: 2, name: '13. Schriftarten' }),

@@ -12,3 +12,11 @@ test('addon deploys one reviewed release using only immutable image digests', ()
   assert.throws(() => deploymentSelection({ ...release, draft: true }, manifest, { allowPrerelease: true }), /completed/);
   assert.throws(() => deploymentSelection(release, { ...manifest, sourceCommit: 'f'.repeat(40) }, { allowPrerelease: true }), /disagree/);
 });
+test('releases from before matomo select only the images they contain', () => {
+  const manifest = exampleManifest(); delete manifest.matomo;
+  const release = { tag_name: 'v0.1.0', body: journalBody(manifest), draft: false, prerelease: false };
+  const selected = deploymentSelection(release, manifest);
+  assert.deepEqual(Object.keys(selected.images), ['frontend', 'adminfrontend', 'backend']);
+  assert.equal(deploymentSelection({ ...release, body: journalBody(exampleManifest()) }, exampleManifest()).images.matomo,
+    `${exampleManifest().matomo.image}@${exampleManifest().matomo.digest}`);
+});

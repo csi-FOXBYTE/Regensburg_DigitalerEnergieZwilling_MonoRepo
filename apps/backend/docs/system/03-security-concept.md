@@ -129,6 +129,14 @@ Ein Status `⚠️` bezeichnet eine vorhandene Umsetzung mit noch fehlendem voll
   - `"/api/admin/*"` ist per Default geschützt; APISIX erzwingt den externen Routenschutz.
   - Das Backend nimmt Access Tokens aus `X-Access-Token` oder `Authorization: Bearer` entgegen, validiert sie produktiv per RS256/JWKS und wertet danach Claims/Rollen für die fachliche Zugriffskontrolle aus.
   - `"/api/public/*"` ist per Default nicht über Backend-Auth-Middleware geschützt; Absicherung erfolgt über APISIX-Policies plus serverseitige Validierung.
+- Matomo-Zugriff:
+  - Login über Keycloak per OIDC mit dem Plugin LoginOIDC; Image, Variablen und Keycloak-Client sind in [images/matomo](../../../../images/matomo/README.md) beschrieben.
+  - Keycloak lässt nur Konten mit der Client-Rolle `matomoViewer` oder `matomoAdmin` des DEZ-Clients zur Matomo-Anmeldung zu (eigener Browser-Flow des Clients `matomo`, greift auch bei bestehender Keycloak-Sitzung). Das Entfernen der Rolle sperrt die nächste Anmeldung.
+  - Keine Selbstregistrierung: Ein Keycloak-Nutzer kommt zusätzlich nur hinein, wenn in Matomo ein Nutzer mit seinem Keycloak-Benutzernamen angelegt ist. Site-Rechte werden in Matomo passend zur Rolle vergeben.
+  - Die Verknüpfung läuft über `preferred_username`. Im Realm darf der Benutzername deshalb nicht durch Nutzer änderbar sein.
+  - Das Passwortformular von Matomo bleibt sichtbar. Damit es kein Weg an Keycloak und der Rollenprüfung vorbei ist, erhalten normale Matomo-Nutzer ein zufälliges, nicht aufbewahrtes Passwort, und das Plugin NoPasswordReset sperrt das Zurücksetzen des Passworts per E-Mail und Einladungslinks, über die Eingeladene ein eigenes Passwort setzen würden. Schlägt die Aktivierung der Plugins beim Start fehl, startet Matomo nicht.
+  - Superuser können sich nicht über Keycloak anmelden (`disableSuperuser = 1`). So kann ein Keycloak-Konto mit gleichem Benutzernamen keinen Superuser übernehmen.
+  - Der bei der Installation angelegte Superuser behält den Passwort-Login als Notfallzugang; Passwort im Secret-Management, Zwei-Faktor-Authentifizierung aktiv.
 
 ---
 

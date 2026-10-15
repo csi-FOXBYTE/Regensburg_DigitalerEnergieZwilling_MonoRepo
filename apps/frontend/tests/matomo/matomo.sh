@@ -17,10 +17,10 @@ reset_visits() {
 
 case "${1:-}" in
   up)
-    compose up -d matomo-db matomo web
+    compose up -d --build matomo-db matomo web
     compose up -d --wait matomo
     echo 'Installing Matomo (skipped if already installed) ...'
-    compose run --rm playwright install.spec.ts
+    compose run --build --rm playwright install.spec.ts
     # Local only: Matomo is reached as localhost:<port> and as http://matomo.
     compose exec -T matomo php /var/www/html/console config:set \
       --section=General --key=enable_trusted_host_check --value=0 > /dev/null
@@ -29,7 +29,7 @@ case "${1:-}" in
     compose exec -T matomo php /var/www/html/console config:set \
       --section=Tracker --key=trust_visitors_cookies --value=1 > /dev/null
     echo 'Applying the privacy configuration (configure.spec.ts) ...'
-    compose run --rm playwright configure.spec.ts
+    compose run --build --rm playwright configure.spec.ts
     echo 'Building and starting the frontend (first run takes a few minutes) ...'
     compose up -d --wait --wait-timeout 1200 web
     cat << EOF
@@ -41,11 +41,11 @@ EOF
     ;;
   test)
     reset_visits
-    compose run --rm playwright funnel.spec.ts "${@:2}"
+    compose run --build --rm playwright funnel.spec.ts "${@:2}"
     ;;
   seed)
     # Adds visits from simulated users; does not delete existing data.
-    compose run --rm -e SEED_USERS="${2:-20}" playwright seed.spec.ts "${@:3}"
+    compose run --build --rm -e SEED_USERS="${2:-20}" playwright seed.spec.ts "${@:3}"
     ;;
   reset)
     reset_visits

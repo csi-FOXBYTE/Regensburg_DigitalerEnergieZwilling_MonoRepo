@@ -2,7 +2,7 @@
 
 `Release Regensburg web` is manually dispatched on `main`, selecting patch,
 minor or major. The first application version was **0.1.0**. Current releases
-are marked **prerelease** by `config.json` and new images use the three
+are marked **prerelease** by `config.json` and new images use the
 `regensburg-web-*` GHCR repositories. The published v0.1.0 manifest retains its
 original repositories and immutable digests. The first release after the name
 change rebuilds all three images in the new repositories. When the current
@@ -15,7 +15,7 @@ The independent identities are:
 - each image's `build-<run_id>-<attempt>` identity and original source SHA;
 - the core's npm/API version, currently 0.20.2, unchanged by app release selection.
 
-The schema-2 manifest binds frontend, adminfrontend and backend to repository,
+The schema-2 manifest binds frontend, adminfrontend, backend and matomo to repository,
 immutable digest, build ID, artifact source, input fingerprint, platform, resolved
 Node and runtime base digests, and a CycloneDX SBOM path/hash/build/source.
 The SBOM lives at `/usr/share/regensburg/SBOM.cdx.json` inside the immutable image.
@@ -29,6 +29,16 @@ is stored in the publication journal and the inventories are committed under
 `release/sboms/` at the tag. This checks inventory integrity, not license eligibility.
 GitHub CI and releases run no ScanCode audit. The [full local audit](../compliance/README.md)
 is an explicit step before a later openCode publication.
+
+## Matomo image
+
+`matomo` is no pnpm app. Its build inputs are only `images/matomo/`, without
+`sso-test/` and Markdown, and its Docker context is that directory (`context`
+and `dockerfile` in `config.json`). A Node stage runs `images/matomo/sbom.mjs`
+for the embedded SBOM: the Matomo base image, LoginOIDC with its checksum and
+NoPasswordReset. Node is therefore its build base and Matomo its runtime base.
+Manifests up to v1.7.3 have no `matomo` and stay valid; the next release builds
+it, and every later release selects all four images.
 
 ## Reuse and freshness
 
