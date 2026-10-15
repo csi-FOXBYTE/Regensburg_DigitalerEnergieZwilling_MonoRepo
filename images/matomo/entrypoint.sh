@@ -18,17 +18,18 @@ for plugin in "${plugins[@]}"; do
   cp -r "/opt/matomo-plugins/$plugin" "plugins/$plugin"
 done
 
+# Values end up in double-quoted INI strings, where PHP would interpret these.
 check_ini_value() {
   case "$2" in
-    *'"'* | *$'\n'*) echo >&2 "error: $1 must not contain quotes or line breaks"; exit 1 ;;
+    *'"'* | *$'\n'* | *$'\r'* | *'$'* | *'\'*)
+      echo >&2 "error: $1 must not contain quotes, line breaks, \$ or backslashes"; exit 1 ;;
   esac
 }
 
-if [ "${MATOMO_DISABLE_TRUSTED_HOST_CHECK:-}" = 1 ]; then
-  printf '\n[General]\nenable_trusted_host_check = 0\n' >> "$config"
-elif [ "${MATOMO_BEHIND_TLS_PROXY:-}" = 1 ]; then
-  printf '\n[General]\nassume_secure_protocol = 1\n' >> "$config"
-fi
+general=
+if [ "${MATOMO_DISABLE_TRUSTED_HOST_CHECK:-}" = 1 ]; then general+=$'enable_trusted_host_check = 0\n'; fi
+if [ "${MATOMO_BEHIND_TLS_PROXY:-}" = 1 ]; then general+=$'assume_secure_protocol = 1\n'; fi
+if [ -n "$general" ]; then printf '\n[General]\n%s' "$general" >> "$config"; fi
 
 oidc_enabled=
 if [ -n "${MATOMO_OIDC_ISSUER:-}" ]; then
@@ -39,7 +40,8 @@ if [ -n "${MATOMO_OIDC_ISSUER:-}" ]; then
   # Token and userinfo are called by Matomo itself, e.g. via an internal URL.
   backchannel=${MATOMO_OIDC_BACKCHANNEL_URL:-$MATOMO_OIDC_ISSUER}
   backchannel=${backchannel%/}/protocol/openid-connect
-  client_secret=$(cat "$MATOMO_OIDC_CLIENT_SECRET_FILE")
+  # Secret files written on Windows end in \r\n.
+  client_secret=$(tr -d '\r' < "$MATOMO_OIDC_CLIENT_SECRET_FILE")
   userinfo_id=${MATOMO_OIDC_USERINFO_ID:-preferred_username}
   check_ini_value MATOMO_OIDC_ISSUER "$endpoint"
   check_ini_value MATOMO_OIDC_BACKCHANNEL_URL "$backchannel"
@@ -68,13 +70,17 @@ fi
 
 for plugin in "${plugins[@]}"; do chown -R www-data:www-data "plugins/$plugin"; done
 chown -R www-data:www-data config
+# Holds the client secret.
+chmod 600 "$config"
 
 # Activation needs a finished installation; the first start skips it.
 if [ -n "$oidc_enabled" ]; then
   if grep -q '^\[database\]' config/config.ini.php 2>/dev/null \
     && ! grep -q '^installation_in_progress' config/config.ini.php; then
+    # Without NoPasswordReset users could set a password and skip Keycloak,
+    # so a failed activation stops the start instead of running unprotected.
     su -s /bin/bash www-data -c "./console plugin:activate ${plugins[*]}" \
-      || echo >&2 "warning: could not activate ${plugins[*]}"
+      || { echo >&2 "error: could not activate ${plugins[*]}"; exit 1; }
   else
     echo >&2 'LoginOIDC: Matomo is not installed yet; restart after the installation to activate it'
   fi
