@@ -8,12 +8,13 @@ use Piwik\Plugin;
 
 /**
  * With login via Keycloak, Matomo users get a random password nobody knows.
- * Without this plugin they could set their own via "Lost your password?" as
- * soon as Matomo can send mail, and bypass the Keycloak role check.
+ * Without this plugin they could set their own via "Lost your password?" (as
+ * soon as Matomo can send mail) or via an invitation link, and bypass the
+ * Keycloak role check with the password form.
  */
 class NoPasswordReset extends Plugin
 {
-    private const BLOCKED_ACTIONS = ['resetpassword', 'confirmresetpassword'];
+    private const BLOCKED_ACTIONS = ['resetpassword', 'confirmresetpassword', 'acceptinvitation'];
 
     public function registerEvents()
     {
@@ -31,7 +32,7 @@ class NoPasswordReset extends Plugin
         }
         $oidc = Config::getInstance()->LoginOIDC;
         if (is_array($oidc) && !empty($oidc['clientId'])) {
-            throw new Exception('Password reset is disabled. Please log in via Keycloak.');
+            throw new Exception('Setting a Matomo password is disabled. Please log in via Keycloak.');
         }
     }
 }

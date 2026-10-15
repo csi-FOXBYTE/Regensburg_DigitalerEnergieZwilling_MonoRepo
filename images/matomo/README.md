@@ -11,8 +11,9 @@ installed. Settings from the config file are read-only in the Matomo UI.
 
 The password form stays on the login page; LoginOIDC cannot remove it. So that
 it is no way around Keycloak and its role check, normal users get a random
-password nobody keeps, and NoPasswordReset blocks *Lost your password?* while
-LoginOIDC is configured (also once Matomo can send mail for e-mail reports).
+password nobody keeps, and NoPasswordReset blocks *Lost your password?* and
+invitation links while LoginOIDC is configured (also once Matomo can send mail
+for e-mail reports).
 
 Without `MATOMO_OIDC_ISSUER` the image behaves like the official one (password
 login only), as in the devcontainer.
@@ -74,6 +75,20 @@ login; anyone else who needs superuser access logs in with a password too.
 3. For each person with `matomoViewer` or `matomoAdmin`, create a Matomo user
    whose login is their Keycloak username, with a random password that is not
    kept, and grant the matching access to the DEZ site (*View* or *Admin*).
+   Create them via the API, not with the UI's *Invite user*: invitation links
+   are blocked, because the invitee would set a password of their own. As the
+   break-glass superuser, with an API token from *Personal > Security*:
+
+   ```sh
+   curl -fsS https://<matomo-host>/index.php -d module=API -d format=json \
+     -d method=UsersManager.addUser -d userLogin=<keycloak-username> \
+     -d password="$(openssl rand -hex 24)" -d email=<email> -d initialIdSite=<site-id> \
+     -d token_auth=<token> --data-urlencode passwordConfirmation=<break-glass password>
+   ```
+
+   `initialIdSite` grants *View*; for *Admin*, call
+   `UsersManager.setUserAccess` with `access=admin`, `idSites=<site-id>` and the
+   same token and password confirmation afterwards.
    Their first Keycloak login links the accounts.
    Keycloak users without a Matomo user are rejected. When a role is removed,
    also delete or downgrade the Matomo user: an open Matomo session lasts until

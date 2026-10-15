@@ -61,4 +61,5 @@ Use a private browser window per test, so no session is left over.
 | B10 | Log in as `carla` at http://localhost:8092/realms/dez/account first, then click the Keycloak button in Matomo | Denied as in B9, although a Keycloak session exists |
 | B11 | Keycloak admin console, realm `dez`: *Users > anna > Role mapping*, unassign `matomoViewer`; then log in as `anna` in a new private window | Denied as in B9. Assign the role again afterwards |
 | B12 | Password form, `carla` with any password | Fails: `anna` and `carla` got a random password nobody knows |
-| B13 | Login page, *Lost your password?*, enter `carla` and a new password | Matomo shows "Password reset is disabled. Please log in via Keycloak." (plugin NoPasswordReset) |
+| B13 | Login page, *Lost your password?*, enter `carla` and a new password | Matomo shows "Setting a Matomo password is disabled. Please log in via Keycloak." (plugin NoPasswordReset) |
+| B14 | As `admin` (password form): *Administration > System > Users > Invite user*, invite `dora`, copy the invitation link, open it in a new private window | The same message as B13; `dora` cannot set a password |
