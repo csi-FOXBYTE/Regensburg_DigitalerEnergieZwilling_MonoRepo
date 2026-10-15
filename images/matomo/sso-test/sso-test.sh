@@ -19,7 +19,7 @@ case "${1:-}" in
     echo 'Restarting Matomo so the entrypoint activates LoginOIDC ...'
     compose restart matomo
     compose up -d --wait matomo
-    compose logs matomo | grep -i loginoidc || true
+    compose logs matomo | grep -iE 'loginoidc|nopasswordreset|activat|error' || true
 
     echo 'Creating the Matomo users anna and carla (ben stays without one) ...'
     token=$(api --data method=UsersManager.createAppSpecificTokenAuth \
