@@ -1,6 +1,8 @@
 import { createService } from "@csi-foxbyte/fastify-toab";
 import { z } from "zod";
-import { getDatabaseService } from "../@internals/index.js";
+import { getDatabaseService, getMailService } from "../@internals/index.js";
+import { logEvent } from "../lib/pino.js";
+import { renderFeedbackSubmitted } from "../mail/mail.templates.js";
 import {
   FeedbackCategory,
   type FeedbackCategory as FeedbackCategoryValue,
@@ -15,6 +17,7 @@ import {
 } from "./feedback.errors.js";
 
 type DB = Awaited<ReturnType<typeof getDatabaseService>>;
+type SavedFeedback = Awaited<ReturnType<DB["feedback"]["create"]>>;
 
 const feedbackCategories = new Set<FeedbackCategoryValue>(
   Object.values(FeedbackCategory),
@@ -70,9 +73,20 @@ export const parseFeedbackCategoryFilter = (
 export const createFeedback = async (
   db: DB,
   input: CreateFeedbackInput,
+  notify?: (feedback: SavedFeedback) => Promise<void>,
 ) => {
   const data = normalizeFeedbackInput(input);
-  return db.feedback.create({ data });
+  const feedback = await db.feedback.create({ data });
+  if (notify) {
+    try {
+      await notify(feedback);
+    } catch {
+      // Persistence succeeded. A mail failure must not invite duplicate submissions.
+      // Do not log SMTP errors: they may contain addresses or submitted content.
+      logEvent({ event: "feedback_notification_failed" });
+    }
+  }
+  return feedback;
 };
 
 export const listFeedback = async (db: DB, query: FeedbackListQuery) => {
@@ -110,9 +124,24 @@ export const deleteFeedbackById = async (db: DB, feedbackId: string) => {
 
 const feedbackService = createService("feedback", async ({ services }) => {
   const db = await getDatabaseService(services);
+  const mail = await getMailService(services);
+  const from = process.env.MAIL_FROM;
+  const to = process.env.FEEDBACK_MAIL_TO;
+  const notify = mail.isConfigured && from && to
+    ? async (feedback: SavedFeedback) => {
+        const content = await renderFeedbackSubmitted(feedback);
+        await mail.send({
+          from,
+          to,
+          subject: "Neues Feedback eingegangen",
+          ...content,
+          ...(feedback.emailAddress ? { replyTo: feedback.emailAddress } : {}),
+        });
+      }
+    : undefined;
 
   return {
-    create: (input: CreateFeedbackInput) => createFeedback(db, input),
+    create: (input: CreateFeedbackInput) => createFeedback(db, input, notify),
     list: (query: FeedbackListQuery) => listFeedback(db, query),
     getById: (feedbackId: string) => getFeedbackById(db, feedbackId),
     deleteById: (feedbackId: string) => deleteFeedbackById(db, feedbackId),

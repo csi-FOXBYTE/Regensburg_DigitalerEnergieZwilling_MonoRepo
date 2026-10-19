@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Neues Feedback eingegangen</title>
+  </head>
+  <body style="margin: 0; padding: 0; background-color: #f4f4f4; color: #191919; font-family: 'Open Sans', Arial, Helvetica, sans-serif;">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #f4f4f4;">
+      <tr>
+        <td align="center" style="padding: 32px 16px; font-family: 'Open Sans', Arial, Helvetica, sans-serif;">
+          <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="width: 100%; max-width: 600px; background-color: #ffffff; border: 1px solid #e5e5e5;">
+            <tr>
+              <td style="padding: 24px 32px; background-color: #e30613; color: #ffffff; font-family: 'Open Sans', Arial, Helvetica, sans-serif; font-size: 12px; line-height: 20px; letter-spacing: 1px;">
+                DIGITALER ENERGIEZWILLING &middot; REGENSBURG
+              </td>
+            </tr>
+            <tr>
+              <td style="padding: 32px; font-family: 'Open Sans', Arial, Helvetica, sans-serif;">
+                <h1 style="margin: 0 0 16px; font-size: 24px; line-height: 32px; font-weight: 700;">Neues Feedback eingegangen</h1>
+                <p style="margin: 0 0 8px; font-size: 18px; line-height: 28px; font-weight: 700; color: #e30613;">{{category}}</p>
+                {{#if createdAt}}
+                <p style="margin: 0; font-size: 14px; line-height: 22px; color: #5f6061;">{{createdAt}}</p>
+                {{/if}}
+
+                <h2 style="margin: 28px 0 12px; font-size: 16px; line-height: 24px;">Nachricht</h2>
+                <div style="padding: 20px; background-color: #f4f4f4; border-left: 3px solid #e30613; font-size: 16px; line-height: 26px; white-space: pre-wrap; overflow-wrap: anywhere; word-break: break-word;">{{message}}</div>
+
+                {{#if emailAddress}}
+                <div style="margin-top: 28px; padding-top: 24px; border-top: 1px solid #e5e5e5;">
+                  <h2 style="margin: 0 0 8px; font-size: 16px; line-height: 24px;">Kontakt</h2>
+                  <p style="margin: 0; font-size: 14px; line-height: 22px; overflow-wrap: anywhere;">
+                    <a href="mailto:{{emailAddress}}" style="color: #e30613; text-decoration: underline;">{{emailAddress}}</a>
+                  </p>
+                </div>
+                {{/if}}
+
+                <div style="margin-top: 28px; padding-top: 24px; border-top: 1px solid #e5e5e5;">
+                  <h2 style="margin: 0 0 8px; font-size: 14px; line-height: 22px; color: #5f6061;">Technische Details</h2>
+                  <p style="margin: 0; font-size: 12px; line-height: 20px; color: #5f6061; overflow-wrap: anywhere;">
+                    Feedback-ID: {{id}}
+                    {{#if matomoSessionId}}
+                    <br />Matomo-Session-ID: {{matomoSessionId}}
+                    {{/if}}
+                  </p>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding: 20px 32px; border-top: 1px solid #e5e5e5; font-family: 'Open Sans', Arial, Helvetica, sans-serif; font-size: 12px; line-height: 20px; color: #5f6061;">
+                Automatische Benachrichtigung &middot; Digitaler Energiezwilling Regensburg
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
