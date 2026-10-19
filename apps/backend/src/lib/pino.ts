@@ -41,6 +41,7 @@ type LogEvent =
       errorCode?: ErrorCategory;
     }
   | { event: "console_output"; level: ConsoleLevel; errorCode?: ErrorCategory }
+  | { event: "feedback_notification_failed" }
   | { event: "server_listening" | "server_closed" };
 
 export type PrivacyLogger = (event: LogEvent) => void;
@@ -77,6 +78,8 @@ export function createPrivacyLogger(
         durationMs: event.durationMs,
         errorCode: event.errorCode,
       });
+    } else if (event.event === "feedback_notification_failed") {
+      output.error({ event: event.event });
     } else {
       output.info({ event: event.event });
     }

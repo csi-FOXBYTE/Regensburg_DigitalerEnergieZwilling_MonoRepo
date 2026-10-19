@@ -1,4 +1,6 @@
-import { defineConfig } from "@csi-foxbyte/fastify-toab";
+import { readFile } from "node:fs/promises";
+import { resolve } from "node:path";
+import { defineConfig, type FastifyToabConfigOptions } from "@csi-foxbyte/fastify-toab";
 import { Type } from "@sinclair/typebox";
 import { routeErrorHandler } from "./src/errors/route-error-handler.js";
 
@@ -6,13 +8,28 @@ import { routeErrorHandler } from "./src/errors/route-error-handler.js";
 // Also export this setting by name so Pino's transport workers stay in node_modules.
 export const rolldown = {
   external: ["pino"],
-};
+  plugins: [{
+    name: "feedback-mail-template",
+    async buildStart() {
+      const path = resolve("src/templates/feedback_submitted.hbs");
+      this.addWatchFile(path);
+      this.emitFile({
+        type: "asset",
+        fileName: "templates/feedback_submitted.hbs",
+        source: await readFile(path, "utf8"),
+      });
+    },
+  }],
+} satisfies NonNullable<FastifyToabConfigOptions["rolldown"]>;
 
 export default defineConfig({
   rolldown,
   env: Type.Object({
     AUTH_RESOURCE_ACCESS_CLIENT_ID: Type.Optional(Type.String()),
     DATABASE_URL: Type.String(),
+    SMTP_URL: Type.Optional(Type.String({ minLength: 1 })),
+    MAIL_FROM: Type.Optional(Type.String({ minLength: 1 })),
+    FEEDBACK_MAIL_TO: Type.Optional(Type.String({ minLength: 1 })),
     TILES_URL: Type.String({ minLength: 1 }),
     TERRAIN_URL: Type.String({ minLength: 1 }),
     ADDRESS_DATABASE_URL: Type.String({ minLength: 1 }),

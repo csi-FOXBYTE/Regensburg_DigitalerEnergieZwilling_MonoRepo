@@ -14,6 +14,8 @@ import feedbackAdminController from "../feedbackAdmin/feedbackAdmin.controller.j
 import feedbackPublicController from "../feedbackPublic/feedbackPublic.controller.js";
 import { AppError } from "../errors/app-error.js";
 import { routeErrorHandler } from "../errors/route-error-handler.js";
+import type { MailMessage } from "../mail/mail.service.js";
+import feedbackServiceDefinition from "./feedback.service.js";
 import {
   FeedbackNotFoundError,
   InvalidFeedbackError,
@@ -103,6 +105,73 @@ const createTestApp = async (
 };
 
 describe("feedback service", () => {
+  it("sends rendered notifications to the configured inbox with the contact as reply-to", async (t) => {
+    const previousFrom = process.env.MAIL_FROM;
+    const previousTo = process.env.FEEDBACK_MAIL_TO;
+    t.after(() => {
+      if (previousFrom === undefined) delete process.env.MAIL_FROM;
+      else process.env.MAIL_FROM = previousFrom;
+      if (previousTo === undefined) delete process.env.FEEDBACK_MAIL_TO;
+      else process.env.FEEDBACK_MAIL_TO = previousTo;
+    });
+    process.env.MAIL_FROM = "noreply@example.invalid";
+    process.env.FEEDBACK_MAIL_TO = "feedback@example.invalid";
+    const saved = { ...storedFeedback, emailAddress: "anna@example.de" };
+    const db = { feedback: { create: async () => saved } };
+    const send = mock.fn(async (_message: MailMessage) => {});
+    const services: ServiceContainer = {
+      get: async <T>(name: string) => {
+        if (name === "database") return db as T;
+        if (name === "mail") return { isConfigured: true, send } as T;
+        throw new Error(`Unexpected service: ${name}`);
+      },
+    };
+    const service = await feedbackServiceDefinition.factory({ services } as never);
+    assert.equal(await service.create({ category: "bug", message: saved.message, emailAddress: saved.emailAddress }), saved);
+    const message = send.mock.calls[0]?.arguments[0];
+    assert.equal(send.mock.callCount(), 1);
+    assert.equal(message?.from, process.env.MAIL_FROM);
+    assert.equal(message?.to, process.env.FEEDBACK_MAIL_TO);
+    assert.equal(message?.replyTo, saved.emailAddress);
+    assert.match(message?.html ?? "", /Fehlermeldung/);
+    assert.ok(message?.text.includes(saved.message));
+
+    delete process.env.FEEDBACK_MAIL_TO;
+    const disabledService = await feedbackServiceDefinition.factory({ services } as never);
+    assert.equal(await disabledService.create({ category: "bug", message: saved.message }), saved);
+    assert.equal(send.mock.callCount(), 1);
+  });
+
+  it("notifies with the saved record only after persistence succeeds", async () => {
+    let saved = false;
+    const db = { feedback: { create: async () => {
+      saved = true;
+      return storedFeedback;
+    } } };
+    const notify = mock.fn(async (feedback: unknown) => {
+      assert.equal(saved, true);
+      assert.equal(feedback, storedFeedback);
+    });
+    assert.equal(await createFeedback(db as never, { category: "bug", message: "A problem" }, notify), storedFeedback);
+    assert.equal(notify.mock.callCount(), 1);
+  });
+
+  it("does not notify when validation or persistence fails", async () => {
+    const failure = new Error("Database unavailable");
+    const db = { feedback: { create: async () => { throw failure; } } };
+    const notify = mock.fn(async () => {});
+    await assert.rejects(createFeedback(db as never, { category: "bug", message: " " }, notify), InvalidFeedbackError);
+    await assert.rejects(createFeedback(db as never, { category: "bug", message: "A problem" }, notify), failure);
+    assert.equal(notify.mock.callCount(), 0);
+  });
+
+  it("keeps saved feedback successful when notification delivery fails", async () => {
+    const db = { feedback: { create: async () => storedFeedback } };
+    const notify = mock.fn(async () => { throw new Error("SMTP unavailable"); });
+    assert.equal(await createFeedback(db as never, { category: "bug", message: "A problem" }, notify), storedFeedback);
+    assert.equal(notify.mock.callCount(), 1);
+  });
+
   it("normalizes valid creation input before persistence", async () => {
     const create = mock.fn(async (query: unknown) => ({
       ...storedFeedback,

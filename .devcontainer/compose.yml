@@ -17,6 +17,9 @@ services:
     environment:
       PACKAGE_TOKEN: ${PACKAGE_TOKEN:-}
       NODE_ENV: development
+      SMTP_URL: smtp://mailpit:1025
+      MAIL_FROM: noreply@example.invalid
+      FEEDBACK_MAIL_TO: feedback@example.invalid
       HOSTNAME: 0.0.0.0
       PORT: "5000"
       DATABASE_URL: postgresql://regensburg:regensburg@postgres:5432/regensburg
@@ -29,6 +32,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      mailpit:
+        condition: service_started
   postgres:
     image: postgres:16-alpine
     environment:
@@ -44,6 +49,14 @@ services:
       retries: 20
   redis:
     image: redis:7-alpine
+  mailpit:
+    image: axllent/mailpit:latest
+    ports:
+      - "127.0.0.1:8025:8025"
+    environment:
+      MP_DATABASE: /data/mailpit.db
+    volumes:
+      - mailpit_data:/data
   apisix:
     build:
       context: ..
@@ -123,6 +136,7 @@ services:
         condition: service_healthy
 volumes:
   postgres_data:
+  mailpit_data:
   matomo_db:
   matomo_data:
   matomo_setup_modules:
