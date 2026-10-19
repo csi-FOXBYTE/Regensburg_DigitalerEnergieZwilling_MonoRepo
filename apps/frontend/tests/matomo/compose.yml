@@ -18,8 +18,9 @@ services:
       retries: 40
 
   matomo:
-    # The image that ships (password login only, no MATOMO_OIDC_* variables).
-    build: ../../../../images/matomo
+    # The official base image of the deployment add-on's Matomo image, which
+    # behaves exactly like it without MATOMO_OIDC_* variables (password login only).
+    image: matomo:5.14.0-apache@sha256:1e00192627025a9eb9108858a0d2fcedb495958adf8ee12cd2b2e4ec306efae4
     environment:
       MATOMO_DATABASE_HOST: matomo-db
       MATOMO_DATABASE_ADAPTER: mysql

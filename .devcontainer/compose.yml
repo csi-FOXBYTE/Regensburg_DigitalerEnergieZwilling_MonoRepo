@@ -71,7 +71,9 @@ services:
       retries: 40
       start_period: 5m
   matomo:
-    build: ../images/matomo
+    # The official base image of the deployment add-on's Matomo image, which
+    # behaves exactly like it without MATOMO_OIDC_* variables.
+    image: matomo:5.14.0-apache@sha256:1e00192627025a9eb9108858a0d2fcedb495958adf8ee12cd2b2e4ec306efae4
     profiles: [matomo]
     environment:
       # Matomo is reached as localhost:8091 from the browser and as
