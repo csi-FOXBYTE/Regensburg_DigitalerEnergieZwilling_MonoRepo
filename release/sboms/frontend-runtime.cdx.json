@@ -2,10 +2,10 @@
   "$schema": "http://cyclonedx.org/schema/bom-1.7.schema.json",
   "bomFormat": "CycloneDX",
   "specVersion": "1.7",
-  "serialNumber": "urn:uuid:13609369-f7f6-517c-bbf1-b00254602fa2",
+  "serialNumber": "urn:uuid:840a5aec-7279-5cd9-8632-ed54e6537409",
   "version": 1,
   "metadata": {
-    "timestamp": "2026-10-15T13:45:40.000Z",
+    "timestamp": "2026-10-19T11:07:43.000Z",
     "tools": {
       "components": [
         {
@@ -17,10 +17,10 @@
       ]
     },
     "component": {
-      "bom-ref": "4eba20bdbbcccd61",
+      "bom-ref": "b9c871b60d8e8074",
       "type": "container",
       "name": "ghcr.io/csi-foxbyte/regensburg-web-frontend",
-      "version": "sha256:825db5d95f6ca3edcd09ed21a5d43b75c87fe6163987ef9d0ee8c611ee83fe36"
+      "version": "sha256:0e23ca571bf68e982867e92cac9423ee64a262b8803525a2f8a3beb297211cad"
     },
     "properties": [
       {
@@ -41,7 +41,7 @@
       },
       {
         "name": "syft:image:labels:org.opencontainers.image.revision",
-        "value": "9dfd20b0eea993d5948cab4068ccf6c6d2eb073a"
+        "value": "f78a78b9c5691d5ad26122b1a7e50c00c1b453bc"
       },
       {
         "name": "syft:image:labels:org.opencontainers.image.source",
@@ -57,11 +57,11 @@
       },
       {
         "name": "syft:image:labels:org.opencontainers.image.version",
-        "value": "build-38746166333-1"
+        "value": "build-39242638757-1"
       },
       {
         "name": "regensburg:release-source",
-        "value": "9dfd20b0eea993d5948cab4068ccf6c6d2eb073a"
+        "value": "f78a78b9c5691d5ad26122b1a7e50c00c1b453bc"
       },
       {
         "name": "regensburg:release-inventory",
@@ -69,7 +69,7 @@
       },
       {
         "name": "regensburg:image-digest",
-        "value": "sha256:825db5d95f6ca3edcd09ed21a5d43b75c87fe6163987ef9d0ee8c611ee83fe36"
+        "value": "sha256:0e23ca571bf68e982867e92cac9423ee64a262b8803525a2f8a3beb297211cad"
       }
     ]
   },

@@ -1,37 +1,30 @@
 {
   "schema": 1,
-  "sourceCommit": "9dfd20b0eea993d5948cab4068ccf6c6d2eb073a",
+  "sourceCommit": "f78a78b9c5691d5ad26122b1a7e50c00c1b453bc",
   "images": {
     "frontend": {
-      "digest": "sha256:825db5d95f6ca3edcd09ed21a5d43b75c87fe6163987ef9d0ee8c611ee83fe36",
-      "sourceCommit": "9dfd20b0eea993d5948cab4068ccf6c6d2eb073a",
-      "build": "38746166333-1"
+      "digest": "sha256:0e23ca571bf68e982867e92cac9423ee64a262b8803525a2f8a3beb297211cad",
+      "sourceCommit": "f78a78b9c5691d5ad26122b1a7e50c00c1b453bc",
+      "build": "39242638757-1"
     },
     "adminfrontend": {
-      "digest": "sha256:e504b471887676cb0892aa01492588ad59373064634a04dfafdac8086affa426",
-      "sourceCommit": "9dfd20b0eea993d5948cab4068ccf6c6d2eb073a",
-      "build": "38746166333-1"
+      "digest": "sha256:dd1bf82f84b21fb2a94f614c3740e2dfa66124f18c0fc9068575abf6d740b404",
+      "sourceCommit": "f78a78b9c5691d5ad26122b1a7e50c00c1b453bc",
+      "build": "39242638757-1"
     },
     "backend": {
-      "digest": "sha256:b8d5021f98093e424a368b50b320e9d7ffcaea56cb4c74cebbce3180f3e050d6",
-      "sourceCommit": "9dfd20b0eea993d5948cab4068ccf6c6d2eb073a",
-      "build": "38746166333-1"
-    },
-    "matomo": {
-      "digest": "sha256:af0684d7381aa0bd629cad0bed3046a3fe28a117a594d8e48b07073dbb1e90b7",
-      "sourceCommit": "9dfd20b0eea993d5948cab4068ccf6c6d2eb073a",
-      "build": "38746166333-1"
+      "digest": "sha256:69321f699f4688dc2a2cf9059a5aa221b56901577b44502a0b7b8a390d9a124f",
+      "sourceCommit": "f78a78b9c5691d5ad26122b1a7e50c00c1b453bc",
+      "build": "39242638757-1"
     }
   },
   "files": {
-    "source.cdx.json": "sha256:e95e3d559cf33b155fafad7fb3f08906190833c991d796613dcd567ef918fce4",
-    "frontend.cdx.json": "sha256:ef9fd0a5b53955574ab7ecef0237d4fb2401afc412715db90ef08225f23f74f8",
-    "frontend-runtime.cdx.json": "sha256:82a000b69c2811dbc8f3e83be4d05d325596131da43eb5a4c0d5cb8c311e520d",
-    "adminfrontend.cdx.json": "sha256:8feff605b8c2afec41848cc33cf6e907d2af9b6383a292c7e558ab262ebd537a",
-    "adminfrontend-runtime.cdx.json": "sha256:656e82d4892670894a7616cb4a97d1f2ee7d111a5a212fcabdd5cf1628f40fbd",
-    "backend.cdx.json": "sha256:0afa69770fc112586c2e732630377f6ad498f48bd9132d558227148533682a2c",
-    "backend-runtime.cdx.json": "sha256:c223058a160b739e3f1a995d6bbc2695e84def2935c31b869fcdd5015c06b37d",
-    "matomo.cdx.json": "sha256:2c92b92862c3b39d0aa2dd23648c869129151e00a1a2960170b7510bb429ffd1",
-    "matomo-runtime.cdx.json": "sha256:c04c04ed1c71b000c0f7ab62afc25ca1a8229c1c6739f59bba01c8cef0a02d85"
+    "source.cdx.json": "sha256:4b2e5a7fd0dcebc4e4aef31e66bc58be7a8d128df0eadf4712836b240b307b26",
+    "frontend.cdx.json": "sha256:16e4a25d2e28eed9a84f24a6eb353d5cc2e2e66447545936936a79668f4ec164",
+    "frontend-runtime.cdx.json": "sha256:cd87c5bad650cc196dabcd5f24b8051307c34da369faec3cb0346efffdf13952",
+    "adminfrontend.cdx.json": "sha256:81aecb1e2815f8ac2933df661403d2630ccf77f69fec29255a3c1a1cc814a64c",
+    "adminfrontend-runtime.cdx.json": "sha256:6cd2a84a1ca046219c33ffe754cfe039169646a7dfa972cb724076afd9b5612a",
+    "backend.cdx.json": "sha256:8ef1f3393e57907f825a64fcd3425b4e70d9e1255ad76e83e3f645a7382a8562",
+    "backend-runtime.cdx.json": "sha256:39d8d99a472ddf9c5c853b261c479fc7914438b40621ba68f20bac564722b4fc"
   }
 }
