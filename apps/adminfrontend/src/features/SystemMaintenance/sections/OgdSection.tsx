@@ -54,17 +54,17 @@ export default function OgdSection({
         <Box
           sx={{
             display: "grid",
-            gridTemplateColumns: "1fr 110px 1fr 110px",
-            alignItems: "center",
-            columnGap: 10,
+            gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr)",
+            alignItems: "start",
+            columnGap: 2,
             rowGap: 2,
             mb: 3,
           }}
         >
-          <Typography variant="body2">Wärmeverlustfaktor F</Typography>
           <TextField
-            size="small"
+            size="medium"
             type="number"
+            label="Wärmeverlustfaktor F"
             value={configStore.topFloor.heatLossFactor}
             onChange={(e) =>
               updateSimpleValue(
@@ -74,10 +74,10 @@ export default function OgdSection({
             }
           />
 
-          <Typography variant="body2">Dämmschichtdicke [m]</Typography>
           <TextField
-            size="small"
+            size="medium"
             type="number"
+            label="Dämmschichtdicke [m]"
             value={configStore.topFloor.assumedInsulationThickness}
             onChange={(e) =>
               updateSimpleValue(
@@ -87,10 +87,10 @@ export default function OgdSection({
             }
           />
 
-          <Typography variant="body2">Wärmeleitfähigkeit λ [W/mK]</Typography>
           <TextField
-            size="small"
+            size="medium"
             type="number"
+            label="Wärmeleitfähigkeit λ [W/mK]"
             value={configStore.topFloor.thermalConductivity}
             onChange={(e) =>
               updateSimpleValue(
@@ -107,10 +107,9 @@ export default function OgdSection({
         <Box
           sx={{
             display: "grid",
-            gridTemplateColumns: "1fr 2fr",
+            gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr)",
             gap: 1.5,
-            alignItems: "center",
-            maxWidth: 800,
+            alignItems: "start",
             mb: 3,
           }}
         >
@@ -120,14 +119,10 @@ export default function OgdSection({
               i: number,
             ) => (
               <Fragment key={ct.value}>
-                <Typography
-                  variant="body2"
-                  sx={{ fontFamily: "monospace", color: "text.secondary" }}
-                >
-                  {ct.value}
-                </Typography>
                 <TextField
-                  size="small"
+                  size="medium"
+                  label={ct.value}
+                  slotProps={{ inputLabel: { shrink: true } }}
                   value={ct.localization.de ?? ""}
                   onChange={(e) => {
                     const val = e.target.value;
@@ -149,8 +144,8 @@ export default function OgdSection({
         <Box
           sx={{
             display: "grid",
-            gridTemplateColumns: "1fr 1fr",
-            gap: 10,
+            gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr)",
+            gap: 2,
             mb: 3,
           }}
         >
@@ -159,31 +154,26 @@ export default function OgdSection({
               band: { from?: number; to?: number; value: string },
               bandIndex: number,
             ) => (
-              <Box
+              <TextField
                 key={bandIndex}
-                sx={{ display: "flex", alignItems: "center", gap: 1.5 }}
+                select
+                size="medium"
+                label={`Baujahr ${formatBand(band)}`}
+                slotProps={{ inputLabel: { shrink: true } }}
+                value={band.value}
+                onChange={(e) =>
+                  updateTopFloorDefaultType(bandIndex, e.target.value)
+                }
+                fullWidth
               >
-                <Typography sx={{ minWidth: 120 }} variant="body2">
-                  Baujahr&nbsp;{formatBand(band)}
-                </Typography>
-                <TextField
-                  select
-                  size="small"
-                  value={band.value}
-                  onChange={(e) =>
-                    updateTopFloorDefaultType(bandIndex, e.target.value)
-                  }
-                  sx={{ flex: 1 }}
-                >
-                  {configStore.topFloor.topFloorTypes.map(
-                    (type: { value: string; localization: { de: string } }) => (
-                      <MenuItem key={type.value} value={type.value}>
-                        {type.localization.de}
-                      </MenuItem>
-                    ),
-                  )}
-                </TextField>
-              </Box>
+                {configStore.topFloor.topFloorTypes.map(
+                  (type: { value: string; localization: { de: string } }) => (
+                    <MenuItem key={type.value} value={type.value}>
+                      {type.localization.de}
+                    </MenuItem>
+                  ),
+                )}
+              </TextField>
             ),
           )}
         </Box>

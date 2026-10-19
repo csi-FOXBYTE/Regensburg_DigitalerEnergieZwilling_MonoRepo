@@ -66,6 +66,77 @@ services:
     ports:
       - "127.0.0.1:5000:9080"
     depends_on: [dev]
+  # Optional local web analytics (admin / admin-Passw0rd!), installed by
+  # matomo-setup. Only started with --profile matomo, see README.md.
+  matomo-db:
+    image: mariadb:11
+    profiles: [matomo]
+    environment:
+      MARIADB_ROOT_PASSWORD: root
+      MARIADB_DATABASE: matomo
+      MARIADB_USER: matomo
+      MARIADB_PASSWORD: matomo
+    volumes:
+      - matomo_db:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 3s
+      retries: 40
+      start_period: 5m
+  matomo:
+    build: ../images/matomo
+    profiles: [matomo]
+    environment:
+      # Matomo is reached as localhost:8091 from the browser and as
+      # http://matomo from the setup container. No MATOMO_OIDC_* variables:
+      # password login only.
+      MATOMO_DISABLE_TRUSTED_HOST_CHECK: "1"
+      MATOMO_DATABASE_HOST: matomo-db
+      MATOMO_DATABASE_ADAPTER: mysql
+      MATOMO_DATABASE_TABLES_PREFIX: matomo_
+      MATOMO_DATABASE_USERNAME: matomo
+      MATOMO_DATABASE_PASSWORD: matomo
+      MATOMO_DATABASE_DBNAME: matomo
+    ports:
+      - "127.0.0.1:8091:80"
+    volumes:
+      - matomo_data:/var/www/html
+    depends_on:
+      matomo-db:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD
+        - php
+        - -r
+        - "exit(@file_get_contents('http://localhost/matomo.php') === false ? 1 : 0);"
+      interval: 3s
+      retries: 40
+      start_period: 5m
+  # Installs Matomo on first start (skipped later), applies the privacy
+  # configuration and exits. Same specs as apps/frontend/tests/matomo.
+  matomo-setup:
+    image: mcr.microsoft.com/playwright:v1.62.1-noble
+    profiles: [matomo]
+    ipc: host
+    entrypoint:
+      - bash
+      - -c
+      - bash /harness/run-playwright.sh install.spec.ts && cd /runner && npx playwright test configure.spec.ts
+    environment:
+      SITE_URL: localhost:4321
+      # Unlike the test instance: this one disables the visits log.
+      MATOMO_COMPLIANCE_POLICY: cnil_v1
+      NPM_CONFIG_UPDATE_NOTIFIER: "false"
+    volumes:
+      - ../apps/frontend/tests/matomo:/harness:ro
+      - matomo_setup_modules:/runner/node_modules
+    depends_on:
+      matomo:
+        condition: service_healthy
 volumes:
   postgres_data:
   mailpit_data:
+  matomo_db:
+  matomo_data:
+  matomo_setup_modules:

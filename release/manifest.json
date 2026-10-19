@@ -1,85 +1,108 @@
 {
   "schema": 2,
-  "appVersion": "0.1.0",
-  "previousVersion": null,
-  "sourceCommit": "d41794746bf2a6a1054f97e8a4c6988252250764",
-  "runId": "37619743033",
+  "appVersion": "1.8.0",
+  "previousVersion": "1.7.3",
+  "sourceCommit": "9dfd20b0eea993d5948cab4068ccf6c6d2eb073a",
+  "runId": "38746166333",
   "frontend": {
-    "image": "ghcr.io/csi-foxbyte/regensburg-web-prototype-frontend",
-    "fingerprint": "sha256:773c2c7d8f4f726ccd8d3855e0ab0732182b93fe9ab8e466a46dbf185fcafc1d",
-    "digest": "sha256:002b6ecac6f159f8a291aeaa020b77b0ed696defdeab5ed1873842c48ecb4cb6",
-    "sourceCommit": "d41794746bf2a6a1054f97e8a4c6988252250764",
-    "build": "37619743033-1",
+    "image": "ghcr.io/csi-foxbyte/regensburg-web-frontend",
+    "fingerprint": "sha256:3ae6d7ac616665dc99880d2ea0e92389ac089eeafadffbd6d86abccf167199b2",
+    "digest": "sha256:825db5d95f6ca3edcd09ed21a5d43b75c87fe6163987ef9d0ee8c611ee83fe36",
+    "sourceCommit": "9dfd20b0eea993d5948cab4068ccf6c6d2eb073a",
+    "build": "38746166333-1",
     "platform": "linux/amd64",
     "baseImage": "node:24.21.0-bookworm-slim@sha256:d6aa754f16b3197301076f047b5def2f02ea1dbbc2ca920407d46d7ec7f87b20",
     "runtimeBaseImage": "nginxinc/nginx-unprivileged:1.30.4-alpine@sha256:adf5042a17f4ecdd200c595fa9ffd1be37efb18f89a830bd1a00e4ab4d59d42c",
     "sbom": {
       "path": "/usr/share/regensburg/SBOM.cdx.json",
-      "sha256": "sha256:857a543a64202998b44b263245c6222faa5397955682e5376e85f94d1ae16e90",
-      "version": "build-37619743033-1",
-      "sourceCommit": "d41794746bf2a6a1054f97e8a4c6988252250764"
+      "sha256": "sha256:3728e6440e19fc03143d4e0f964462393e495b10320e1c32babc3dbc8439397b",
+      "version": "build-38746166333-1",
+      "sourceCommit": "9dfd20b0eea993d5948cab4068ccf6c6d2eb073a"
     }
   },
   "adminfrontend": {
-    "image": "ghcr.io/csi-foxbyte/regensburg-web-prototype-adminfrontend",
-    "fingerprint": "sha256:777081ca60881d5895c77e5482d58d1d9e10953b71454c9c57c36192385e6673",
-    "digest": "sha256:1ed9bfd2a49e23173f845ddfa3dad8d8bc2529203b6b35723e4119eccb017d5c",
-    "sourceCommit": "d41794746bf2a6a1054f97e8a4c6988252250764",
-    "build": "37619743033-1",
+    "image": "ghcr.io/csi-foxbyte/regensburg-web-adminfrontend",
+    "fingerprint": "sha256:6752f05902f6d7fbbdfd3fb026f148656ae97a3831b8b2f35d4bec05318a4b17",
+    "digest": "sha256:e504b471887676cb0892aa01492588ad59373064634a04dfafdac8086affa426",
+    "sourceCommit": "9dfd20b0eea993d5948cab4068ccf6c6d2eb073a",
+    "build": "38746166333-1",
     "platform": "linux/amd64",
     "baseImage": "node:24.21.0-bookworm-slim@sha256:d6aa754f16b3197301076f047b5def2f02ea1dbbc2ca920407d46d7ec7f87b20",
     "runtimeBaseImage": "nginxinc/nginx-unprivileged:1.30.4-alpine@sha256:adf5042a17f4ecdd200c595fa9ffd1be37efb18f89a830bd1a00e4ab4d59d42c",
     "sbom": {
       "path": "/usr/share/regensburg/SBOM.cdx.json",
-      "sha256": "sha256:7d7e07a9a2011e8f376363e535044f8371595b59f25cbfaec4aebe28c79eb225",
-      "version": "build-37619743033-1",
-      "sourceCommit": "d41794746bf2a6a1054f97e8a4c6988252250764"
+      "sha256": "sha256:867c798073da2620e32e7c51c7b3a9bf8767297ded0cb0d5cb5e595850a4cc28",
+      "version": "build-38746166333-1",
+      "sourceCommit": "9dfd20b0eea993d5948cab4068ccf6c6d2eb073a"
     }
   },
   "backend": {
-    "image": "ghcr.io/csi-foxbyte/regensburg-web-prototype-backend",
-    "fingerprint": "sha256:bec41b54cca045d8be6b12f536ebe48d328e486cf5b164a2ba46ec4916f3ee16",
-    "digest": "sha256:cab3c660a26e4da30d9c57a1e5c47aa867694bead46d3f965f993b0f7e571c59",
-    "sourceCommit": "d41794746bf2a6a1054f97e8a4c6988252250764",
-    "build": "37619743033-1",
+    "image": "ghcr.io/csi-foxbyte/regensburg-web-backend",
+    "fingerprint": "sha256:5f3340f334f44e580fd513e820fb8d0ccf2046d3561a12b7f5e322681c326893",
+    "digest": "sha256:b8d5021f98093e424a368b50b320e9d7ffcaea56cb4c74cebbce3180f3e050d6",
+    "sourceCommit": "9dfd20b0eea993d5948cab4068ccf6c6d2eb073a",
+    "build": "38746166333-1",
     "platform": "linux/amd64",
     "baseImage": "node:24.21.0-bookworm-slim@sha256:d6aa754f16b3197301076f047b5def2f02ea1dbbc2ca920407d46d7ec7f87b20",
     "runtimeBaseImage": "node:24.21.0-bookworm-slim@sha256:d6aa754f16b3197301076f047b5def2f02ea1dbbc2ca920407d46d7ec7f87b20",
     "sbom": {
       "path": "/usr/share/regensburg/SBOM.cdx.json",
-      "sha256": "sha256:3a81b64cef514fead3988e68f0a1845e761560fc6f37166d54b242c06bf926eb",
-      "version": "build-37619743033-1",
-      "sourceCommit": "d41794746bf2a6a1054f97e8a4c6988252250764"
+      "sha256": "sha256:0b41f89e4db600d67ea41a4eff17cd64c945745b3e3a0b4e145e197c3922d9b0",
+      "version": "build-38746166333-1",
+      "sourceCommit": "9dfd20b0eea993d5948cab4068ccf6c6d2eb073a"
+    }
+  },
+  "matomo": {
+    "image": "ghcr.io/csi-foxbyte/regensburg-web-matomo",
+    "fingerprint": "sha256:9c0634eaac1bd1ef5089b471500cb231d6358d477a6d25ffe68c4fda8b78597b",
+    "digest": "sha256:af0684d7381aa0bd629cad0bed3046a3fe28a117a594d8e48b07073dbb1e90b7",
+    "sourceCommit": "9dfd20b0eea993d5948cab4068ccf6c6d2eb073a",
+    "build": "38746166333-1",
+    "platform": "linux/amd64",
+    "baseImage": "node:24.21.0-bookworm-slim@sha256:d6aa754f16b3197301076f047b5def2f02ea1dbbc2ca920407d46d7ec7f87b20",
+    "runtimeBaseImage": "matomo:5.14.0-apache@sha256:1e00192627025a9eb9108858a0d2fcedb495958adf8ee12cd2b2e4ec306efae4",
+    "sbom": {
+      "path": "/usr/share/regensburg/SBOM.cdx.json",
+      "sha256": "sha256:f871ffc2ffb04697e01e0d1efb56546845a7be2f6d0418f18a451fdd2b18607d",
+      "version": "build-38746166333-1",
+      "sourceCommit": "9dfd20b0eea993d5948cab4068ccf6c6d2eb073a"
     }
   },
   "sboms": {
     "schema": 1,
-    "sourceCommit": "d41794746bf2a6a1054f97e8a4c6988252250764",
+    "sourceCommit": "9dfd20b0eea993d5948cab4068ccf6c6d2eb073a",
     "images": {
       "frontend": {
-        "digest": "sha256:002b6ecac6f159f8a291aeaa020b77b0ed696defdeab5ed1873842c48ecb4cb6",
-        "sourceCommit": "d41794746bf2a6a1054f97e8a4c6988252250764",
-        "build": "37619743033-1"
+        "digest": "sha256:825db5d95f6ca3edcd09ed21a5d43b75c87fe6163987ef9d0ee8c611ee83fe36",
+        "sourceCommit": "9dfd20b0eea993d5948cab4068ccf6c6d2eb073a",
+        "build": "38746166333-1"
       },
       "adminfrontend": {
-        "digest": "sha256:1ed9bfd2a49e23173f845ddfa3dad8d8bc2529203b6b35723e4119eccb017d5c",
-        "sourceCommit": "d41794746bf2a6a1054f97e8a4c6988252250764",
-        "build": "37619743033-1"
+        "digest": "sha256:e504b471887676cb0892aa01492588ad59373064634a04dfafdac8086affa426",
+        "sourceCommit": "9dfd20b0eea993d5948cab4068ccf6c6d2eb073a",
+        "build": "38746166333-1"
       },
       "backend": {
-        "digest": "sha256:cab3c660a26e4da30d9c57a1e5c47aa867694bead46d3f965f993b0f7e571c59",
-        "sourceCommit": "d41794746bf2a6a1054f97e8a4c6988252250764",
-        "build": "37619743033-1"
+        "digest": "sha256:b8d5021f98093e424a368b50b320e9d7ffcaea56cb4c74cebbce3180f3e050d6",
+        "sourceCommit": "9dfd20b0eea993d5948cab4068ccf6c6d2eb073a",
+        "build": "38746166333-1"
+      },
+      "matomo": {
+        "digest": "sha256:af0684d7381aa0bd629cad0bed3046a3fe28a117a594d8e48b07073dbb1e90b7",
+        "sourceCommit": "9dfd20b0eea993d5948cab4068ccf6c6d2eb073a",
+        "build": "38746166333-1"
       }
     },
     "files": {
-      "source.cdx.json": "sha256:4d0ccd07d04539ee8f3af51612e068a3852f74ab7d0ca8891682a268670be882",
-      "frontend.cdx.json": "sha256:682a0b60b296671802b029843725cc3f782443a6213cc489e734fd6d3d5f74c8",
-      "frontend-runtime.cdx.json": "sha256:b885c1241eda63e21f316980668a8fbe208dd7796a94352285b001ab8274065a",
-      "adminfrontend.cdx.json": "sha256:28769b7c77e321b026c5e8b2a3cf3c9ee6d5e61ae584898ff211a20279d8df15",
-      "adminfrontend-runtime.cdx.json": "sha256:b7d35c25a1e13b3ac71c908cf0214c0d5b4b626972febd7af7378d83cd11ed65",
-      "backend.cdx.json": "sha256:d22c96e7ad4c479efadebf0e48466a5d3b1c20b6a9df5f68497dc26ad5474e36",
-      "backend-runtime.cdx.json": "sha256:f12ddb72090c04fe21eba560e587eed5ee5b97ae47c47fe56b80fe58e11f4a16"
+      "source.cdx.json": "sha256:e95e3d559cf33b155fafad7fb3f08906190833c991d796613dcd567ef918fce4",
+      "frontend.cdx.json": "sha256:ef9fd0a5b53955574ab7ecef0237d4fb2401afc412715db90ef08225f23f74f8",
+      "frontend-runtime.cdx.json": "sha256:82a000b69c2811dbc8f3e83be4d05d325596131da43eb5a4c0d5cb8c311e520d",
+      "adminfrontend.cdx.json": "sha256:8feff605b8c2afec41848cc33cf6e907d2af9b6383a292c7e558ab262ebd537a",
+      "adminfrontend-runtime.cdx.json": "sha256:656e82d4892670894a7616cb4a97d1f2ee7d111a5a212fcabdd5cf1628f40fbd",
+      "backend.cdx.json": "sha256:0afa69770fc112586c2e732630377f6ad498f48bd9132d558227148533682a2c",
+      "backend-runtime.cdx.json": "sha256:c223058a160b739e3f1a995d6bbc2695e84def2935c31b869fcdd5015c06b37d",
+      "matomo.cdx.json": "sha256:2c92b92862c3b39d0aa2dd23648c869129151e00a1a2960170b7510bb429ffd1",
+      "matomo-runtime.cdx.json": "sha256:c04c04ed1c71b000c0f7ab62afc25ca1a8229c1c6739f59bba01c8cef0a02d85"
     }
   }
 }

@@ -113,7 +113,8 @@ jobs:
           runtime-base-image: ${{ matrix.runtimeBaseImage }}
           platform: ${{ matrix.platform }}
           refresh-epoch: ${{ matrix.refreshEpoch }}
-          context: ${{ runner.temp }}/regensburg-web-context
+          context: ${{ runner.temp }}/regensburg-web-context/${{ matrix.contextPath }}
+          dockerfile: ${{ matrix.dockerfile }}
           username: ${{ github.actor }}
           token: ${{ github.token }}
       - name: Verify and record pushed image

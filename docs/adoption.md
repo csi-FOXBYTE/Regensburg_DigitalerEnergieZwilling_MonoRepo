@@ -30,7 +30,7 @@ root NOTICE; no Azure, customer-source export, deployment, or business code was 
 
 1. Let an operator select one exact completed GitHub release on this repo. Default
    deployment selection excludes drafts and prereleases; prerelease use requires
-   explicit opt-in. Do not independently resolve `dev` or `latest` for three images.
+   explicit opt-in. Do not independently resolve `dev` or `latest` for any image.
 2. Fetch that release JSON and `release/manifest.json` from its exact `vX.Y.Z` tag.
    Verify their equality and the source/tag ancestry. Use:
    `node scripts/deploy/select-release.mjs release.json manifest.json --allow-prerelease`
@@ -41,7 +41,9 @@ root NOTICE; no Azure, customer-source export, deployment, or business code was 
    build/source metadata using `verifyImage`; reused artifacts need not match the
    new app version. A tag or SBOM version mismatch must fail preparation.
 4. Generate all Compose/Kubernetes image fields as `repository@sha256:...`, using
-   `selection.images.frontend`, `.adminfrontend` and `.backend`. Set both static
+   `selection.images.frontend`, `.adminfrontend`, `.backend` and `.matomo`
+   (releases up to v1.7.3 have no `matomo`; its settings are in
+   [images/matomo/README.md](../images/matomo/README.md)). Set both static
    frontends' `APP_VERSION=selection.appVersion` at runtime. API paths continue to
    route through the deployment gateway; nginx itself is only a static server.
 5. Serialize addon preparation for its target environment. Before merge, revalidate
@@ -51,7 +53,7 @@ root NOTICE; no Azure, customer-source export, deployment, or business code was 
    adopted version; explicit operator-selected rollback may deploy an older
    complete selection. Keep the old manifest for rollback.
 
-The fixture test verifies all three immutable image references and rejects draft,
+The fixture test verifies all immutable image references and rejects draft,
 non-opted-in prerelease and journal/tag mismatches. Live addon integration remains
 a separate reviewed change in its own repository.
 
@@ -83,7 +85,7 @@ every web application release or overwrite the existing 0.20.2 package.
   routes/CORS and data-resource endpoints. No production credentials were imported.
 - Test real map resources, external authentication and browser accessibility flows.
 - Make the separate addon changes above, review the selected release, then stage
-  the three digest-pinned images together. Back up data and run only existing
+  the digest-pinned images together. Back up data and run only existing
   required migrations under the normal deployment process.
 - Verify health, login, admin/public operations and runtime versions in staging.
 - Assign core publication ownership; preserve external API/package compatibility.

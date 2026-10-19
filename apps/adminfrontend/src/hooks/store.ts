@@ -241,6 +241,8 @@ export const deletePrimaryEnergyCarrier = (value: string) => {
       (c) => c.value === value,
     );
     if (idx >= 0) draft.heat.primaryEnergyCarriers.splice(idx, 1);
+    draft.heat.defaultPrimaryEnergyCarrierPriority =
+      draft.heat.defaultPrimaryEnergyCarrierPriority.filter((key) => key !== value);
     draft.heat.primaryEnergyCarrierData =
       draft.heat.primaryEnergyCarrierData.filter((c) => c.key !== value);
     draft.heat.allowedHeatingSystemTypesByCarrier =

@@ -139,8 +139,10 @@ export function PrimaryEnergyCarrierSection({
               (c) => c.key === oldKey,
             );
             if (allowed) allowed.key = newKey;
-            if (draft.heat.defaultPrimaryEnergyCarrier === oldKey)
-              draft.heat.defaultPrimaryEnergyCarrier = newKey;
+            draft.heat.defaultPrimaryEnergyCarrierPriority =
+              draft.heat.defaultPrimaryEnergyCarrierPriority.map((key) =>
+                key === oldKey ? newKey : key,
+              );
             const defaultHeat = draft.heat.defaultHeatingSystemType.find(
               (e) => e.key === oldKey,
             );
@@ -163,9 +165,9 @@ export function PrimaryEnergyCarrierSection({
 
   const gridSx = {
     display: "grid",
-    gridTemplateColumns: "1fr 140px 2rem 1fr 140px",
-    gap: 1.5,
-    alignItems: "center",
+    gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr)",
+    gap: 2,
+    alignItems: "start",
   };
 
   return (
@@ -271,13 +273,12 @@ export function PrimaryEnergyCarrierSection({
                           }
                         />
 
-                        <Box sx={{ ...gridSx, mb: 1.5 }}>
-                          <Typography variant="body2">
-                            Primärenergiefaktor
-                          </Typography>
+                        <Box sx={{ ...gridSx, mb: 2 }}>
                           <TextField
-                            size="small"
+                            size="medium"
                             type="number"
+                            label="Primärenergiefaktor"
+                            slotProps={{ inputLabel: { shrink: true } }}
                             value={
                               configStore.heat.primaryEnergyCarrierData.find(
                                 (c) => c.key === item.value,
@@ -290,17 +291,12 @@ export function PrimaryEnergyCarrierSection({
                               )
                             }
                           />
-                        </Box>
-
-                        <Box sx={{ ...gridSx, mb: 2 }}>
-                          <Typography variant="body2">
-                            CO₂-Faktor gemäß Informationsblatt
-                            <br />
-                            CO₂-Faktoren der Bafa [gCO₂/kWh]
-                          </Typography>
                           <TextField
-                            size="small"
+                            size="medium"
                             type="number"
+                            label="CO₂-Faktor [gCO₂/kWh]"
+                            helperText="Gemäß Informationsblatt CO₂-Faktoren der Bafa"
+                            slotProps={{ inputLabel: { shrink: true } }}
                             value={
                               configStore.heat.primaryEnergyCarrierData.find(
                                 (c) => c.key === item.value,
@@ -334,15 +330,14 @@ export function PrimaryEnergyCarrierSection({
                           jeweils den Standard aus den kommunalen Parametern.
                         </Typography>
                         <Box sx={{ ...gridSx, mb: 2 }}>
-                          <Typography variant="body2">
-                            Abweichende Quelle (optional)
-                          </Typography>
                           <TextField
-                            size="small"
+                            size="medium"
+                            label="Abweichende Quelle (optional)"
                             value={carrierData?.source ?? ""}
                             placeholder={configStore.heat.globalDefaultSource}
                             helperText={`Globale Quelle: ${configStore.heat.globalDefaultSource || "nicht angegeben"}`}
                             slotProps={{
+                              inputLabel: { shrink: true },
                               htmlInput: {
                                 "aria-label":
                                   "Abweichende Quelle für diesen Energieträger",
@@ -355,16 +350,14 @@ export function PrimaryEnergyCarrierSection({
                               )
                             }
                           />
-                          <Box />
-                          <Typography variant="body2">
-                            Abweichender Datenstand (optional)
-                          </Typography>
                           <TextField
-                            size="small"
+                            size="medium"
                             type="date"
+                            label="Abweichender Datenstand (optional)"
                             value={carrierData?.date?.slice(0, 10) ?? ""}
                             helperText={`Globaler Datenstand: ${configStore.heat.globalDefaultDate.slice(0, 10) || "nicht angegeben"}`}
                             slotProps={{
+                              inputLabel: { shrink: true },
                               htmlInput: {
                                 "aria-label":
                                   "Abweichender Datenstand für diesen Energieträger",
@@ -378,10 +371,11 @@ export function PrimaryEnergyCarrierSection({
                             }
                           />
 
-                          <Typography variant="body2">Mengeneinheit</Typography>
                           <TextField
                             select
-                            size="small"
+                            size="medium"
+                            label="Mengeneinheit"
+                            slotProps={{ inputLabel: { shrink: true } }}
                             value={
                               configStore.heat.primaryEnergyCarrierData.find(
                                 (c) => c.key === item.value,
@@ -403,20 +397,11 @@ export function PrimaryEnergyCarrierSection({
                             ))}
                           </TextField>
 
-                          <Box />
-
-                          <Typography variant="body2">
-                            {(() => {
-                              const unit =
-                                configStore.heat.primaryEnergyCarrierData.find(
-                                  (c) => c.key === item.value,
-                                )?.value.unit || "x";
-                              return `Heizwert [kWh/${unit}]`;
-                            })()}
-                          </Typography>
                           <TextField
-                            size="small"
+                            size="medium"
                             type="number"
+                            label={`Heizwert [kWh/${carrierData?.unit || "x"}]`}
+                            slotProps={{ inputLabel: { shrink: true } }}
                             value={
                               configStore.heat.primaryEnergyCarrierData.find(
                                 (c) => c.key === item.value,
@@ -434,18 +419,11 @@ export function PrimaryEnergyCarrierSection({
                             }
                           />
 
-                          <Typography variant="body2">
-                            {(() => {
-                              const unit =
-                                configStore.heat.primaryEnergyCarrierData.find(
-                                  (c) => c.key === item.value,
-                                )?.value.unit || "x";
-                              return `Arbeitspreis [€/${unit}]`;
-                            })()}
-                          </Typography>
                           <TextField
-                            size="small"
+                            size="medium"
                             type="number"
+                            label={`Arbeitspreis [€/${carrierData?.unit || "x"}]`}
+                            slotProps={{ inputLabel: { shrink: true } }}
                             value={
                               configStore.heat.primaryEnergyCarrierData.find(
                                 (c) => c.key === item.value,
@@ -461,14 +439,11 @@ export function PrimaryEnergyCarrierSection({
                             }
                           />
 
-                          <Box />
-
-                          <Typography variant="body2">
-                            Grundpreis [€/a]
-                          </Typography>
                           <TextField
-                            size="small"
+                            size="medium"
                             type="number"
+                            label="Grundpreis [€/a]"
+                            slotProps={{ inputLabel: { shrink: true } }}
                             value={
                               configStore.heat.primaryEnergyCarrierData.find(
                                 (c) => c.key === item.value,
@@ -534,12 +509,11 @@ export function PrimaryEnergyCarrierSection({
                         </Box>
 
                         <Box sx={{ ...gridSx, mt: 1.5 }}>
-                          <Typography variant="body2">
-                            Standard-Heizsystem
-                          </Typography>
                           <TextField
                             select
-                            size="small"
+                            size="medium"
+                            label="Standard-Heizsystem"
+                            slotProps={{ inputLabel: { shrink: true } }}
                             value={
                               configStore.heat.defaultHeatingSystemType.find(
                                 (e) => e.key === item.value,

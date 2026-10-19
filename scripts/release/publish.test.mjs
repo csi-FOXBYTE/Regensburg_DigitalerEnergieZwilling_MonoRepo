@@ -25,7 +25,7 @@ function fixture(t, failAt) {
     sourceCommit: 'a'.repeat(40), runId: '123' };
   const images = {};
   mkdirSync(path.join(dir, 'images'));
-  for (const component of ['frontend', 'adminfrontend', 'backend']) {
+  for (const component of ['frontend', 'adminfrontend', 'backend', 'matomo']) {
     const selected = {
       image: config.images[component].repository,
       digest: `sha256:${(component === 'frontend' ? 'b' : 'c').repeat(64)}`,
@@ -44,7 +44,8 @@ function fixture(t, failAt) {
   const setSboms = (selection = manifest) => {
     const identity = sbomSelection(selection);
     const files = {};
-    for (const name of ['source', 'frontend', 'frontend-runtime', 'adminfrontend', 'adminfrontend-runtime', 'backend', 'backend-runtime']) {
+    for (const name of ['source', 'frontend', 'frontend-runtime', 'adminfrontend', 'adminfrontend-runtime',
+      'backend', 'backend-runtime', 'matomo', 'matomo-runtime']) {
       const filename = `${name}.cdx.json`;
       const component = name.replace(/-runtime$/, '');
       save(path.join(sboms, filename), { bomFormat: 'CycloneDX', specVersion: '1.6', version: 1,
@@ -91,7 +92,7 @@ test('publication recovers after only the frontend image was tagged', (t) => {
   const completed = f.state();
   assert.equal(completed.release.draft, false);
   assert.deepEqual(completed.current, f.manifest);
-  assert.equal(Object.keys(completed.tags).length, 3);
+  assert.equal(Object.keys(completed.tags).length, 4);
   assert.equal(completed.calls.filter(([tool, ...args]) => tool === 'gh' && args.includes('POST')).length, 1);
   const again = f.run();
   assert.equal(again.status, 0, again.stderr);

@@ -5,7 +5,7 @@ import { components, isBuildInput } from './core.mjs';
 import { command, git, tree } from './io.mjs';
 
 const [component, destination, mode] = process.argv.slice(2);
-assert(components.includes(component), 'Expected frontend, adminfrontend or backend');
+assert(components.includes(component), `Expected one of ${components.join(', ')}`);
 assert(destination && !existsSync(destination), 'Context destination must not exist');
 const root = git('rev-parse', '--show-toplevel');
 const target = path.resolve(destination);

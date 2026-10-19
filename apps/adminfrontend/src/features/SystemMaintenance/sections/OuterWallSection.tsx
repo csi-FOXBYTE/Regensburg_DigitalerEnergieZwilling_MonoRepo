@@ -57,27 +57,27 @@ export default function OuterWallSection({
         <Box
           sx={{
             display: "grid",
-            gridTemplateColumns: "1fr 110px 1fr 110px",
-            alignItems: "center",
-            columnGap: 10,
+            gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr)",
+            alignItems: "start",
+            columnGap: 2,
             rowGap: 2,
             mb: 3,
           }}
         >
-          <Typography variant="body2">Wärmeverlustfaktor F</Typography>
           <TextField
-            size="small"
+            size="medium"
             type="number"
+            label="Wärmeverlustfaktor F"
             value={configStore.outerWall.heatLossFactor}
             onChange={(e) =>
               updateSimpleValue("outerWall.heatLossFactor", e.target.value)
             }
           />
 
-          <Typography variant="body2">Dämmschichtdicke [m]</Typography>
           <TextField
-            size="small"
+            size="medium"
             type="number"
+            label="Dämmschichtdicke [m]"
             value={configStore.outerWall.assumedInsulationThickness}
             onChange={(e) =>
               updateSimpleValue(
@@ -87,10 +87,10 @@ export default function OuterWallSection({
             }
           />
 
-          <Typography variant="body2">Wärmeleitfähigkeit λ [W/mK]</Typography>
           <TextField
-            size="small"
+            size="medium"
             type="number"
+            label="Wärmeleitfähigkeit λ [W/mK]"
             value={configStore.outerWall.thermalConductivity}
             onChange={(e) =>
               updateSimpleValue("outerWall.thermalConductivity", e.target.value)
@@ -104,10 +104,9 @@ export default function OuterWallSection({
         <Box
           sx={{
             display: "grid",
-            gridTemplateColumns: "1fr 2fr auto",
+            gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr)",
             gap: 1.5,
-            alignItems: "center",
-            maxWidth: 900,
+            alignItems: "start",
             mb: 3,
           }}
         >
@@ -121,14 +120,10 @@ export default function OuterWallSection({
               i: number,
             ) => (
               <Fragment key={ct.value}>
-                <Typography
-                  variant="body2"
-                  sx={{ fontFamily: "monospace", color: "text.secondary" }}
-                >
-                  {ct.value}
-                </Typography>
                 <TextField
-                  size="small"
+                  size="medium"
+                  label={ct.value}
+                  slotProps={{ inputLabel: { shrink: true } }}
                   value={ct.localization.de ?? ""}
                   onChange={(e) => {
                     const val = e.target.value;
@@ -169,8 +164,8 @@ export default function OuterWallSection({
         <Box
           sx={{
             display: "grid",
-            gridTemplateColumns: "1fr 1fr",
-            columnGap: 10,
+            gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr)",
+            columnGap: 2,
             rowGap: 2,
             mb: 3,
           }}
@@ -180,34 +175,29 @@ export default function OuterWallSection({
               band: { from?: number; to?: number; value: string },
               index: number,
             ) => (
-              <Box
+              <TextField
                 key={index}
-                sx={{ display: "flex", alignItems: "center", gap: 1.5 }}
+                select
+                size="medium"
+                label={`Baujahr ${formatBand(band)}`}
+                slotProps={{ inputLabel: { shrink: true } }}
+                value={band.value}
+                onChange={(e) =>
+                  updateOuterWallDefaultConstructionType(
+                    index,
+                    e.target.value,
+                  )
+                }
+                fullWidth
               >
-                <Typography sx={{ minWidth: 120 }} variant="body2">
-                  Baujahr&nbsp;{formatBand(band)}
-                </Typography>
-                <TextField
-                  select
-                  size="small"
-                  value={band.value}
-                  onChange={(e) =>
-                    updateOuterWallDefaultConstructionType(
-                      index,
-                      e.target.value,
-                    )
-                  }
-                  sx={{ flex: 1 }}
-                >
-                  {configStore.outerWall.constructionTypes.map(
-                    (ct: { value: string; localization: { de: string } }) => (
-                      <MenuItem key={ct.value} value={ct.value}>
-                        {ct.localization.de}
-                      </MenuItem>
-                    ),
-                  )}
-                </TextField>
-              </Box>
+                {configStore.outerWall.constructionTypes.map(
+                  (ct: { value: string; localization: { de: string } }) => (
+                    <MenuItem key={ct.value} value={ct.value}>
+                      {ct.localization.de}
+                    </MenuItem>
+                  ),
+                )}
+              </TextField>
             ),
           )}
         </Box>

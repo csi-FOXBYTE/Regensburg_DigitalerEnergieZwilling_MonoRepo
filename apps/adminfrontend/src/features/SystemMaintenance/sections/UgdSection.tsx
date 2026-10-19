@@ -57,17 +57,17 @@ export default function UgdSection({
         <Box
           sx={{
             display: "grid",
-            gridTemplateColumns: "1fr 110px 1fr 110px",
-            alignItems: "center",
-            columnGap: 10,
+            gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr)",
+            alignItems: "start",
+            columnGap: 2,
             rowGap: 2,
             mb: 3,
           }}
         >
-          <Typography variant="body2">Wärmeverlustfaktor F</Typography>
           <TextField
-            size="small"
+            size="medium"
             type="number"
+            label="Wärmeverlustfaktor F"
             value={configStore.bottomFloor.heatLossFactor}
             onChange={(e) =>
               updateSimpleValue(
@@ -77,10 +77,10 @@ export default function UgdSection({
             }
           />
 
-          <Typography variant="body2">Dämmschichtdicke [m]</Typography>
           <TextField
-            size="small"
+            size="medium"
             type="number"
+            label="Dämmschichtdicke [m]"
             value={configStore.bottomFloor.assumedInsulationThickness}
             onChange={(e) =>
               updateSimpleValue(
@@ -90,10 +90,10 @@ export default function UgdSection({
             }
           />
 
-          <Typography variant="body2">Wärmeleitfähigkeit λ [W/mK]</Typography>
           <TextField
-            size="small"
+            size="medium"
             type="number"
+            label="Wärmeleitfähigkeit λ [W/mK]"
             value={configStore.bottomFloor.thermalConductivity}
             onChange={(e) =>
               updateSimpleValue(
@@ -110,10 +110,9 @@ export default function UgdSection({
         <Box
           sx={{
             display: "grid",
-            gridTemplateColumns: "1fr 2fr",
+            gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr)",
             gap: 1.5,
-            alignItems: "center",
-            maxWidth: 800,
+            alignItems: "start",
             mb: 3,
           }}
         >
@@ -123,14 +122,10 @@ export default function UgdSection({
               i: number,
             ) => (
               <Fragment key={ct.value}>
-                <Typography
-                  variant="body2"
-                  sx={{ fontFamily: "monospace", color: "text.secondary" }}
-                >
-                  {ct.value}
-                </Typography>
                 <TextField
-                  size="small"
+                  size="medium"
+                  label={ct.value}
+                  slotProps={{ inputLabel: { shrink: true } }}
                   value={ct.localization.de ?? ""}
                   onChange={(e) => {
                     const val = e.target.value;
@@ -158,14 +153,11 @@ export default function UgdSection({
               <Box
                 key={index}
                 sx={{
-                  display: "flex",
-                  gap: 2,
+                  display: "block",
                   mb: 1,
-                  pl: 1,
-                  alignItems: "center",
                 }}
               >
-                <Typography sx={{ minWidth: 220 }} variant="body2">
+                <Typography variant="body2" mb={0.5}>
                   Beheizter Keller: {entry.key ? "ja" : "nein"}
                 </Typography>
 
@@ -219,8 +211,8 @@ export default function UgdSection({
                 <Box
                   sx={{
                     display: "grid",
-                    gridTemplateColumns: "1fr 1fr",
-                    columnGap: 10,
+                    gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr)",
+                    columnGap: 2,
                     rowGap: 2,
                     pl: 2,
                   }}
@@ -230,42 +222,33 @@ export default function UgdSection({
                       band: { from?: number; to?: number; value: string },
                       bandIndex: number,
                     ) => (
-                      <Box
+                      <TextField
                         key={bandIndex}
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 1.5,
-                        }}
+                        select
+                        size="medium"
+                        label={`Baujahr ${formatBand(band)}`}
+                        slotProps={{ inputLabel: { shrink: true } }}
+                        value={band.value}
+                        onChange={(e) =>
+                          updateBottomFloorDefaultConstructionType(
+                            groupIndex,
+                            bandIndex,
+                            e.target.value,
+                          )
+                        }
+                        fullWidth
                       >
-                        <Typography sx={{ minWidth: 120 }} variant="body2">
-                          Baujahr&nbsp;{formatBand(band)}
-                        </Typography>
-                        <TextField
-                          select
-                          size="small"
-                          value={band.value}
-                          onChange={(e) =>
-                            updateBottomFloorDefaultConstructionType(
-                              groupIndex,
-                              bandIndex,
-                              e.target.value,
-                            )
-                          }
-                          sx={{ flex: 1 }}
-                        >
-                          {configStore.bottomFloor.constructionTypes.map(
-                            (ct: {
-                              value: string;
-                              localization: { de: string };
-                            }) => (
-                              <MenuItem key={ct.value} value={ct.value}>
-                                {ct.localization.de}
-                              </MenuItem>
-                            ),
-                          )}
-                        </TextField>
-                      </Box>
+                        {configStore.bottomFloor.constructionTypes.map(
+                          (ct: {
+                            value: string;
+                            localization: { de: string };
+                          }) => (
+                            <MenuItem key={ct.value} value={ct.value}>
+                              {ct.localization.de}
+                            </MenuItem>
+                          ),
+                        )}
+                      </TextField>
                     ),
                   )}
                 </Box>

@@ -101,7 +101,12 @@ test('invalid, unsupported and future-purpose decisions grant no speculative per
     '{',
     'true',
     JSON.stringify({ ...valid, version: 2 }),
-    JSON.stringify({ ...valid, purposeVersion: 2 }),
+    JSON.stringify({ ...valid, purposeVersion: 3 }),
+    JSON.stringify({
+      ...valid,
+      purposeVersion: 2,
+      choices: { functional: true },
+    }),
     JSON.stringify({ ...valid, choices: { all: true } }),
     JSON.stringify({ ...valid, expiresAt: now() + DAY }),
   ]) {

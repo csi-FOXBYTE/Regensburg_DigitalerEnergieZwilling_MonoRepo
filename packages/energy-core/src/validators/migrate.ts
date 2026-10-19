@@ -148,11 +148,43 @@ const addThermalBridgeSurcharge: ConfigMigrator = {
   },
 };
 
+const addDefaultCarrierPriority: ConfigMigrator = {
+  id: "add-default-carrier-priority",
+  canFix: (issue) => issue.path === "heat.defaultPrimaryEnergyCarrierPriority" &&
+    issue.message.toLowerCase().includes("required"),
+  migrate: (raw) => {
+    if (!isRecord(raw) || !isRecord(raw.heat)) return raw;
+    const heat = raw.heat;
+    if (heat.defaultPrimaryEnergyCarrierPriority != null) return raw;
+    const available = Array.isArray(heat.primaryEnergyCarriers)
+      ? heat.primaryEnergyCarriers.flatMap((carrier) =>
+          isRecord(carrier) && typeof carrier.value === "string" ? [carrier.value] : [],
+        )
+      : [];
+    const previous = typeof heat.defaultPrimaryEnergyCarrier === "string"
+      ? [heat.defaultPrimaryEnergyCarrier]
+      : [];
+    const priority = [...new Set([
+      ...previous,
+      ...DEFAULT_CONFIG.heat.defaultPrimaryEnergyCarrierPriority.filter((value) => available.includes(value)),
+    ])];
+    return {
+      ...raw,
+      heat: {
+        ...heat,
+        defaultPrimaryEnergyCarrierPriority: priority,
+        defaultPrimaryEnergyCarrier: undefined,
+      },
+    };
+  },
+};
+
 const migrators: ConfigMigrator[] = [
   addRecommendedForSystems,
   addHeatingRenovationLabelTemplates,
   addRoofShapeDefaults,
   addThermalBridgeSurcharge,
+  addDefaultCarrierPriority,
 ];
 
 /**

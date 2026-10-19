@@ -32,4 +32,14 @@ export const MapResourcesOutputDto = Type.Object({
   addressDatabaseUrl: Type.String({ minLength: 1 }),
 });
 
+export const AnalyticsConfigOutputDto = Type.Object({
+  matomo: Type.Union([
+    Type.Object({
+      trackerUrl: Type.String({ minLength: 1 }),
+      siteId: Type.Integer({ minimum: 1 }),
+    }),
+    Type.Null(),
+  ]),
+});
+
 export type CreateConfigInput = Static<typeof CreateConfigInputDto>;

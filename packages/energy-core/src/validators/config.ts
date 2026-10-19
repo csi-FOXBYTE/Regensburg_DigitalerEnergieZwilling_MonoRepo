@@ -67,10 +67,21 @@ export function validateConfig(data: unknown): ValidationResult<DETConfig> {
     }
   }
 
-  if (!carrierValues.includes(heat.defaultPrimaryEnergyCarrier)) {
-    issues.push({ path: "heat.defaultPrimaryEnergyCarrier", message: `defaultPrimaryEnergyCarrier "${heat.defaultPrimaryEnergyCarrier}" is not in primaryEnergyCarriers` });
+  const priority = heat.defaultPrimaryEnergyCarrierPriority;
+  if (new Set(priority).size !== priority.length) {
+    issues.push({ path: "heat.defaultPrimaryEnergyCarrierPriority", message: "Default carrier priority contains duplicates" });
   }
-
+  for (const value of priority) {
+    if (!carrierValues.includes(value)) {
+      issues.push({ path: "heat.defaultPrimaryEnergyCarrierPriority", message: `Default carrier "${value}" is not in primaryEnergyCarriers` });
+    }
+  }
+  if (!priority.some((value) => {
+    const carrier = heat.primaryEnergyCarriers.find((entry) => entry.value === value);
+    return carrier != null && carrier.requirements?.gas === undefined && carrier.requirements?.storage === undefined;
+  })) {
+    issues.push({ path: "heat.defaultPrimaryEnergyCarrierPriority", message: "Default carrier priority needs a carrier without gas or storage requirements" });
+  }
   for (const system of heat.heatingSystemTypes) {
     for (const field of ["heatingPerformanceFactor", "temperatureControlPerformanceFactor", "electricalRatio", "hasInternalGains"] as const) {
       if (!hasSystemData(field, system.value)) {

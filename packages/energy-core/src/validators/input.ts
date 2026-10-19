@@ -3,6 +3,7 @@ import type { DETInput } from "../types/input/index.js";
 import type { DETConfig } from "../types/config/index.js";
 import {
   isCarrierCompatible,
+  findAvailableDefaultCarrier,
   isHeatingSystemCompatible,
 } from "../types/config/heat.js";
 import { BuildingType } from "../types/building-type.js";
@@ -72,10 +73,12 @@ export function validateInput(data: unknown, config: DETConfig): ValidationResul
     });
   }
 
-  if (input.heat.heatingSystemType != null && input.heat.primaryEnergyCarrier != null) {
-    const entry = heat.allowedHeatingSystemTypesByCarrier.find((e) => e.key === input.heat.primaryEnergyCarrier);
+  const effectiveCarrier = input.heat.primaryEnergyCarrier ??
+    findAvailableDefaultCarrier(heat, input);
+  if (input.heat.heatingSystemType != null && effectiveCarrier != null) {
+    const entry = heat.allowedHeatingSystemTypesByCarrier.find((e) => e.key === effectiveCarrier);
     if (entry != null && !entry.allowedValues.includes(input.heat.heatingSystemType)) {
-      issues.push({ path: "heat.heatingSystemType", message: `heatingSystemType "${input.heat.heatingSystemType}" is not allowed for carrier "${input.heat.primaryEnergyCarrier}"` });
+      issues.push({ path: "heat.heatingSystemType", message: `heatingSystemType "${input.heat.heatingSystemType}" is not allowed for carrier "${effectiveCarrier}"` });
     }
   }
 
@@ -83,7 +86,6 @@ export function validateInput(data: unknown, config: DETConfig): ValidationResul
     issues.push({ path: "heat.heatingSurfaceType", message: `heatingSurfaceType "${input.heat.heatingSurfaceType}" is not in config.heat.heatingSurfaceTypes` });
   }
 
-  const effectiveCarrier = input.heat.primaryEnergyCarrier ?? heat.defaultPrimaryEnergyCarrier;
   const effectiveCarrierData = heat.primaryEnergyCarrierData.find(
     (entry) => entry.key === effectiveCarrier,
   )?.value;

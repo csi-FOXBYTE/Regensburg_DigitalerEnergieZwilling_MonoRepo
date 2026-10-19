@@ -65,6 +65,32 @@ export async function getMapResources(): Promise<MapResources> {
   };
 }
 
+export type AnalyticsConfig = { trackerUrl: string; siteId: number };
+
+/** Any missing, slow or malformed value keeps web analytics dormant. */
+export async function getAnalyticsConfig(): Promise<AnalyticsConfig | null> {
+  // The consent dialog waits for this answer, so it must never hang.
+  const res = await fetch('/api/public/analytics-config', {
+    signal: AbortSignal.timeout(3000),
+  });
+  if (!res.ok) return null;
+
+  const result = (await res.json()) as { matomo?: Record<string, unknown> };
+  const trackerUrl = result.matomo?.trackerUrl;
+  const siteId = result.matomo?.siteId;
+  if (
+    typeof trackerUrl !== 'string' ||
+    !Number.isInteger(siteId) ||
+    (siteId as number) < 1
+  )
+    return null;
+  const url = new URL(trackerUrl, window.location.origin);
+  if (url.protocol !== 'http:' && url.protocol !== 'https:') return null;
+  url.search = '';
+  url.hash = '';
+  return { trackerUrl: url.toString(), siteId: siteId as number };
+}
+
 function submissionUrl(token: string, suffix = ''): string {
   return `/api/public/submissions/${encodeURIComponent(token)}${suffix}`;
 }

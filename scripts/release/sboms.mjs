@@ -2,10 +2,10 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { digest, json } from '../compliance/common.mjs';
-import { components } from './core.mjs';
+import { manifestComponents } from './core.mjs';
 
 export function sbomSelection(manifest) {
-  return { sourceCommit: manifest.sourceCommit, images: Object.fromEntries(components.map(c => [c, {
+  return { sourceCommit: manifest.sourceCommit, images: Object.fromEntries(manifestComponents(manifest).map(c => [c, {
     digest: manifest[c].digest, sourceCommit: manifest[c].sourceCommit, build: manifest[c].build,
   }])) };
 }
@@ -18,6 +18,7 @@ export function verifySboms(directory, manifest) {
   const identity = sbomSelection(manifest);
   assert.equal(receipt.sourceCommit, identity.sourceCommit, 'SBOM/source mismatch');
   assert.deepEqual(receipt.images, identity.images, 'SBOM/image selection mismatch');
+  const components = manifestComponents(manifest);
   const required = ['source.cdx.json', ...components.flatMap(c => [`${c}.cdx.json`, `${c}-runtime.cdx.json`])];
   assert.deepEqual(Object.keys(receipt.files).sort(), required.sort(), 'Incomplete release SBOM output');
   for (const name of required) {

@@ -34,6 +34,7 @@ export const getStaticPaths = (() => {
   } from '@/lib/state/session';
   import { decodeSessionRestore } from '@/lib/state/session/restore-codec';
   import { initializeExternalBuildingTarget } from '@/lib/state/external-building-target';
+  import { trackToolStarted } from '@/lib/analytics/funnel';
 
   const _fragmentParams = new URLSearchParams(window.location.hash.slice(1));
   const _hasRestorePayload = _fragmentParams.has('restore');
@@ -61,6 +62,7 @@ export const getStaticPaths = (() => {
 
   document.addEventListener('click', (e) => {
     if ((e.target as Element).closest('[data-next-step]')) {
+      if ($step.get() === Step.Welcome) trackToolStarted();
       navigateToStep($step.get() + 1);
     }
   });

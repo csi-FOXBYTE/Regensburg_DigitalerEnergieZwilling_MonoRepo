@@ -3,6 +3,7 @@ import { Type } from "@sinclair/typebox";
 import { getConfigService } from "../@internals/index.js";
 import {
   ActiveConfigOutputDto,
+  AnalyticsConfigOutputDto,
   ConfigDto,
   ConfigListOutputDto,
   CreateConfigInputDto,
@@ -87,6 +88,22 @@ configController
       tilesBaseUrl: withTrailingSlash(process.env.TILES_URL!),
       addressDatabaseUrl: process.env.ADDRESS_DATABASE_URL!,
     };
+  });
+
+/** Matomo is dormant unless this environment has its own tracker URL and site ID. */
+function readMatomoConfig() {
+  const trackerUrl = process.env.MATOMO_URL?.trim();
+  const siteId = Number(process.env.MATOMO_SITE_ID?.trim());
+  if (!trackerUrl || !Number.isInteger(siteId) || siteId < 1) return null;
+  return { trackerUrl, siteId };
+}
+
+configController
+  .addRoute("GET", "/public/analytics-config")
+  .output(AnalyticsConfigOutputDto)
+  .handler(async ({ reply }) => {
+    reply.header("cache-control", "public, max-age=300");
+    return { matomo: readMatomoConfig() };
   });
 
 export default configController;

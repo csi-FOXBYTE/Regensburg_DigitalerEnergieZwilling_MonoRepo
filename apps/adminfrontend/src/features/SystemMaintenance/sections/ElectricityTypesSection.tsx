@@ -30,9 +30,9 @@ import { type DeleteConfirmState, type EditState } from "../ConfigOverview";
 
 const gridSx = {
   display: "grid",
-  gridTemplateColumns: "1fr 140px 2rem 1fr 140px",
-  gap: 1.5,
-  alignItems: "center",
+  gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr)",
+  gap: 2,
+  alignItems: "start",
 };
 
 export default function ElectricityTypesSection({
@@ -231,15 +231,14 @@ export default function ElectricityTypesSection({
                             jeweils den Standard aus den kommunalen Parametern.
                           </Typography>
                           <Box sx={{ ...gridSx, mb: 1.5 }}>
-                            <Typography variant="body2">
-                              Abweichende Quelle (optional)
-                            </Typography>
                             <TextField
-                              size="small"
+                              size="medium"
+                              label="Abweichende Quelle (optional)"
                               value={data?.source ?? ""}
                               placeholder={configStore.heat.globalDefaultSource}
                               helperText={`Globale Quelle: ${configStore.heat.globalDefaultSource || "nicht angegeben"}`}
                               slotProps={{
+                                inputLabel: { shrink: true },
                                 htmlInput: {
                                   "aria-label":
                                     "Abweichende Quelle für diesen Stromtyp",
@@ -252,16 +251,14 @@ export default function ElectricityTypesSection({
                                 )
                               }
                             />
-                            <Box />
-                            <Typography variant="body2">
-                              Abweichender Datenstand (optional)
-                            </Typography>
                             <TextField
-                              size="small"
+                              size="medium"
                               type="date"
+                              label="Abweichender Datenstand (optional)"
                               value={data?.date?.slice(0, 10) ?? ""}
                               helperText={`Globaler Datenstand: ${configStore.heat.globalDefaultDate.slice(0, 10) || "nicht angegeben"}`}
                               slotProps={{
+                                inputLabel: { shrink: true },
                                 htmlInput: {
                                   "aria-label":
                                     "Abweichender Datenstand für diesen Stromtyp",
@@ -275,12 +272,11 @@ export default function ElectricityTypesSection({
                               }
                             />
 
-                            <Typography variant="body2">
-                              Primärenergiefaktor
-                            </Typography>
                             <TextField
-                              size="small"
+                              size="medium"
                               type="number"
+                              label="Primärenergiefaktor"
+                              slotProps={{ inputLabel: { shrink: true } }}
                               value={data?.primaryEnergyFactor ?? ""}
                               onChange={(e) =>
                                 updateElectricityTypeData(item.value, (d) => {
@@ -290,13 +286,11 @@ export default function ElectricityTypesSection({
                                 })
                               }
                             />
-                            <Box />
-                            <Typography variant="body2">
-                              CO₂-Faktor [gCO₂/kWh]
-                            </Typography>
                             <TextField
-                              size="small"
+                              size="medium"
                               type="number"
+                              label="CO₂-Faktor [gCO₂/kWh]"
+                              slotProps={{ inputLabel: { shrink: true } }}
                               value={data?.co2Factor ?? ""}
                               onChange={(e) =>
                                 updateElectricityTypeData(item.value, (d) => {
@@ -305,12 +299,11 @@ export default function ElectricityTypesSection({
                               }
                             />
 
-                            <Typography variant="body2">
-                              Arbeitspreis [€/kWh]
-                            </Typography>
                             <TextField
-                              size="small"
+                              size="medium"
                               type="number"
+                              label="Arbeitspreis [€/kWh]"
+                              slotProps={{ inputLabel: { shrink: true } }}
                               value={data?.unitRate ?? ""}
                               onChange={(e) =>
                                 updateElectricityTypeData(item.value, (d) => {
@@ -318,13 +311,11 @@ export default function ElectricityTypesSection({
                                 })
                               }
                             />
-                            <Box />
-                            <Typography variant="body2">
-                              Grundpreis [€/a]
-                            </Typography>
                             <TextField
-                              size="small"
+                              size="medium"
                               type="number"
+                              label="Grundpreis [€/a]"
+                              slotProps={{ inputLabel: { shrink: true } }}
                               value={data?.baseRate ?? ""}
                               onChange={(e) =>
                                 updateElectricityTypeData(item.value, (d) => {

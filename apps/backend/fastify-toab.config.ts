@@ -33,6 +33,9 @@ export default defineConfig({
     TILES_URL: Type.String({ minLength: 1 }),
     TERRAIN_URL: Type.String({ minLength: 1 }),
     ADDRESS_DATABASE_URL: Type.String({ minLength: 1 }),
+    // Web analytics stays off unless both values are set for this environment.
+    MATOMO_URL: Type.Optional(Type.String()),
+    MATOMO_SITE_ID: Type.Optional(Type.String()),
     APP_BASE_URL: Type.String(),
     PUBLIC_CLIENT_BASE_URL: Type.String(),
     ADMIN_CLIENT_BASE_URL: Type.String(),

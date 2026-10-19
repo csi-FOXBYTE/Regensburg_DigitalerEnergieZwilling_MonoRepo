@@ -5,6 +5,7 @@ import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import ArrowIcon from '../../components/ArrowIcon';
 import { Button } from '../../components/ui/button';
+import { trackStepConfirmed } from '../../lib/analytics/funnel';
 import { $step, navigateToStep, Step } from '../../lib/state/ui/progress';
 
 const $alwaysCanProgress = atom(true);
@@ -30,6 +31,7 @@ export default function ButtonBar({
   const hasNextStep = step < Step.Result;
 
   const nextStep = useCallback(() => {
+    trackStepConfirmed(step);
     navigateToStep(step + 1);
   }, [step]);
   const previousStep = useCallback(() => {
