@@ -41,9 +41,9 @@ root NOTICE; no Azure, customer-source export, deployment, or business code was 
    build/source metadata using `verifyImage`; reused artifacts need not match the
    new app version. A tag or SBOM version mismatch must fail preparation.
 4. Generate all Compose/Kubernetes image fields as `repository@sha256:...`, using
-   `selection.images.frontend`, `.adminfrontend`, `.backend` and `.matomo`
-   (releases up to v1.7.3 have no `matomo`; its settings are in
-   [images/matomo/README.md](../images/matomo/README.md)). Set both static
+   `selection.images.frontend`, `.adminfrontend` and `.backend`. Releases up to
+   v1.8.0 may also contain `.matomo`; after v1.8.0 the add-on builds and pins the
+   Matomo image itself, see its [images/matomo](https://github.com/csi-FOXBYTE/Regensburg_DigitalerEnergieZwilling_digital-energy-twin_addon/tree/main/images/matomo). Set both static
    frontends' `APP_VERSION=selection.appVersion` at runtime. API paths continue to
    route through the deployment gateway; nginx itself is only a static server.
 5. Serialize addon preparation for its target environment. Before merge, revalidate
