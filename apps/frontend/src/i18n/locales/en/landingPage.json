@@ -12,6 +12,7 @@
   ],
   "aboutText": "Find out: Free and non-binding.",
   "startButton": "Get started",
+  "buildingSelectionButton": "Go to my building selection",
   "remarkTitle": "Important note",
   "remarkContent": "The results are not energy consultancy, but a calculation-based orientation. All calculations are based on simplified assumptions and publicly available data.",
   "features": [

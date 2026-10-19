@@ -1,6 +1,9 @@
 import ArrowIcon from '@/components/ArrowIcon';
 import { Callout } from '@/components/ui/callout';
 import { Typography } from '@/components/ui/typography';
+import { $calculatorReady } from '@/lib/consent/dialog-state';
+import { externalTargetSuppressesSessionResume } from '@/lib/state/external-building-target';
+import { useStore } from '@nanostores/react';
 import { Calculator, FileText, MapPin, Wrench } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
@@ -9,6 +12,9 @@ type IconName = keyof typeof ICON_MAP;
 
 export default function LandingPageContent() {
   const { t } = useTranslation('landingPage');
+  const ready = useStore($calculatorReady);
+  const hasExternalBuildingTarget =
+    ready && externalTargetSuppressesSessionResume();
   const features = t('features', { returnObjects: true });
   return (
     <>
@@ -37,7 +43,7 @@ export default function LandingPageContent() {
         data-next-step
         className="group/button bg-primary text-primary-foreground hover:bg-primary-hover flex w-full cursor-pointer items-center justify-center gap-2 px-7 py-3 transition-colors active:translate-y-px active:scale-[0.985]"
       >
-        {t('startButton')}
+        {t(hasExternalBuildingTarget ? 'buildingSelectionButton' : 'startButton')}
         <ArrowIcon />
       </button>
 
