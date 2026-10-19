@@ -3,7 +3,7 @@ description: Build a fingerprinted context and push a unique GHCR build tag.
 inputs:
   component:
     required: true
-    description: frontend, adminfrontend, backend or matomo
+    description: frontend, adminfrontend or backend
   image:
     required: true
     description: GHCR image repository

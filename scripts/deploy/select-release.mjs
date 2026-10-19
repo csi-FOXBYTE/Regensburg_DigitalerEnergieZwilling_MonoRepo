@@ -11,7 +11,7 @@ export function deploymentSelection(release, taggedManifest, { allowPrerelease =
   assert(allowPrerelease || !release.prerelease, 'Prereleases require explicit opt-in');
   const manifest = validateManifest(taggedManifest, config);
   assert.deepEqual(readJournal(release, config), manifest, 'Release journal and tagged manifest disagree');
-  // Releases from before Matomo was added have no matomo image.
+  // Releases up to v1.8.0 may still record the retired matomo image.
   const components = manifestComponents(manifest);
   return { appVersion: manifest.appVersion, sourceCommit: manifest.sourceCommit,
     images: Object.fromEntries(components.map(c => [c, `${manifest[c].image}@${manifest[c].digest}`])),
