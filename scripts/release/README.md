@@ -15,7 +15,7 @@ The independent identities are:
 - each image's `build-<run_id>-<attempt>` identity and original source SHA;
 - the core's npm/API version, currently 0.20.2, unchanged by app release selection.
 
-The schema-2 manifest binds frontend, adminfrontend, backend and matomo to repository,
+The schema-2 manifest binds the three images frontend, adminfrontend and backend to repository,
 immutable digest, build ID, artifact source, input fingerprint, platform, resolved
 Node and runtime base digests, and a CycloneDX SBOM path/hash/build/source.
 The SBOM lives at `/usr/share/regensburg/SBOM.cdx.json` inside the immutable image.
@@ -32,13 +32,9 @@ is an explicit step before a later openCode publication.
 
 ## Matomo image
 
-`matomo` is no pnpm app. Its build inputs are only `images/matomo/`, without
-`sso-test/` and Markdown, and its Docker context is that directory (`context`
-and `dockerfile` in `config.json`). A Node stage runs `images/matomo/sbom.mjs`
-for the embedded SBOM: the Matomo base image, LoginOIDC with its checksum and
-NoPasswordReset. Node is therefore its build base and Matomo its runtime base.
-Manifests up to v1.7.3 have no `matomo` and stay valid; the next release builds
-it, and every later release selects all four images.
+After v1.8.0 the [deployment add-on](https://github.com/csi-FOXBYTE/Regensburg_DigitalerEnergieZwilling_digital-energy-twin_addon/tree/main/images/matomo)
+builds and pins the Matomo image. Manifests up to v1.8.0 may contain `matomo`
+and stay valid, including their SBOM receipt; new releases never do.
 
 ## Reuse and freshness
 

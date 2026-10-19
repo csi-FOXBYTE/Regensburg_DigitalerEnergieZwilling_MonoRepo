@@ -41,9 +41,10 @@ are built when you open them.
 
 ## How it works
 
-- `matomo-db` and `matomo` run MariaDB and the
-  [Matomo image](../../../../images/matomo/README.md) that ships, without
-  Keycloak login. `install.spec.ts` clicks through the web installer once and creates
+- `matomo-db` and `matomo` run MariaDB and the official Matomo image that the
+  [deployed Matomo image](https://github.com/csi-FOXBYTE/Regensburg_DigitalerEnergieZwilling_digital-energy-twin_addon/tree/main/images/matomo)
+  is built on. Without Keycloak login (no `MATOMO_OIDC_*` variables) both behave
+  the same. `install.spec.ts` clicks through the web installer once and creates
   site 1. `configure.spec.ts` and `matomo.sh` then apply the configuration the
   tracker is designed for, which a production instance needs as well:
   - `[Tracker] trust_visitors_cookies = 1`, so a visit is the tab session the

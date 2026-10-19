@@ -25,14 +25,6 @@
       "base": "node:24.21.0-bookworm-slim",
       "runtimeBase": "node:24.21.0-bookworm-slim",
       "packageName": "rg-dez-backend"
-    },
-    "matomo": {
-      "repository": "ghcr.io/csi-foxbyte/regensburg-web-matomo",
-      "base": "node:24.21.0-bookworm-slim",
-      "runtimeBase": "matomo:5.14.0-apache",
-      "packageName": "regensburg-web-matomo",
-      "context": "images/matomo",
-      "dockerfile": "Dockerfile"
     }
   }
 }

@@ -1,10 +1,11 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 
-export const components = ['frontend', 'adminfrontend', 'backend', 'matomo'];
-// Images added after the first releases. Manifests published before them stay
-// valid without them; every new release selects all components.
-const laterComponents = ['matomo'];
+export const components = ['frontend', 'adminfrontend', 'backend'];
+// Images that earlier releases built and recorded, with their repositories.
+// Matomo moved to the deployment add-on after v1.8.0: manifests up to v1.8.0 may
+// contain it and stay valid; new releases never select it.
+const retired = { matomo: 'ghcr.io/csi-foxbyte/regensburg-web-matomo' };
 export const manifestPath = 'release/manifest.json';
 export const journalMarker = '<!-- regensburg-release-v2 -->';
 const sha = /^[a-f0-9]{40}$/;
@@ -51,12 +52,6 @@ export function isBuildInput(file, component) {
   if (file.split('/').some(part => ['node_modules', '.git', '.local', '.devcontainer',
     '.pnpm-store', '.tanstack', 'dist', '.build', '.dev', '.astro', 'coverage', '.cache'].includes(part)
     || part.startsWith('.env'))) return false;
-  // Matomo is no pnpm app: only its own image directory, without the local
-  // login test and the documentation.
-  if (component === 'matomo') {
-    return file.startsWith('images/matomo/') && !file.startsWith('images/matomo/sso-test/')
-      && !file.endsWith('.md');
-  }
   if (/(^|\/)SBOM\.(cdx\.json|csv)$/.test(file) || file.endsWith('.tsbuildinfo')) return false;
   if (file.startsWith('apps/frontend/public/cesium/')) return false;
   if (file.startsWith(`apps/${component}/`) || file.startsWith('packages/energy-core/')) return true;
@@ -74,10 +69,10 @@ export function fingerprint(entries, inputs) {
   })).digest('hex')}`;
 }
 
-// The components a manifest records: all current ones, except images added
-// after that manifest was published.
+// The components a manifest records: all current ones, plus retired images
+// that manifest still contains.
 export function manifestComponents(manifest) {
-  return components.filter((component) => !laterComponents.includes(component) || manifest[component] !== undefined);
+  return [...components, ...Object.keys(retired).filter((component) => manifest[component] !== undefined)];
 }
 
 export function validateManifest(value, config) {
@@ -92,7 +87,7 @@ export function validateManifest(value, config) {
     const isFirstRelease = value.appVersion === firstRelease.appVersion
       && value.sourceCommit === firstRelease.sourceCommit
       && value.runId === firstRelease.runId;
-    assert(image.image === config.images[component].repository
+    assert(image.image === (config.images[component]?.repository ?? retired[component])
       || (isFirstRelease && image.image === firstRelease.images[component]),
     'Unexpected image repository');
     assert(digest.test(image.digest), 'Invalid registry digest');
