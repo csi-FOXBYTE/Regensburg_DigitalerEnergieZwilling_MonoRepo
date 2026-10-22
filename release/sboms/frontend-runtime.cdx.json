@@ -2,10 +2,10 @@
   "$schema": "http://cyclonedx.org/schema/bom-1.7.schema.json",
   "bomFormat": "CycloneDX",
   "specVersion": "1.7",
-  "serialNumber": "urn:uuid:840a5aec-7279-5cd9-8632-ed54e6537409",
+  "serialNumber": "urn:uuid:0f05bd85-245b-5bfc-894e-a5406f99897d",
   "version": 1,
   "metadata": {
-    "timestamp": "2026-10-19T11:07:43.000Z",
+    "timestamp": "2026-10-22T07:49:21.000Z",
     "tools": {
       "components": [
         {
@@ -17,10 +17,10 @@
       ]
     },
     "component": {
-      "bom-ref": "b9c871b60d8e8074",
+      "bom-ref": "4bd1255d86f857dc",
       "type": "container",
       "name": "ghcr.io/csi-foxbyte/regensburg-web-frontend",
-      "version": "sha256:0e23ca571bf68e982867e92cac9423ee64a262b8803525a2f8a3beb297211cad"
+      "version": "sha256:44875afb77ccc1512f8c746c02aa4830d07c3b1690d017509eb974ab5844409c"
     },
     "properties": [
       {
@@ -41,7 +41,7 @@
       },
       {
         "name": "syft:image:labels:org.opencontainers.image.revision",
-        "value": "f78a78b9c5691d5ad26122b1a7e50c00c1b453bc"
+        "value": "517863f96ee065bd9b2b48732088931c27b23a5e"
       },
       {
         "name": "syft:image:labels:org.opencontainers.image.source",
@@ -57,11 +57,11 @@
       },
       {
         "name": "syft:image:labels:org.opencontainers.image.version",
-        "value": "build-39242638757-1"
+        "value": "build-39743299423-1"
       },
       {
         "name": "regensburg:release-source",
-        "value": "f78a78b9c5691d5ad26122b1a7e50c00c1b453bc"
+        "value": "517863f96ee065bd9b2b48732088931c27b23a5e"
       },
       {
         "name": "regensburg:release-inventory",
@@ -69,7 +69,7 @@
       },
       {
         "name": "regensburg:image-digest",
-        "value": "sha256:0e23ca571bf68e982867e92cac9423ee64a262b8803525a2f8a3beb297211cad"
+        "value": "sha256:44875afb77ccc1512f8c746c02aa4830d07c3b1690d017509eb974ab5844409c"
       }
     ]
   },
@@ -24877,7 +24877,7 @@
       ]
     },
     {
-      "bom-ref": "2e7bb159d9a995a0",
+      "bom-ref": "c7e1921429fafdbc",
       "type": "file",
       "name": "/usr/share/nginx/html/index.html",
       "hashes": [
