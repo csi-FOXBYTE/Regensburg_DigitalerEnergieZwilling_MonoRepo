@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-ARG NODE_BASE_IMAGE=node:24.21.0-bookworm-slim
+ARG NODE_BASE_IMAGE=node:24.22.1-bookworm-slim
 ARG RUNTIME_BASE_IMAGE=nginxinc/nginx-unprivileged:1.30.4-alpine
 FROM ${NODE_BASE_IMAGE} AS build
 ARG RELEASE_REFRESH=0

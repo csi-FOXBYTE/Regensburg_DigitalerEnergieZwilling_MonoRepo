@@ -49,7 +49,7 @@ services:
   # Builds the public frontend from this checkout and serves it. API calls,
   # address database and tiles come from the deployed test system.
   web:
-    image: node:24.21.0
+    image: node:24.22.1
     command: ['bash', '/harness/build-and-serve.sh']
     environment:
       UPSTREAM: ${UPSTREAM:-https://det.rg.foxbyte.de}
