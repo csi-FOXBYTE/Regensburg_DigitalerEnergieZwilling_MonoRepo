@@ -13,6 +13,7 @@ System_Boundary(civitas, "CIVITAS/CORE-Plattform") {
   System(pipeline, "DEZ-Offline-Datenpipeline", "Separates Airflow-Add-on für LoD2-Konvertierung, Anreicherung und Export")
   System(idp, "Keycloak", "OIDC-Identitätsanbieter und JWKS-Quelle")
   System(stellio, "Stellio-Kontextbroker", "Empfängt veröffentlichte statische NGSI-LD-Entitäten")
+  System(matomo, "Matomo-Webanalyse", "Optional vom DEZ-Add-on bereitgestellt; wertet freigegebene Nutzungsereignisse des öffentlichen Clients aus")
 }
 
 System_Ext(masterportal, "MasterPortal", "Einstiegspunkt mit Verknüpfung zum öffentlichen DEZ-Client")
@@ -23,9 +24,12 @@ System_Ext(geothermal, "Geothermiequelle", "Vom Auftraggeber bereitgestellte Dat
 System_Ext(tiles, "Externer Kacheldienst", "Bei der Bereitstellung vorgegebene, als TILES_URL konfigurierte URL")
 
 Rel(citizen, gateway, "nutzt den öffentlichen Client", "HTTPS")
-Rel(admin, gateway, "nutzt den Admin-Client", "HTTPS")
+Rel(admin, gateway, "nutzt den Admin-Client und die Matomo-Auswertung", "HTTPS")
 Rel(masterportal, gateway, "verknüpft den öffentlichen Einstieg", "HTTPS")
 Rel(gateway, det, "leitet Frontends und API weiter", "HTTPS")
+Rel(gateway, matomo, "leitet den Matomo-Host weiter", "HTTPS")
+Rel(det, matomo, "sendet nach Opt-in freigegebene Ereignisse aus dem öffentlichen Client", "Matomo-HTTP-Tracking-API über APISIX")
+Rel(matomo, idp, "meldet Analysenutzer an", "OIDC")
 Rel(det, idp, "validiert Admin-Zugriffstoken", "OIDC/JWKS")
 Rel(det, geo, "lädt Basiskarten", "WMS/WMTS")
 Rel(det, tiles, "leitet /api/public/tiles/* weiter", "HTTPS")
@@ -42,6 +46,13 @@ Implementierungsbasis:
 - Das Backend persistiert in PostgreSQL
 - OpenAPI 3.0 oder höher (aktuell 3.1.0)
 - Statusendpunkt: GET /health
+end note
+
+note right of matomo
+Nur aktiv, wenn im Add-on eingeschaltet.
+Tracking erst nach Opt-in, ohne Cookies und ohne
+Gebäude-, Adress-, Personen- oder Berechnungsdaten.
+Login nur mit Rolle matomoViewer oder matomoAdmin.
 end note
 
 note right of pipeline

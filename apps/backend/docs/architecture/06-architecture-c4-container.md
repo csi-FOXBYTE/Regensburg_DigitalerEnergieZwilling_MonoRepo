@@ -34,6 +34,7 @@ Das System besteht aus folgenden zentralen Containern:
 - Admin Frontend (statische Webanwendung)
 - Backend API
 - Datenbank
+- Matomo-Webanalyse mit eigener MariaDB-Datenbank (optional)
 - Airflow Offline Datenpipeline (separates CIVITAS/CORE-Add-on)
 
 Externer angebundener Dienst:
@@ -71,6 +72,7 @@ Typische Routen:
 - `/admin` → Admin Frontend (geschützt)
 - `/api/*` → Backend API
 - `/api/public/tiles/*` → Backend API; von dort Redirect auf die konfigurierte externe Tiles-URL
+- Host `matomo.det.<domain>` → Matomo-Webanalyse (Login über Matomo und Keycloak)
 
 Das Gateway enthält keine fachliche Logik.
 
@@ -158,6 +160,19 @@ Die Datenbank enthält **keine statischen Potenzialdaten**.
 
 ---
 
+### Matomo-Webanalyse (optional)
+
+Matomo wird als eigener Container mit eigener MariaDB-Datenbank durch das `digital-energy-twin_addon` ausgerollt, sobald `matomo.enable` im Inventory gesetzt ist. Image, Keycloak-Client und Installation sind im [Deployment-Add-on](https://github.com/csi-FOXBYTE/Regensburg_DigitalerEnergieZwilling_digital-energy-twin_addon/tree/main/images/matomo) beschrieben.
+
+Aufgaben:
+- Entgegennahme der Ereignisse des öffentlichen Clients über die Matomo-HTTP-Tracking-API
+- Bereitstellung der Auswertungen (Funnel, KPIs) für Stadtverwaltung / Fachpersonal
+- Login über Keycloak per OIDC (Plugin LoginOIDC); nur mit den Rollen `matomoViewer` oder `matomoAdmin`
+
+Das Backend ruft Matomo nicht auf. Es liefert lediglich `MATOMO_URL` und `MATOMO_SITE_ID` über `GET /api/public/analytics-config` aus; ohne diese Werte bleibt das Tracking im öffentlichen Client inaktiv. Eventkatalog und Datenschutzregeln stehen im [Matomo-Trackingkonzept](../system/06-matomo-trackingkonzept.md).
+
+---
+
 ### Airflow Offline Datenpipeline (separates Add-on)
 
 Die Offline Datenpipeline läuft in CIVITAS/CORE, wird jedoch **nicht** durch das `digital-energy-twin_addon` ausgerollt, sondern durch ein separates Add-on.
@@ -185,6 +200,7 @@ Die Container-Sicht verankert Security by Design als konkrete Zuständigkeit:
 | Admin Frontend | Statischer Admin-Client ohne eigene Serverlogik; sensible Aktionen erfolgen ausschließlich über geschützte Backend-APIs. |
 | Backend API | Validiert produktiv Access Tokens unabhängig vom Gateway per RS256/JWKS, wertet Claims/Rollen aus und erzwingt Berechtigungen selbst; validiert Eingaben serverseitig, prüft/verifiziert Public-Write-Payloads und protokolliert sicherheitsrelevante Ereignisse. |
 | Datenbank | PostgreSQL-Datenhaltung des Backends; nicht öffentlich erreichbar, Zugriffe ausschließlich über das Backend mit rollenbasierten Rechten. |
+| Matomo-Webanalyse | Erhält nur nach Opt-in freigegebene Ereignisse ohne Cookies und ohne Gebäude-, Adress-, Personen- oder Berechnungsdaten; Login ausschließlich über Keycloak mit Rollenprüfung, kein Passwort-Reset und keine Selbstregistrierung; MariaDB nur aus Matomo erreichbar. |
 | Externer Tiles-Dienst / 3D Tiles Storage | Dient nur der Auslieferung statischer Artefakte; die Ziel-URL wird über `TILES_URL` konfiguriert, das Backend stellt lediglich einen Redirect bereit. |
 | Stellio Context Broker | Nimmt nur freigegebene statische NGSI-LD-Entities aus der Offline-Pipeline entgegen; keine Übergabe personenbezogener Nutzereingaben. |
 | Offline-Datenpipeline | Läuft getrennt vom Laufzeitsystem, nutzt dedizierte Job-Kontexte und arbeitet mit minimalen Datendienst- und Stellio-Berechtigungen. |
@@ -201,6 +217,7 @@ Diese Verantwortungsverteilung deckt insbesondere TA-58 bis TA-64, TA-102 sowie 
   - der Backend-Route `/api/public/tiles/*`, die auf den externen Tiles-Dienst weiterleitet
   - der externen Vegetationsquelle (nur visuelle Darstellung)
   - optional dem Backend (z.B. zur Speicherung von Nutzereingaben)
+  - nach Opt-in der Matomo-Webanalyse (über APISIX)
 
 - Der Admin Frontend-Client (Nebenzielgruppe) kommuniziert ausschließlich über das Backend (über APISIX).
 
@@ -208,6 +225,8 @@ Diese Verantwortungsverteilung deckt insbesondere TA-58 bis TA-64, TA-102 sowie 
   - die Datenbank
   - die veröffentlichte Konfiguration
   - optional den Berechnungskern
+
+- Matomo liest und schreibt ausschließlich die eigene MariaDB-Datenbank und ruft für den Login Token- und Userinfo-Endpunkt von Keycloak auf.
 
 - Die Offline-Datenpipeline schreibt statische Artefakte in das 3D Tiles Storage, erzeugt NGSI-LD-Entities und übergibt diese intern an Stellio; sie wird über Airflow im separaten Pipeline-Add-on orchestriert.
 
