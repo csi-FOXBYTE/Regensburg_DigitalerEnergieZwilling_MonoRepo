@@ -40,6 +40,7 @@ Quelle: `raw/c4-context.puml`
 - **APISIX (CIVITAS/CORE)**: zentraler externer Web-/API-Einstiegspunkt und Routenschutz.
 - **Keycloak (CIVITAS/CORE)**: OIDC-Identity-Provider für Admin-Login (Plattformdienst innerhalb von CIVITAS/CORE).
 - **Stellio Context Broker (CIVITAS/CORE)**: Ziel der freigegebenen statischen NGSI-LD-Entities aus der Offline-Pipeline.
+- **Matomo-Webanalyse**: optional durch das `digital-energy-twin_addon` bereitgestellte Webanalyse des öffentlichen Clients; Login für Stadtverwaltung / Fachpersonal über Keycloak (siehe [Matomo-Trackingkonzept](../system/06-matomo-trackingkonzept.md)).
 - **DEZ Offline Data Pipeline**: separates Airflow-Add-on für LoD2-Konvertierung, konditionale Anreicherung und Export.
 - **MasterPortal**: Externer Einstiegspunkt mit Link-Out auf den öffentlichen DEZ-Client.
 - **City Geo Services**: liefert Basemaps via WMS/WMTS.
@@ -58,6 +59,7 @@ Quelle: `raw/c4-context.puml`
 - Admin-Authentifizierung erfolgt über OIDC gegen Keycloak (CIVITAS/CORE). APISIX schützt die Route und prüft OIDC vorgelagert; das Backend validiert das Access Token produktiv und unabhängig davon per RS256/JWKS und erzwingt die Rollenprüfung selbst.
 - Basemaps werden zur Laufzeit aus City Geo Services geladen (WMS/WMTS).
 - Tile-Anfragen laufen über `/api/public/tiles/*`; das Backend leitet auf die konfigurierte externe Tiles-URL weiter.
+- Nach ausdrücklichem Opt-in sendet der öffentliche Client freigegebene Nutzungsereignisse über APISIX an Matomo (eigener Host `matomo.det.<domain>`). Matomo-Nutzer melden sich per OIDC an Keycloak an; zugelassen sind nur die Rollen `matomoViewer` und `matomoAdmin`.
 - LoD2- und Potenzialdaten werden durch das separate Airflow-Add-on **offline** verarbeitet; statische NGSI-LD-Entities werden an Stellio übergeben.
 
 ---
@@ -65,10 +67,11 @@ Quelle: `raw/c4-context.puml`
 <a id="security-perspektive-auf-kontext-ebene"></a>
 ## Security-Perspektive auf Kontext-Ebene
 
-Auf Kontext-Ebene sind drei Sicherheitsgrenzen maßgeblich:
+Auf Kontext-Ebene sind vier Sicherheitsgrenzen maßgeblich:
 
 - **Internet zu DEZ**: Externe Zugriffe erfolgen ausschließlich verschlüsselt über den öffentlichen Plattformzugang; Public- und Admin-Pfade sind getrennt.
-- **DEZ zu Plattformdiensten**: Administrative Authentifizierung erfolgt nur über den zentralen OIDC-Provider (Keycloak).
+- **DEZ zu Plattformdiensten**: Administrative Authentifizierung erfolgt nur über den zentralen OIDC-Provider (Keycloak); das gilt auch für den Matomo-Login.
+- **Webanalyse**: Matomo erhält nur nach Opt-in freigegebene Ereignisse ohne Cookies und ohne Gebäude-, Adress-, Personen-, Verbrauchs-, Kosten- oder Berechnungsrohdaten.
 - **Offline-Datenzufluss**: CityGML- und Potenzialdaten werden außerhalb der Laufzeit verarbeitet; Laufzeitpfade bleiben schlank und kontrollierbar.
 
 Sicherheitsrelevante Konsequenzen:

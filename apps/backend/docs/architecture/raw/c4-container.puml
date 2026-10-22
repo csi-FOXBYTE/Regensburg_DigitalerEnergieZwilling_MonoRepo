@@ -20,6 +20,9 @@ System_Boundary(civitas, "CIVITAS/CORE-Plattform") {
     Container(calcCore, "Berechnungskern-Modul", "JavaScript-Modulpaket", "Gemeinsames Modul; läuft im Browser und in Node")
 
     ContainerDb(db, "DEZ-Datenbank", "PostgreSQL", "Speichert Nutzereingaben, Triage-Status und Berechnungskonfigurationen")
+
+    Container(matomo, "Matomo-Webanalyse", "Matomo 5 (PHP/Apache) mit LoginOIDC", "Optional; nimmt Tracking-Ereignisse entgegen und stellt Auswertungen bereit; Login über Keycloak")
+    ContainerDb(matomoDb, "Matomo-Datenbank", "MariaDB", "Speichert Besuche, Ereignisse und Matomo-Konfiguration")
   }
 
   System_Boundary(pipelineAddon, "offline-data-pipeline_addon (separates CIVITAS/CORE Add-on)") {
@@ -42,8 +45,11 @@ Rel(admin, gateway, "nutzt", "HTTPS")
 Rel(gateway, frontendPublic, "leitet die öffentliche Website weiter", "GET /")
 Rel(gateway, frontendAdmin, "leitet die Admin-Website weiter", "GET /admin")
 Rel(gateway, backend, "leitet die API weiter", "GET/POST /api (einschließlich /api/public/tiles/*)")
+Rel(gateway, matomo, "leitet den Matomo-Host weiter", "HTTPS matomo.det.<domain>")
 
 Rel(backend, idp, "validiert Zugriffstoken", "JWKS/RS256")
+Rel(matomo, idp, "meldet Analysenutzer an", "OIDC (Token/Userinfo)")
+Rel(matomo, matomoDb, "liest und schreibt", "SQL")
 
 Rel(frontendPublic, calcCore, "importiert und führt aus", "Browser-Laufzeit")
 Rel(frontendAdmin, calcCore, "importiert und führt aus", "optional in der Browser-Laufzeit")
@@ -54,7 +60,8 @@ Rel(frontendPublic, gateway, "fordert 3D Tiles an", "GET /api/public/tiles/*")
 Rel(backend, tilesStore, "leitet zur konfigurierten TILES_URL weiter", "HTTP 3xx")
 
 Rel(backend, db, "liest und schreibt", "SQL")
-Rel(frontendPublic, backend, "ruft die API für Nutzerdaten auf", "REST über APISIX")
+Rel(frontendPublic, backend, "ruft die API für Nutzerdaten und die Analytics-Konfiguration auf", "REST über APISIX")
+Rel(frontendPublic, matomo, "sendet nach Opt-in freigegebene Ereignisse", "Matomo-HTTP-Tracking-API über APISIX")
 Rel(frontendAdmin, backend, "ruft die API für Admin-Aktionen auf", "REST über APISIX")
 
 Rel(airflow, pipelineWorkers, "orchestriert DAG-Aufgaben")
@@ -76,6 +83,14 @@ end note
 note right of db
 PostgreSQL ist nicht öffentlich erreichbar.
 Zugriff nur über die Backend-API.
+end note
+
+note right of matomo
+Nur aktiv mit matomo.enable im Add-on.
+Das Backend liefert MATOMO_URL und MATOMO_SITE_ID
+über GET /api/public/analytics-config aus;
+ohne diese Werte sendet der Client nichts.
+Login nur mit Rolle matomoViewer oder matomoAdmin.
 end note
 
 @enduml
