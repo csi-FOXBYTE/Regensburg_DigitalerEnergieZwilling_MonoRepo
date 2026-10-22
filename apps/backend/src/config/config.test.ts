@@ -9,6 +9,7 @@ import {
 } from "@csi-foxbyte/fastify-toab";
 import Fastify from "fastify";
 import configController from "./config.controller.js";
+import { analyticsConfigState } from "./matomo.js";
 
 const previousTerrainUrl = process.env.TERRAIN_URL;
 const previousTilesUrl = process.env.TILES_URL;
@@ -147,5 +148,28 @@ describe("analytics config route", () => {
     assert.deepEqual(await fetchConfig(), {
       matomo: { trackerUrl: "https://matomo.example/matomo.php", siteId: 7 },
     });
+  });
+
+  it("reports a partial or invalid Matomo setup as invalid", () => {
+    Reflect.deleteProperty(process.env, "MATOMO_URL");
+    Reflect.deleteProperty(process.env, "MATOMO_SITE_ID");
+    assert.equal(analyticsConfigState(), "inactive");
+
+    process.env.MATOMO_URL = " ";
+    process.env.MATOMO_SITE_ID = "";
+    assert.equal(analyticsConfigState(), "inactive");
+
+    process.env.MATOMO_URL = "https://matomo.example/matomo.php";
+    assert.equal(analyticsConfigState(), "invalid");
+
+    process.env.MATOMO_SITE_ID = "abc";
+    assert.equal(analyticsConfigState(), "invalid");
+
+    Reflect.deleteProperty(process.env, "MATOMO_URL");
+    process.env.MATOMO_SITE_ID = "7";
+    assert.equal(analyticsConfigState(), "invalid");
+
+    process.env.MATOMO_URL = "https://matomo.example/matomo.php";
+    assert.equal(analyticsConfigState(), "active");
   });
 });
