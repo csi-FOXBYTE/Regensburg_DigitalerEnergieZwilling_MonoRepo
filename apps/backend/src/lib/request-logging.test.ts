@@ -208,6 +208,23 @@ describe("request log privacy", () => {
   });
 });
 
+it("logs the analytics state without tracker details and warns when it is invalid", () => {
+  const output = capture();
+  const write = createPrivacyLogger({ base: undefined, level: "trace" }, output.stream);
+  for (const state of ["active", "inactive", "invalid"] as const) {
+    write({ event: "analytics_config", state, trackerUrl: secret } as never);
+  }
+  assert.doesNotMatch(output.lines.join(""), new RegExp(secret));
+  assert.deepEqual(
+    output.records().map(({ level, event, state, ...rest }) => ({ level, event, state, rest: Object.keys(rest) })),
+    [
+      { level: 30, event: "analytics_config", state: "active", rest: ["time"] },
+      { level: 30, event: "analytics_config", state: "inactive", rest: ["time"] },
+      { level: 40, event: "analytics_config", state: "invalid", rest: ["time"] },
+    ],
+  );
+});
+
 it("console forwarding drops arbitrary strings, objects, formatting arguments and errors", () => {
   const output = capture();
   const original = { log: console.log, info: console.info, warn: console.warn, error: console.error, debug: console.debug };
