@@ -41,7 +41,12 @@ export default defineConfig({
     ADMIN_CLIENT_BASE_URL: Type.String(),
     PORT: Type.Optional(Type.String()),
     NODE_ENV: Type.Optional(Type.String()),
-    KEYCLOAK_JWKS_URI: Type.String(),
+    // Must use HTTPS; checked with the issuer and audience in auth.service.ts.
+    KEYCLOAK_JWKS_URI: Type.String({ minLength: 1 }),
+    KEYCLOAK_ISSUER: Type.String({ minLength: 1 }),
+    AUTH_EXPECTED_AUDIENCE: Type.String({ minLength: 1 }),
+    // Local development only; rejected at startup outside development/test.
+    AUTH_INSECURE_DEV_DECODE: Type.Optional(Type.String({ pattern: "^true$" })),
   }),
   onRouteError: routeErrorHandler,
   onReady: async (fastify) => {

@@ -77,9 +77,24 @@ Interner App-Port ist `5000` (falls `PORT` nicht gesetzt ist). Externe Requests 
 
 ## Umgebungsvariablen (.env)
 
-Aktuell sind keine verpflichtenden Auth-Umgebungsvariablen konfiguriert.
-JWT/OIDC-Validierung, Signaturpruefung und Routenschutz erfolgen in APISIX. Grundlage ist das von Keycloak nach dem Login gesetzte verschluesselte JWT-Cookie im Browser.
-Das Backend dekodiert den uebergebenen Token nur zur Auswertung von Claims/Rollen und vertraut produktiv ausschliesslich auf Gateway-geroutete Requests.
+APISIX prueft das Token vorgelagert; das Backend verifiziert es zusaetzlich selbst. Pflicht sind:
+
+```env
+KEYCLOAK_JWKS_URI=https://<keycloak>/realms/<realm>/protocol/openid-connect/certs
+KEYCLOAK_ISSUER=https://<keycloak>/realms/<realm>
+AUTH_EXPECTED_AUDIENCE=<audience des DEZ-Clients>
+```
+
+`KEYCLOAK_JWKS_URI` muss HTTPS verwenden. Akzeptiert werden nur RS256-signierte Keycloak-Access-Tokens (`typ: Bearer`) mit passendem `iss`/`aud` und den Claims `exp`, `iat`, `sub`.
+
+Nur fuer lokale Entwicklung mit `pnpm jwt:dev`-Tokens (HS256) kann die Signaturpruefung abgeschaltet werden:
+
+```env
+AUTH_INSECURE_DEV_DECODE=true
+```
+
+Das ist nur mit `NODE_ENV=development` oder `test` erlaubt; in jeder anderen Umgebung bricht der Start ab. Der Devcontainer setzt die Variable.
+
 Optional fuer Rollenpruefung ueber `resource_access`:
 
 ```env
