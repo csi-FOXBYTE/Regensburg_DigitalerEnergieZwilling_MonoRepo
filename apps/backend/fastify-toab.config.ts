@@ -2,6 +2,7 @@ import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { defineConfig, type FastifyToabConfigOptions } from "@csi-foxbyte/fastify-toab";
 import { Type } from "@sinclair/typebox";
+import { requestErrorHandler } from "./src/errors/request-error-handler.js";
 import { routeErrorHandler } from "./src/errors/route-error-handler.js";
 
 // fastify-toab 0.2.0-rc.4's CLI reads the module namespace, not its default export.
@@ -49,6 +50,10 @@ export default defineConfig({
     AUTH_INSECURE_DEV_DECODE: Type.Optional(Type.String({ pattern: "^true$" })),
   }),
   onRouteError: routeErrorHandler,
+  // onReady runs after fastify.ready(), when error handlers are locked.
+  onPreStart: async (fastify) => {
+    fastify.setErrorHandler(requestErrorHandler);
+  },
   onReady: async (fastify) => {
     if (!fastify.hasDecorator("swagger")) return;
 
