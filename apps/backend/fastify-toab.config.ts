@@ -2,6 +2,7 @@ import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { defineConfig, type FastifyToabConfigOptions } from "@csi-foxbyte/fastify-toab";
 import { Type } from "@sinclair/typebox";
+import { allowedCorsOrigins, createCorsOrigin } from "./src/lib/cors.js";
 import { requestErrorHandler } from "./src/errors/request-error-handler.js";
 import { routeErrorHandler } from "./src/errors/route-error-handler.js";
 
@@ -53,6 +54,8 @@ export default defineConfig({
   // onReady runs after fastify.ready(), when error handlers are locked.
   onPreStart: async (fastify) => {
     fastify.setErrorHandler(requestErrorHandler);
+    // Fail at startup instead of on the first cross-origin request.
+    allowedCorsOrigins();
   },
   onReady: async (fastify) => {
     if (!fastify.hasDecorator("swagger")) return;
@@ -72,6 +75,10 @@ export default defineConfig({
     responses["201"] = { description: "Feedback created" };
   },
   fastify: () => ({
+    // Disabled in development by fastify-toab; elsewhere never reflect Origin.
+    cors: {
+      origin: createCorsOrigin(),
+    },
     underPressure: {
       exposeStatusRoute: "/health",
     },

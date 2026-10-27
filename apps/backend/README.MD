@@ -95,6 +95,8 @@ AUTH_INSECURE_DEV_DECODE=true
 
 Das ist nur mit `NODE_ENV=development` oder `test` erlaubt; in jeder anderen Umgebung bricht der Start ab. Der Devcontainer setzt die Variable.
 
+CORS: Ausserhalb von `NODE_ENV=development` beantwortet das Backend Cross-Origin-Anfragen nur fuer die Origins aus `PUBLIC_CLIENT_BASE_URL` und `ADMIN_CLIENT_BASE_URL`; jede andere `Origin` wird nicht reflektiert.
+
 Optional fuer Rollenpruefung ueber `resource_access`:
 
 ```env
