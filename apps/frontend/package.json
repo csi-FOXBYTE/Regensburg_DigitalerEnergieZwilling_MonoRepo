@@ -48,7 +48,7 @@
     "vaul": "^1.1.2"
   },
   "devDependencies": {
-    "@astrojs/react": "^4.4.2",
+    "@astrojs/react": "^7.1.1",
     "@axe-core/playwright": "^4.13.0",
     "@hey-api/openapi-ts": "^0.92.3",
     "@playwright/test": "^1.62.1",
@@ -57,7 +57,7 @@
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
     "@types/sql.js": "^1.4.11",
-    "astro": "^5.16.15",
+    "astro": "^7.4.2",
     "prettier": "^3.8.1",
     "prettier-plugin-astro": "^0.14.1",
     "prettier-plugin-tailwindcss": "^0.7.2",
