@@ -1,0 +1,15 @@
+# gitleaks configuration for the CI secret scan (SUP-04).
+# The allowlisted paths only produced generic-api-key false positives
+# (identifiers such as key: "low_temperature_boiler_..."), see F-STAT-034.
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Reviewed generic-api-key false positives (F-STAT-034)"
+paths = [
+  '''^packages/energy-core/src/types/config/default-config\.ts$''',
+  '''^packages/energy-core/src/.*/resolvers/(electrical|thermal)Energy\.ts$''',
+  '''^apps/backend/docs/architecture/raw/c4-structurizr\.dsl$''',
+]
+# nanoid's documentation example, used as a legacy deletion token in tests.
+regexes = ['''V1StGXR8_Z5jdHi6B-myT''']
