@@ -14,3 +14,5 @@ apps/frontend/public/cesium
 **/.pnpm-store
 .tanstack
 **/.tanstack
+.tmp
+**/.claude
