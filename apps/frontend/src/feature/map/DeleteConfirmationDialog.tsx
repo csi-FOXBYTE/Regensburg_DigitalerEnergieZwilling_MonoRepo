@@ -15,6 +15,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { readCapabilityLink } from '@/lib/capability-link';
 import { LoaderCircle } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -30,19 +31,7 @@ type State =
 
 type FailedOperation = 'status' | 'delete';
 
-function getRouteContext(): { locale: 'de' | 'en'; token: string | null } {
-  const path = window.location.pathname;
-  const match = /^\/(de|en)\/delete\/([^/]+)$/.exec(path);
-  const locale = /^\/de(?:\/|$)/.test(path) ? 'de' : 'en';
-  if (!match) return { locale, token: null };
-
-  try {
-    const token = decodeURIComponent(match[2]);
-    return { locale, token: token.length > 0 ? token : null };
-  } catch {
-    return { locale, token: null };
-  }
-}
+const getRouteContext = () => readCapabilityLink('delete');
 
 export default function DeleteConfirmationDialog() {
   const { t } = useTranslation('map');

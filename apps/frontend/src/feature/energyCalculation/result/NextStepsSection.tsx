@@ -11,6 +11,7 @@ import {
   trackPdfDownloaded,
 } from '@/lib/analytics/funnel';
 import { submitEnergyData } from '@/lib/api/public';
+import { capabilityLink } from '@/lib/capability-link';
 import { downloadPdf } from '@/lib/downloadPdf';
 import { $building } from '@/lib/state/building';
 import { $versionName } from '@/lib/state/calculation-config';
@@ -140,9 +141,10 @@ export function NextStepsSection() {
         if (result) {
           trackDonationCompleted();
           toast.success(t('export.submissionSuccess'));
-          const encodedToken = encodeURIComponent(result.deletionToken);
-          const deletionLink = `${window.location.origin}/${localizedLocale}/delete/${encodedToken}`;
-          const jsonLink = `${window.location.origin}/api/public/submissions/${encodedToken}/download`;
+          const { origin } = window.location;
+          const { deletionToken } = result;
+          const deletionLink = capabilityLink(origin, localizedLocale, 'delete', deletionToken);
+          const jsonLink = capabilityLink(origin, localizedLocale, 'download', deletionToken);
           await downloadPdf(
             <EnergyReportDocument
               recoveryLink={recoveryLink}

@@ -91,17 +91,24 @@ export async function getAnalyticsConfig(): Promise<AnalyticsConfig | null> {
   return { trackerUrl: url.toString(), siteId: siteId as number };
 }
 
-function submissionUrl(token: string, suffix = ''): string {
-  return `/api/public/submissions/${encodeURIComponent(token)}${suffix}`;
+// The token goes in the request body, never in the URL, so it does not end up
+// in gateway or ingress access logs.
+function postWithToken(
+  action: 'status' | 'download' | 'delete',
+  token: string,
+): Promise<Response> {
+  return fetch(`/api/public/submissions/${action}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ deletionToken: token }),
+    cache: 'no-store',
+  });
 }
 
 export async function checkSubmissionAvailability(
   token: string,
 ): Promise<void> {
-  const res = await fetch(submissionUrl(token, '/status'), {
-    method: 'GET',
-    cache: 'no-store',
-  });
+  const res = await postWithToken('status', token);
   if (res.status === 404) throw new SubmissionUnavailableError();
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
@@ -135,16 +142,32 @@ function parseDeletionReceipt(value: unknown): DeletionReceipt {
 export async function deleteSubmission(
   token: string,
 ): Promise<DeletionReceipt> {
-  const res = await fetch(submissionUrl(token), {
-    method: 'DELETE',
-    cache: 'no-store',
-  });
+  const res = await postWithToken('delete', token);
   if (res.status === 404) throw new SubmissionUnavailableError();
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
   const result = (await res.json()) as { success?: unknown; receipt?: unknown };
   if (result.success !== true) throw new Error('Malformed deletion response');
   return parseDeletionReceipt(result.receipt);
+}
+
+export type SubmissionDownload = { filename: string; json: string };
+
+export async function downloadSubmission(
+  token: string,
+): Promise<SubmissionDownload> {
+  const res = await postWithToken('download', token);
+  if (res.status === 404) throw new SubmissionUnavailableError();
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+  const result = (await res.json()) as { id?: unknown };
+  if (typeof result.id !== 'string' || result.id.length === 0) {
+    throw new Error('Malformed download response');
+  }
+  return {
+    filename: `submission-${result.id.replace(/[^A-Za-z0-9_-]/g, '_')}.json`,
+    json: JSON.stringify(result, null, 2),
+  };
 }
 
 export async function verifyDeletionReceipt(
