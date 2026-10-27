@@ -1,5 +1,6 @@
 import { createController } from "@csi-foxbyte/fastify-toab";
-import { Type } from "@sinclair/typebox";
+import { Type, type Static } from "@sinclair/typebox";
+import type { FastifyReply } from "fastify";
 import { getSubmissionsService } from "../@internals/index.js";
 import { AppError } from "../errors/app-error.js";
 import {
@@ -21,7 +22,13 @@ const submissionsPublicController = createController().rootPath(
   "/api/public/submissions",
 );
 
-const DeletionTokenParams = Type.Object({ deletionToken: Type.String() });
+// The token travels in the request body, never in the URL, so it does not end
+// up in gateway or ingress access logs.
+const DeletionTokenBody = Type.Object({
+  deletionToken: Type.String({ minLength: 1, maxLength: 256 }),
+});
+// Only for JSON links in PDFs issued before the token left the URL.
+const LegacyDeletionTokenParams = DeletionTokenBody;
 
 const catchSubmissionNotFound = (err: unknown) => {
   if (err instanceof SubmissionNotFoundError)
@@ -47,7 +54,9 @@ export const buildPublicDeletionLink = (base: string | undefined, token: string)
   if (url.username || url.password || url.search || url.hash)
     throw new Error("PUBLIC_CLIENT_BASE_URL must not contain credentials, a query, or a fragment");
 
-  url.pathname = `${url.pathname.replace(/\/+$/, "")}/delete/${encodeURIComponent(token)}`;
+  // The fragment is never sent to a server and therefore never logged.
+  url.pathname = `${url.pathname.replace(/\/+$/, "")}/delete`;
+  url.hash = encodeURIComponent(token);
   return url.toString();
 };
 
@@ -91,17 +100,57 @@ submissionsPublicController
     }
   });
 
+type SubmissionsService = Awaited<ReturnType<typeof getSubmissionsService>>;
+
+const publicDownload = async (
+  submissionsService: SubmissionsService,
+  deletionToken: string,
+  reply: FastifyReply,
+): Promise<Static<typeof PublicSubmissionDownloadOutputDto>> => {
+  try {
+    const submission = await submissionsService.getPublicDownloadByToken(deletionToken);
+    const output = {
+      id: submission.id,
+      buildingId: submission.buildingId,
+      address: submission.address,
+      longitude: submission.longitude,
+      latitude: submission.latitude,
+      ...(submission.usedConfig?.versionName
+        ? { configName: submission.usedConfig.versionName }
+        : {}),
+      createdAt: submission.createdAt.toISOString(),
+      raw: JSON.parse(submission.rawInput),
+      ngsiData: JSON.parse(submission.ngsiData),
+      deletionLink: buildPublicDeletionLink(
+        process.env.PUBLIC_CLIENT_BASE_URL,
+        deletionToken,
+      ),
+    };
+
+    reply
+      .type("application/json; charset=utf-8")
+      .header(
+        "Content-Disposition",
+        `attachment; filename="${safeDownloadFilename(submission.id)}"`,
+      );
+    return output;
+  } catch (err) {
+    catchSubmissionNotFound(err);
+    throw err;
+  }
+};
+
 submissionsPublicController
-  .addRoute("GET", "/:deletionToken/status")
-  .params(DeletionTokenParams)
+  .addRoute("POST", "/status")
+  .body(DeletionTokenBody)
   .output(PublicSubmissionStatusOutputDto)
   .handler(
-    async ({ services, params, reply }) => {
+    async ({ services, body, reply }) => {
       reply.header("Cache-Control", "no-store");
       const submissionsService = await getSubmissionsService(services);
 
       try {
-        await submissionsService.assertAvailableByToken(params.deletionToken);
+        await submissionsService.assertAvailableByToken(body.deletionToken);
         return { available: true as const };
       } catch (err) {
         catchSubmissionNotFound(err);
@@ -112,62 +161,42 @@ submissionsPublicController
   );
 
 submissionsPublicController
+  .addRoute("POST", "/download")
+  .body(DeletionTokenBody)
+  .output(PublicSubmissionDownloadOutputDto)
+  .handler(
+    async ({ services, body, reply }) => {
+      reply.header("Cache-Control", "no-store");
+      return publicDownload(await getSubmissionsService(services), body.deletionToken, reply);
+    },
+    { logLevel: "silent" },
+  );
+
+// Deprecated: keeps the JSON links in already distributed PDFs working. New
+// PDFs link to the client download page with the token in the fragment.
+submissionsPublicController
   .addRoute("GET", "/:deletionToken/download")
-  .params(DeletionTokenParams)
+  .params(LegacyDeletionTokenParams)
   .output(PublicSubmissionDownloadOutputDto)
   .handler(
     async ({ services, params, reply }) => {
       reply.header("Cache-Control", "no-store");
-      const submissionsService = await getSubmissionsService(services);
-
-      try {
-        const submission = await submissionsService.getPublicDownloadByToken(
-          params.deletionToken,
-        );
-        const output = {
-          id: submission.id,
-          buildingId: submission.buildingId,
-          address: submission.address,
-          longitude: submission.longitude,
-          latitude: submission.latitude,
-          ...(submission.usedConfig?.versionName
-            ? { configName: submission.usedConfig.versionName }
-            : {}),
-          createdAt: submission.createdAt.toISOString(),
-          raw: JSON.parse(submission.rawInput),
-          ngsiData: JSON.parse(submission.ngsiData),
-          deletionLink: buildPublicDeletionLink(
-            process.env.PUBLIC_CLIENT_BASE_URL,
-            params.deletionToken,
-          ),
-        };
-
-        reply
-          .type("application/json; charset=utf-8")
-          .header(
-            "Content-Disposition",
-            `attachment; filename="${safeDownloadFilename(submission.id)}"`,
-          );
-        return output;
-      } catch (err) {
-        catchSubmissionNotFound(err);
-        throw err;
-      }
+      return publicDownload(await getSubmissionsService(services), params.deletionToken, reply);
     },
     { logLevel: "silent" },
   );
 
 submissionsPublicController
-  .addRoute("DELETE", "/:deletionToken")
-  .params(DeletionTokenParams)
+  .addRoute("POST", "/delete")
+  .body(DeletionTokenBody)
   .output(DeletePublicOutputDto)
   .handler(
-    async ({ services, params, reply }) => {
+    async ({ services, body, reply }) => {
       reply.header("Cache-Control", "no-store");
       const submissionsService = await getSubmissionsService(services);
 
       try {
-        const receipt = await submissionsService.deleteByToken(params.deletionToken);
+        const receipt = await submissionsService.deleteByToken(body.deletionToken);
         return { success: true as const, receipt };
       } catch (err) {
         catchSubmissionNotFound(err);
