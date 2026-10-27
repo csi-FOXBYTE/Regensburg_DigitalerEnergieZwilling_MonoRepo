@@ -47,9 +47,9 @@
     },
     {
       "name": "nginx",
-      "version": "1.30.4-alpine",
+      "version": "1.30.6-alpine",
       "type": "container",
-      "bom-ref": "nginx:1.30.4-alpine",
+      "bom-ref": "nginx:1.30.6-alpine",
       "scope": "required",
       "ecosystem": "build toolchain",
       "relationship": "referenced build/runtime software",
