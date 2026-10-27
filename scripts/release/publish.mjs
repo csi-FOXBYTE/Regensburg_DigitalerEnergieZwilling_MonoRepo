@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { copyFileSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { copyFileSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { assertTagDigest, components, journalBody, manifestComponents, manifestPath, readJournal,
   selectReleaseState, validateManifest } from './core.mjs';
@@ -111,6 +111,9 @@ for (let attempt = 0; attempt < 3; attempt++) {
   git('checkout', '--detach', 'origin/main');
   mkdirSync('release', { recursive: true });
   writeFileSync(manifestPath, json);
+  // The directory holds exactly this release's SBOMs; files of retired images
+  // must not linger next to the current manifest.
+  rmSync('release/sboms', { recursive: true, force: true });
   mkdirSync('release/sboms', { recursive: true });
   for (const filename of [...Object.keys(manifest.sboms.files), 'receipt.json']) {
     copyFileSync(path.join(process.env.SBOM_DIR, filename), path.join('release/sboms', filename));
