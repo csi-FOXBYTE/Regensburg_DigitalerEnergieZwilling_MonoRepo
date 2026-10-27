@@ -77,6 +77,7 @@ Aufgaben:
 - Anzeige der freigegebenen Solarpotenziale (PV) nach Festlegung des verbindlichen Detailumfangs und der Geothermiepotenziale aus den vom Auftraggeber bereitgestellten Daten
 - Durchführung der energetischen Berechnung
 - Darstellung der Berechnungsergebnisse
+- Meldung fachlicher Ereignisse an den Tracking-Adapter (`src/lib/analytics`), der Einwilligung, Eventkatalog und Allow-Lists prüft und nur freigegebene Ereignisse an Matomo sendet
 > ⚠️ **Hinweis:** Vegetationsobjekte (Bäume) werden für die visuelle Orientierung genutzt. Die PV-Datenfreigabe liegt vor; die Solarpotenzial-Textur wird nach Festlegung des verbindlichen Darstellungsumfangs übernommen.
 
 Die Berechnung wird standardmäßig vollständig im Browser ausgeführt.
@@ -257,6 +258,9 @@ Quelle: `raw/c4-components-pipeline.puml` (Offline Pipeline View)
 
 - Nutzerdaten:  
   Public Client → Backend → PostgreSQL-Datenbank → Admin-Triage (Stadtverwaltung / Fachpersonal)
+
+- Webanalyse (nur nach Opt-in):  
+  Public Client → Tracking-Adapter → Matomo → Auswertung (Stadtverwaltung / Fachpersonal)
 
 ---
 

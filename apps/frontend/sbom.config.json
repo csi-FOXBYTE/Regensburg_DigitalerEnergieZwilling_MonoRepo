@@ -11,9 +11,9 @@
   "additionalComponents": [
     {
       "name": "node",
-      "version": "24.21.0-bookworm-slim",
+      "version": "24.22.1-bookworm-slim",
       "type": "container",
-      "bom-ref": "node:24.21.0-bookworm-slim",
+      "bom-ref": "node:24.22.1-bookworm-slim",
       "scope": "required",
       "ecosystem": "build toolchain",
       "relationship": "referenced build/runtime software",

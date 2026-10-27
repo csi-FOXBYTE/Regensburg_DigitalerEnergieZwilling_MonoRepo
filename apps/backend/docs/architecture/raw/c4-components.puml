@@ -13,6 +13,7 @@ System_Boundary(civitas, "CIVITAS/CORE-Plattform") {
   Container_Boundary(frontendPublic, "Bereitstellung des öffentlichen Frontends", "Separates Repository mit Astro SSG + nginx") {
     Component(publicBuild, "Öffentlicher Astro-Build", "Astro", "Erzeugt die öffentliche statische Anwendung")
     Component(publicClient, "Öffentlicher Client", "React und Cesium", "3D-Ansicht, Gebäudeauswahl und Bedienoberfläche der Energieberechnung")
+    Component(trackingAdapter, "Tracking-Adapter", "TypeScript (src/lib/analytics)", "Prüft Einwilligung, Eventkatalog und Allow-Lists; sendet nur freigegebene Ereignisse")
   }
 
   Container_Boundary(frontendAdmin, "Bereitstellung des Admin-Frontends", "Separates Repository mit Astro SSG + nginx") {
@@ -22,6 +23,7 @@ System_Boundary(civitas, "CIVITAS/CORE-Plattform") {
 
   Container(backendApi, "Backend-API", "Node und Fastify", "REST-APIs, Tokenvalidierung, PostgreSQL-Persistenz und Kachelweiterleitungen")
   Container(calcCore, "Berechnungskern-Modul", "JavaScript-Modulpaket", "Läuft im öffentlichen Browser-Client")
+  Container(matomo, "Matomo-Webanalyse", "Matomo 5", "Optional vom DEZ-Add-on bereitgestellt; Login über Keycloak")
 }
 
 System_Ext(geo, "Städtische Geodienste", "WMS- und WMTS-Basiskarten")
@@ -29,10 +31,11 @@ System_Ext(staticTiles, "Externer Kacheldienst", "Bei der Bereitstellung vorgege
 System_Ext(vegetation, "Vegetation (Bäume) (3D Tiles)", "Externe visuelle Ebene für die öffentliche Kartendarstellung")
 
 Rel(citizen, gateway, "nutzt das öffentliche Frontend", "HTTPS")
-Rel(admin, gateway, "nutzt das Admin-Frontend", "HTTPS")
+Rel(admin, gateway, "nutzt das Admin-Frontend und die Matomo-Auswertung", "HTTPS")
 Rel(gateway, publicClient, "leitet die öffentliche Website weiter", "GET /")
 Rel(gateway, adminClient, "leitet die Admin-Website weiter", "GET /admin")
 Rel(gateway, backendApi, "leitet APIs weiter", "GET/POST /api")
+Rel(gateway, matomo, "leitet den Matomo-Host weiter", "HTTPS")
 
 Rel(publicBuild, publicClient, "erzeugt die statische Anwendung")
 Rel(adminBuild, adminClient, "erzeugt die statische Anwendung")
@@ -44,6 +47,9 @@ Rel(publicClient, vegetation, "lädt die Vegetationsebene (nur visuell)")
 Rel(publicClient, backendApi, "lädt die Konfiguration und sendet optionale Nutzereingaben", "REST über APISIX")
 Rel(adminClient, backendApi, "triagiert Nutzereingaben und verwaltet die Konfiguration", "REST über APISIX")
 Rel(publicClient, calcCore, "importiert und führt lokal aus", "Browser-Laufzeit")
+Rel(publicClient, trackingAdapter, "meldet fachliche Ereignisse")
+Rel(trackingAdapter, backendApi, "lädt Tracker-URL und Site-ID", "GET /api/public/analytics-config")
+Rel(trackingAdapter, matomo, "sendet nach Opt-in freigegebene Ereignisse ohne Cookies", "Matomo-HTTP-Tracking-API über APISIX")
 
 note right of frontendPublic
 Eigenständiges Repository, eigener Build,

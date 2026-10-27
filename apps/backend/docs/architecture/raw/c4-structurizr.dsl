@@ -23,6 +23,10 @@ workspace "Digitaler Energie Zwilling (DEZ)" "C4-Modell der implementierten Bere
         tags "Database"
       }
       calculationCore = container "Berechnungskern" "Gemeinsames Berechnungs- und Validierungsmodul" "JavaScript-Paket"
+      matomo = container "Matomo-Webanalyse" "Optional; nimmt Tracking-Ereignisse entgegen, Login über Keycloak" "Matomo 5 + LoginOIDC"
+      matomoDatabase = container "Matomo-Datenbank" "Besuche, Ereignisse und Matomo-Konfiguration" "MariaDB" {
+        tags "Database"
+      }
     }
 
     pipeline = softwareSystem "DEZ-Offline-Datenpipeline" "Separates CIVITAS/CORE-Airflow-Add-on" {
@@ -39,6 +43,7 @@ workspace "Digitaler Energie Zwilling (DEZ)" "C4-Modell der implementierten Bere
     dez.gateway -> dez.publicFrontend "leitet die öffentliche Website weiter"
     dez.gateway -> dez.adminFrontend "leitet die Admin-Website weiter"
     dez.gateway -> dez.backend "leitet /api weiter"
+    dez.gateway -> dez.matomo "leitet den Matomo-Host weiter" "HTTPS"
     dez.publicFrontend -> dez.calculationCore "läuft im Browser"
     dez.publicFrontend -> dez.backend "lädt die Konfiguration und sendet optionale Nutzerdaten"
     dez.adminFrontend -> dez.backend "verwaltet Konfiguration und Einreichungen"
@@ -47,6 +52,10 @@ workspace "Digitaler Energie Zwilling (DEZ)" "C4-Modell der implementierten Bere
     dez.backend -> keycloak "validiert Zugriffstoken" "JWKS/RS256"
     dez.backend -> tiles "leitet /api/public/tiles/* weiter" "HTTP 3xx"
     dez.publicFrontend -> geo "lädt Basiskarten" "WMS/WMTS"
+    dez.publicFrontend -> dez.backend "lädt die Analytics-Konfiguration" "GET /api/public/analytics-config"
+    dez.publicFrontend -> dez.matomo "sendet nach Opt-in freigegebene Ereignisse" "Matomo-HTTP-Tracking-API"
+    dez.matomo -> dez.matomoDatabase "liest und schreibt" "SQL"
+    dez.matomo -> keycloak "meldet Analysenutzer an" "OIDC"
 
     lod2 -> pipeline.artifacts "liefert aktuelle LoD2-Daten einschließlich Adressen"
     solar -> pipeline.artifacts "liefert optionale Eingaben"

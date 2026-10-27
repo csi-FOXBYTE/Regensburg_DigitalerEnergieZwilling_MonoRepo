@@ -16,6 +16,7 @@ System_Boundary(civitas, "CIVITAS/CORE-Plattform") {
     Component(submissions, "Einreichungsdienst", "TypeScript", "Persistiert, prüft, weist zu, akzeptiert, lehnt ab und löscht Einreichungen")
     Component(calcCore, "Berechnungskern-Integration", "JavaScript-Modulpaket", "Validiert Konfigurationen und berechnet eingereichte Ergebnisse neu")
     Component(tilesRedirect, "Controller für Kachelweiterleitungen", "Fastify", "Leitet /api/public/tiles/* zu TILES_URL weiter")
+    Component(analyticsConfig, "Analytics-Konfiguration", "fastify-toab", "Liefert MATOMO_URL und MATOMO_SITE_ID über GET /api/public/analytics-config")
     Component(databaseService, "Datenbankdienst", "ZenStack ORM + pg", "Stellt die Verbindung zu PostgreSQL her")
     Component(telemetry, "Beobachtbarkeit", "OpenTelemetry + Pino", "Tracing und strukturierte Protokollierung")
   }
@@ -38,6 +39,7 @@ Rel(auth, idp, "lädt Prüfschlüssel", "JWKS")
 Rel(apiControllers, submissions, "delegiert Einreichungsabläufe")
 Rel(apiControllers, configService, "delegiert Konfigurationsabläufe")
 Rel(apiControllers, tilesRedirect, "delegiert Kachelanfragen")
+Rel(apiControllers, analyticsConfig, "delegiert die Analytics-Konfiguration")
 Rel(submissions, calcCore, "validiert und berechnet neu")
 Rel(configService, calcCore, "validiert Konfigurationen")
 Rel(submissions, databaseService, "liest und schreibt")
@@ -53,6 +55,12 @@ Rel(telemetry, configService, "instrumentiert")
 note right of auth
 Produktion: RS256-Prüfung über KEYCLOAK_JWKS_URI.
 Tokenquelle: X-Access-Token oder Authorization Bearer.
+end note
+
+note right of analyticsConfig
+Fehlt eine der beiden Variablen, antwortet der Endpunkt
+mit { "matomo": null }; der öffentliche Client sendet dann nichts.
+Das Backend selbst ruft Matomo nicht auf.
 end note
 
 note right of tilesRedirect
