@@ -225,9 +225,9 @@ Einreichungen werden bis [fachlich und rechtlich freigegebene Regelfrist ergänz
 
 ## 9. Löschung einer freiwilligen Einreichung
 
-Für jede gespeicherte Einreichung erzeugt das Backend einen zufälligen Lösch-Token. Der PDF-Bericht enthält den daraus erzeugten Link zur Löschseite. Die Löschung erfolgt zweistufig: Zuerst wird der zufällige Löschlink aufgerufen, anschließend muss die Löschung in einem Bestätigungsdialog ausdrücklich bestätigt werden.
+Für jede gespeicherte Einreichung erzeugt das Backend einen zufälligen Lösch-Token. Gespeichert wird nur ein daraus berechneter Prüfwert (SHA-256-Hash), nicht der Token selbst. Der PDF-Bericht enthält den Link zur Löschseite; der Token steht darin im URL-Fragment, das Ihr Browser nicht an Server überträgt. Die Löschung erfolgt zweistufig: Zuerst wird der zufällige Löschlink aufgerufen, anschließend muss die Löschung in einem Bestätigungsdialog ausdrücklich bestätigt werden.
 
-Die Löschseite wird vom Public-Frontend angezeigt. Sie prüft beim Backend ausschließlich, ob die Einreichung noch verfügbar ist, und zeigt erst dann den Bestätigungsdialog. Erst die ausdrückliche Bestätigung sendet eine Löschanfrage per HTTP `DELETE`; der vorherige Seiten- und Statusabruf verändert keine Daten. Fehlende, ungültige und bereits verwendete Tokens werden gleich behandelt. Ein zusätzlicher Adressabgleich findet nicht statt.
+Die Löschseite wird vom Public-Frontend angezeigt. Sie prüft beim Backend ausschließlich, ob die Einreichung noch verfügbar ist, und zeigt erst dann den Bestätigungsdialog. Erst die ausdrückliche Bestätigung sendet eine Löschanfrage; der vorherige Seiten- und Statusabruf verändert keine Daten. Fehlende, ungültige und bereits verwendete Tokens werden gleich behandelt. Ein zusätzlicher Adressabgleich findet nicht statt.
 
 Nach erfolgreicher Prüfung werden der Einreichungsdatensatz und daraus abgeleitete personenbezogene Gebäudedaten aus der Produktivdatenbank gelöscht. Zugehörige Sicherungskopien werden nach Ablauf des regulären Backupzyklus von [Frist ergänzen] überschrieben beziehungsweise gelöscht.
 

@@ -207,7 +207,7 @@ Ein Status `⚠️` bezeichnet eine vorhandene Umsetzung mit noch fehlendem voll
   - Das Backend protokolliert beim Start einmalig das Ereignis `analytics_config` mit dem Zustand `active`, `inactive` oder `invalid`, ohne Tracker-URL und Site-ID. `invalid` (nur eine der Variablen `MATOMO_URL`/`MATOMO_SITE_ID` gesetzt oder ungültige Site-ID) wird als `WARN` geloggt, weil die Webanalyse dann still abgeschaltet bleibt.
 - Audit-Logs für Admin-Aktionen inkl. Zeitstempel und Benutzerkennung.
 - Physische Löschungen erzeugen einen separaten, zielreferenzfreien Audit-Datensatz. Einreichungs-ID, Gebäude-ID, Adresse, Koordinaten und Lösch-Token werden dort nicht gespeichert. Die Zuordnung zu einer konkreten Löschung ist nur mit dem an den Aufrufer ausgegebenen vollständigen Löschbeleg möglich.
-- URL-Pfadparameter der Capability-Routen sind in Backend-, Gateway- und Webserver-Logs zu redigieren. Insbesondere darf der Lösch-Token nicht in zentralen Protokollen persistiert werden. Die konkrete Konfiguration der vorgelagerten CIVITAS/CORE-Komponenten ist vor Produktivsetzung zu bestätigen.
+- Der Lösch-Token darf nicht in zentralen Protokollen persistiert werden. Er wird deshalb nur im URL-Fragment und im Request-Body übertragen und in der Datenbank nur als SHA-256-Hash gespeichert. Für vor der Umstellung ausgegebene Links mit Token im Pfad schaltet nginx das Access-Log der Löschpfade ab; der Pfad der veralteten JSON-Download-Route ist in Gateway-Logs zu redigieren, bis sie entfernt wird. Die konkrete Konfiguration der vorgelagerten CIVITAS/CORE-Komponenten ist vor Produktivsetzung zu bestätigen.
 
 ---
 
