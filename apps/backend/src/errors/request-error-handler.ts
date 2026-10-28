@@ -1,18 +1,11 @@
 import type { FastifyError, FastifyReply, FastifyRequest } from "fastify";
-import { AppError, type AppErrorStatus } from "./app-error.js";
-import { recordRequestError } from "../lib/request-logging.js";
+import { AppError, httpErrorStatus, sendAppError } from "./app-error.js";
 
-const clientErrorStatus: Record<number, AppErrorStatus> = {
-  401: "UNAUTHORIZED",
-  403: "FORBIDDEN",
-  404: "NOT_FOUND",
-  405: "METHOD_NOT_ALLOWED",
-};
-
-// Errors raised by Fastify before a handler runs (schema validation, body
-// parsing). Fastify's default reply lacks `status`, which the generic ERROR_4xx
-// response schemas require, so serialization would turn every 400 into a 500.
-// Handler errors keep going through routeErrorHandler.
+// Errors raised by Fastify and its plugins outside a fastify-toab handler
+// (schema validation, body parsing, rate limit, under-pressure). Fastify's
+// default reply lacks `status`, which the generic ERROR_4xx response schemas
+// require, so serialization would turn every 400 into a 500. Handler errors
+// keep going through routeErrorHandler.
 export function toRequestAppError(error: FastifyError): AppError {
   if (error.validation || error.code === "FST_ERR_VALIDATION")
     return new AppError({ status: "BAD_REQUEST", code: 400, message: error.message });
@@ -20,23 +13,24 @@ export function toRequestAppError(error: FastifyError): AppError {
   const statusCode = error.statusCode ?? 500;
   if (statusCode >= 400 && statusCode < 500)
     return new AppError({
-      status: clientErrorStatus[statusCode] ?? "BAD_REQUEST",
+      status: httpErrorStatus[statusCode] ?? "BAD_REQUEST",
       code: statusCode,
       message: error.message,
     });
+
+  // Keep the code (e.g. 503 with Retry-After) but never a server-side message.
+  const status = httpErrorStatus[statusCode];
+  if (status && statusCode !== 500)
+    return new AppError({ status, code: statusCode, message: "Service unavailable" });
 
   return AppError.fromUnknown(error);
 }
 
 export function requestErrorHandler(
   error: FastifyError,
-  request: FastifyRequest,
+  _request: FastifyRequest,
   reply: FastifyReply,
 ): void {
-  const appError = error instanceof AppError ? error : toRequestAppError(error);
-  const includeStack = process.env.NODE_ENV === "development";
-
-  recordRequestError(request, error);
-
-  reply.code(appError.code).send(appError.toResponse(includeStack));
+  // The onError hook (request-logging.ts) has already recorded the raw error.
+  sendAppError(reply, error instanceof AppError ? error : toRequestAppError(error));
 }

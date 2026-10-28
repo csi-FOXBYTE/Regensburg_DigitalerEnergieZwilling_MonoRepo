@@ -25,6 +25,25 @@ describe("CORS allowlist", () => {
     );
   });
 
+  it("adds only the explicitly configured extra origins", () => {
+    assert.deepEqual(allowedCorsOrigins({ ...env, AUTH_CORS_ADDITIONAL_ORIGINS: "" }), [
+      "https://det.example",
+      "https://admin.det.example",
+    ]);
+    assert.deepEqual(
+      allowedCorsOrigins({
+        ...env,
+        AUTH_CORS_ADDITIONAL_ORIGINS: " https://partner.example/app , http://localhost:4321,",
+      }),
+      ["https://det.example", "https://admin.det.example", "https://partner.example", "http://localhost:4321"],
+    );
+    for (const value of ["*", "partner.example", "ftp://partner.example"])
+      assert.throws(
+        () => allowedCorsOrigins({ ...env, AUTH_CORS_ADDITIONAL_ORIGINS: value }),
+        /AUTH_CORS_ADDITIONAL_ORIGINS/,
+      );
+  });
+
   it("does not reflect foreign origins", async (t) => {
     const app = Fastify();
     await app.register(cors, { origin: createCorsOrigin(env) });

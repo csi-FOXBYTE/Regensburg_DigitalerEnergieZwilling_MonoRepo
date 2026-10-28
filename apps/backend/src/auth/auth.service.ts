@@ -10,6 +10,7 @@ import {
   type JWTVerifyGetKey,
 } from "jose";
 import { AppError } from "../errors/app-error.js";
+import { logEvent, type PrivacyLogger } from "../lib/pino.js";
 import { AccessTokenDto, type AccessToken } from "./auth.dto.js";
 
 type HeaderValue = string | string[] | undefined;
@@ -31,7 +32,8 @@ export const resolveAuthConfig = (
 ): AuthConfig => {
   const nodeEnv = env.NODE_ENV ?? "";
 
-  if (env.AUTH_INSECURE_DEV_DECODE !== undefined) {
+  // An empty value (e.g. from a deployment template) means unset: verify.
+  if (env.AUTH_INSECURE_DEV_DECODE) {
     if (env.AUTH_INSECURE_DEV_DECODE !== "true")
       throw new Error('AUTH_INSECURE_DEV_DECODE must be "true" or unset');
     if (!DEV_ENVS.has(nodeEnv))
@@ -61,6 +63,20 @@ export const resolveAuthConfig = (
 const invalidToken = (message = "Access token is invalid") =>
   new AppError({ status: "UNAUTHORIZED", code: 401, message });
 
+// Errors caused by the token itself. Anything else (JWKS timeout, Keycloak
+// unreachable, non-200 or malformed key set, TLS/DNS failure) is an outage
+// and must not look like an invalid token.
+const tokenErrors = [
+  joseErrors.JWTClaimValidationFailed,
+  joseErrors.JWTInvalid,
+  joseErrors.JWSInvalid,
+  joseErrors.JWSSignatureVerificationFailed,
+  joseErrors.JOSEAlgNotAllowed,
+  joseErrors.JOSENotSupported,
+  joseErrors.JWKSNoMatchingKey,
+  joseErrors.JWKSMultipleMatchingKeys,
+];
+
 const toAccessToken = (payload: JWTPayload): AccessToken => {
   if (!Value.Check(AccessTokenDto, payload))
     throw invalidToken("Access token payload is invalid");
@@ -72,6 +88,7 @@ export const createAccessTokenVerifier = (
   getKey: JWTVerifyGetKey | null = config.mode === "verify"
     ? createRemoteJWKSet(config.jwksUri)
     : null,
+  write: PrivacyLogger = logEvent,
 ) => {
   if (config.mode === "verify") {
     if (!getKey) throw new Error("A JWKS is required to verify access tokens");
@@ -100,7 +117,14 @@ export const createAccessTokenVerifier = (
           err.claim === "nbf"
         )
           throw invalidToken("Access token is not active yet");
-        throw invalidToken();
+        if (tokenErrors.some((type) => err instanceof type)) throw invalidToken();
+        write({ event: "auth_key_set_unavailable" });
+        throw new AppError({
+          status: "SERVICE_UNAVAILABLE",
+          code: 503,
+          message: "Access token cannot be verified right now",
+          cause: err,
+        });
       }
       return toAccessToken(payload);
     };

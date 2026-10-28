@@ -26,12 +26,9 @@ services:
       APP_BASE_URL: http://localhost:5000
       PUBLIC_CLIENT_BASE_URL: http://localhost:4321
       ADMIN_CLIENT_BASE_URL: http://localhost:5173
-      # Dev tokens (pnpm jwt:dev) are HS256 and only decoded; the Keycloak
-      # values below are required placeholders and unused in this mode.
+      # Dev tokens (pnpm jwt:dev) are HS256 and only decoded, so the
+      # KEYCLOAK_* and AUTH_EXPECTED_AUDIENCE values are not needed here.
       AUTH_INSECURE_DEV_DECODE: "true"
-      KEYCLOAK_JWKS_URI: https://placeholder.invalid/not-used-in-development
-      KEYCLOAK_ISSUER: https://placeholder.invalid/realms/dev
-      AUTH_EXPECTED_AUDIENCE: digital-energy-twin
       REDIS_HOST: redis
       VITE_API_BASE_URL: http://localhost:5000
     depends_on:
