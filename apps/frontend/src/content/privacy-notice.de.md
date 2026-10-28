@@ -1,6 +1,6 @@
 # Datenschutzhinweise für das öffentliche Sanierungstool
 
-> **Status:** Entwurf, Stand 14. Oktober 2026  
+> **Status:** Entwurf, Stand 28. Oktober 2026  
 > **Geltungsbereich:** Öffentlicher/bürgerseitiger Teil des Digitalen Energie Zwillings (DEZ)  
 > **Freigabe:** Vor Veröffentlichung durch Betreiber, zuständige Dienststelle und behördlichen Datenschutzbeauftragten zu prüfen. Eckige Klammern kennzeichnen noch zu ergänzende oder verbindlich festzulegende Angaben.
 
@@ -23,7 +23,7 @@ D.-Martin-Luther-Straße 1
 93047 Regensburg  
 Postanschrift: Postfach 11 06 43, 93019 Regensburg  
 Telefon: +49 941 507-1661  
-E-Mail: [Funktionspostfach für das Sanierungstool ergänzen]
+E-Mail: entwicklungsplanung@regensburg.de
 
 ## 2. Behördlicher Datenschutzbeauftragter
 
@@ -59,7 +59,7 @@ Beim Aufruf der Webseite sowie der zugehörigen Programmierschnittstellen könne
 - Hostname sowie technische Angaben zur Weiterleitung an interne Dienste,
 - Informationen über Fehler, Antwortzeiten und sicherheitsrelevante Ereignisse.
 
-Die Anfragen durchlaufen den Webserver des öffentlichen Clients und das Web/API-Gateway Apache APISIX. Das Backend basiert auf Node.js, Fastify und Pino. Die Anwendung wird containerisiert in der CIVITAS/CORE-Umgebung der Stadt Regensburg auf Kubernetes betrieben. Technischer Betreiber dieser Umgebung ist [zuständige Stelle der Stadt Regensburg oder beauftragter Betriebsdienstleister mit Kontaktdaten ergänzen]. Protokolle werden innerhalb der CIVITAS/CORE-Umgebung der Stadt Regensburg über [eingesetzte Log-Aggregation und Zielsystem ergänzen] zusammengeführt.
+Die Anfragen durchlaufen den Webserver des öffentlichen Clients und das Web/API-Gateway Apache APISIX. Das Backend basiert auf Node.js, Fastify und Pino. Die Anwendung wird containerisiert in der CIVITAS/CORE-Umgebung der Stadt Regensburg auf Kubernetes betrieben. Technischer Betreiber dieser Umgebung ist HYPERTEGRITY AG, Lindberghring 1, D-33142 Büren. Protokolle werden innerhalb der CIVITAS/CORE-Umgebung der Stadt Regensburg über [eingesetzte Log-Aggregation und Zielsystem ergänzen] zusammengeführt.
 
 ### Zwecke der technischen Verarbeitung
 
@@ -116,7 +116,7 @@ Bei jedem Abruf werden in der CIVITAS/CORE-Umgebung der Stadt Regensburg insbeso
 
 Zweck ist die Anzeige des Stadtgebiets, die Gebäudeauswahl und die Vorbelegung von Gebäudemerkmalen. Rechtsgrundlage ist Art. 6 Abs. 1 Buchst. e DSGVO in Verbindung mit Art. 4 Abs. 1 BayDSG.
 
-Die Verarbeitung erfolgt in der CIVITAS/CORE-Umgebung der Stadt Regensburg einschließlich des dort angebundenen S3-kompatiblen Datendienstes. Wird die Umgebung durch einen Auftragsverarbeiter betrieben, ist Empfänger [Betreiber, Anschrift, datenschutzrechtliche Rolle, Verarbeitungsort und Löschfrist ergänzen]. Für den externen TopPlusOpen-Light-Tile-Endpunkt sind zusätzlich [Betreiber von `intergeo38.bayernwolke.de`, Anschrift, datenschutzrechtliche Rolle, Verarbeitungsort, Rechtsgrundlage und Löschfrist ergänzen].
+Die Verarbeitung erfolgt in der CIVITAS/CORE-Umgebung der Stadt Regensburg einschließlich des dort angebundenen S3-kompatiblen Datendienstes. Wird die Umgebung durch einen Auftragsverarbeiter betrieben, ist Empfänger HYPERTEGRITY AG, Lindberghring 1, D-33142 Büren. Für den externen TopPlusOpen-Light-Tile-Endpunkt sind zusätzlich [Betreiber von `intergeo38.bayernwolke.de`, Anschrift, datenschutzrechtliche Rolle, Verarbeitungsort, Rechtsgrundlage und Löschfrist ergänzen].
 
 ### Datenquellen, Metadaten und Bereitstellung
 
@@ -131,7 +131,6 @@ Die Übersicht schafft Transparenz über die für Kartenansicht, Offline-Anreich
 | Geothermiepotenzial                                                              | Vom Auftraggeber bereitgestellte Potenzialdaten; ausgewertet werden ausschließlich die tatsächlich gelieferten Merkmale, Kollektor und Sonde sind nicht enthalten; Schema und Einheiten sind noch zu bestätigen | [Originalherausgeber und Nutzungsrecht ergänzen]                                                                                                                                                                                                                                                                                                                                                                    | [Turnus und Datenstand ergänzen]; technische Integration vorhanden                                                                                                         | Separat gelieferter Link beziehungsweise Archiv; Format, dauerhafte Bezugs-URL und internen Objektpfad ergänzen                                                                                                                                                                                                      |
 | Solarpotenzial (PV)                                                              | Vorgesehene Solarattribute und Textur für Dachflächen; Umfang und Detailgrad noch in Klärung                                                                                                                    | [Originalherausgeber und Nutzungsrecht ergänzen]                                                                                                                                                                                                                                                                                                                                                                    | [Turnus und Datenstand ergänzen]; noch nicht implementiert                                                                                                                 | Separat gelieferter Link beziehungsweise Archiv; Format, dauerhafte Bezugs-URL und internen Objektpfad ergänzen                                                                                                                                                                                                      |
 | Kostendaten                                                                      | Vorgesehene Referenzwerte für Investitionskosten und Wirtschaftlichkeit                                                                                                                                         | [Konkreten Datensatz, Herausgeber und Lizenz ergänzen]                                                                                                                                                                                                                                                                                                                                                              | Turnus offen; noch nicht vorliegend                                                                                                                                        | Keine Distribution vorhanden                                                                                                                                                                                                                                                                                         |
-| Postleitzahl-Referenz                                                            | Vorgesehene Referenz zur Prüfung oder Ergänzung von Postleitzahlen; von den bereits in LoD2/CityJSON enthaltenen Adressobjekten zu unterscheiden                                                                | [Konkreten Datensatz, Herausgeber und Lizenz ergänzen]                                                                                                                                                                                                                                                                                                                                                              | Turnus offen; noch nicht vorliegend                                                                                                                                        | Keine Distribution vorhanden                                                                                                                                                                                                                                                                                         |
 | DEZ-Berechnungskonfiguration                                                     | Versionierte Kataloge, Grenzwerte, Faktoren und Regeln für die energetische Berechnung                                                                                                                          | Stadt Regensburg; [Lizenz beziehungsweise Nutzungsbedingungen ergänzen]                                                                                                                                                                                                                                                                                                                                             | Bei fachlicher Freigabe einer neuen Version                                                                                                                                | JSON über `GET /api/public/config/active`                                                                                                                                                                                                                                                                            |
 
 Für das DCAT-AP.de-Mapping gilt: Titel wird als `dct:title`, Beschreibung als `dct:description`, Herausgeber als `dct:publisher` und Lizenz als `dct:license` geführt. `dct:accrualPeriodicity` beschreibt den Quellturnus, `dct:modified` den tatsächlich verwendeten Stand. Bereitstellungen werden als `dcat:Distribution` mit den erforderlichen Zugriffs-, Format- und Lizenzangaben modelliert. Der betriebliche Nutzungsstatus im DEZ ist kein Ersatz für `dcatap:availability`.
@@ -247,9 +246,7 @@ Dabei werden insbesondere IP-Adresse, Zeitpunkt, Challenge-Daten, Prüfergebnis 
 
 ## 12. Webanalyse mit Matomo
 
-> **Aktivierung ausstehend:** Die Webanalyse ist technisch umgesetzt, wird aber nur angeboten, wenn für die Umgebung eine Matomo-Instanz konfiguriert ist. Andernfalls erscheint sie nicht in den Datenschutzeinstellungen und es werden keine Analyseereignisse übermittelt. Vor der Aktivierung müssen Betrieb, Zuständigkeit sowie die unten offenen Angaben festgelegt werden. [Hinweis nach Aktivierung entfernen.]
-
-Ist die Webanalyse aktiviert, verwenden wir Matomo zur statistischen Auswertung der Nutzung des Sanierungstools. Die Matomo-Instanz wird unter [interne Matomo-URL ergänzen] in der CIVITAS/CORE-Umgebung der Stadt Regensburg betrieben. Zuständig ist [zuständige Stelle der Stadt Regensburg oder beauftragter Betreiber ergänzen]. Eine Übermittlung der Analysedaten an Matomo Cloud findet nicht statt.
+Wir verwenden Matomo zur statistischen Auswertung der Nutzung des Sanierungstools. Die Matomo-Instanz wird unter `https://matomo.det.[Domain des Sanierungstools ergänzen]` als eigener Dienst mit eigener Datenbank in der CIVITAS/CORE-Umgebung der Stadt Regensburg betrieben. Technischer Betreiber ist der in Abschnitt 4 genannte Betreiber dieser Umgebung. Fachlich zuständig ist [zuständige Stelle der Stadt Regensburg ergänzen]. Eine Übermittlung der Analysedaten an Matomo Cloud findet nicht statt.
 
 ### Einwilligung und Widerruf
 
@@ -280,20 +277,36 @@ Gebäudetypen und Sanierungsmaßnahmen werden nur anhand festgelegter Kategorien
 
 ### Verarbeitung in Matomo
 
-Die Matomo-Instanz ist zum Start nach der CNIL-Compliance-Richtlinie von Matomo für datensparsame Reichweitenmessung konfiguriert. Es handelt sich um Anfangseinstellungen, die sich künftig ändern können; wesentliche Änderungen werden in diesen Datenschutzhinweisen nachgetragen. Derzeit gilt:
+Die Matomo-Instanz ist datensparsam konfiguriert. Es handelt sich um Anfangseinstellungen, die sich künftig ändern können; wesentliche Änderungen werden in diesen Datenschutzhinweisen nachgetragen. Derzeit speichert Matomo je Sitzung:
 
-- Die IP-Adresse wird vor der Speicherung vollständig maskiert (bei IPv4 0.0.0.0) und auch für die weitere Auswertung nur maskiert verwendet. Eine Geolokalisierung findet nicht statt.
-- Referrer werden nicht gespeichert.
-- Von Browser und Betriebssystem wird nur die Hauptversion gespeichert; Gerätemodell und Bildschirmauflösung werden nicht erfasst.
-- Matomo setzt keine Cookies.
-- Zusammengehörige Ereignisse werden über die zufällige Session-ID zugeordnet.
-- Das Besucher-Log und Besucherprofile sind deaktiviert; einzelne Sitzungen sind in der Matomo-Oberfläche nicht einsehbar. Zahlen in Berichten zu Teilmengen werden auf Zehnerwerte gerundet.
+- die zufällige Session-ID, über die zusammengehörige Ereignisse zugeordnet werden,
+- die vollständig maskierte IP-Adresse,
+- die Spracheinstellung des Browsers,
+- Zeitpunkt des ersten und des letzten Ereignisses, Anzahl der Ereignisse und die daraus berechnete Sitzungsdauer,
+- eine von Matomo aus technischen Merkmalen der Anfrage gebildete Prüfsumme zur internen Zuordnung von Anfragen zu einem Besuch.
+
+Je Ereignis speichert Matomo:
+
+- die Ereigniskategorie „Sanierungstool“ und die Ereignisart, zum Beispiel „Abschnitt abgeschlossen“ oder „PDF-Bericht heruntergeladen“,
+- soweit vorgesehen den zugehörigen Kategorieschlüssel für Abschnitt, Gebäudetyp, Sanierungsmaßnahme, Dokumenttyp oder Kontaktweg,
+- die Startadresse der gewählten Sprachversion als Seitenadresse,
+- den Zeitpunkt des Eingangs bei Matomo.
+
+Die Browserkennung (User-Agent) wird beim Eingang einer Anfrage nur zur Erkennung automatisierter Zugriffe und zur Bildung der genannten Prüfsumme ausgewertet. Gerätetyp, Gerätehersteller und -modell, Betriebssystem, Browser, Bildschirmauflösung und Browser-Plugins werden nicht gespeichert. Referrer werden nicht gespeichert, eine Geolokalisierung findet nicht statt und Matomo setzt keine Cookies.
+
+Berechtigte Nutzer der Matomo-Oberfläche sehen neben aggregierten Berichten auch den Ablauf einzelner Sitzungen. Diese sind nur über die zufällige Session-ID gekennzeichnet.
+
+Ihre IP-Adresse wird beim Aufruf von Matomo vom Gateway APISIX weitergeleitet (Abschnitt 4). Matomo maskiert sie vor jeder Speicherung vollständig (bei IPv4 0.0.0.0) und verwendet auch für die weitere Auswertung nur die maskierte Adresse. Das Zugriffsprotokoll der Matomo-Instanz enthält Ihre IP-Adresse nicht, sondern nur die interne Adresse des vorgelagerten Gateways, sowie keine URL-Parameter, keinen Referrer und keine Browserkennung.
 
 Technisch erforderliche IP-Verarbeitungen auf Ebene von Webserver und APISIX richten sich nach Abschnitt 4.
 
 ### Speicherdauer, Zugriff und Rechtsgrundlage
 
-Die einzelnen Ereignisse einschließlich Session-ID werden nach den derzeitigen Einstellungen nach 180 Tagen gelöscht. Daraus erstellte aggregierte Berichte ohne Bezug zu einzelnen Sitzungen werden für [Aufbewahrungsfrist der Berichte ergänzen] gespeichert. Zugriff erhalten [berechtigte Rollen und Berichtsempfänger ergänzen].
+Die einzelnen Ereignisse einschließlich Session-ID werden nach [Löschfrist der Rohdaten festlegen, in Matomo einstellen und ergänzen] gelöscht. Daraus erstellte aggregierte Berichte ohne Bezug zu einzelnen Sitzungen werden für [Aufbewahrungsfrist der Berichte ergänzen] gespeichert.
+
+Die Matomo-Datenbank wird jede Nacht innerhalb der CIVITAS/CORE-Umgebung der Stadt Regensburg gesichert. Sicherungskopien werden in der Regel nach 14 Tagen gelöscht. Bereits in Matomo gelöschte Daten können bis dahin noch in Sicherungskopien enthalten sein.
+
+Zugriff auf Matomo erhalten nur Personen, die sich über die zentrale Benutzerverwaltung der CIVITAS/CORE-Umgebung anmelden und denen ausdrücklich Lese- oder Verwaltungsrechte für Matomo zugewiesen sind. Für Notfälle besteht zusätzlich ein gesondert gesichertes Administratorkonto. Berechtigt sind [berechtigte Stellen und Berichtsempfänger ergänzen].
 
 Rechtsgrundlagen sind Art. 6 Abs. 1 Buchst. a DSGVO sowie für die Speicherung der Session-ID im Browser § 25 Abs. 1 TDDDG. Ein Widerruf wirkt für die Zukunft und berührt nicht die Rechtmäßigkeit der bis dahin erfolgten Verarbeitung.
 
@@ -317,19 +330,14 @@ Innerhalb der Stadt Regensburg erhalten nur Stellen und Beschäftigte Zugriff, d
 
 Als externe Empfänger beziehungsweise Auftragsverarbeiter kommen nach der aktuellen Architektur in Betracht:
 
-- [zuständige Stelle der Stadt Regensburg oder vollständiger Name und Anschrift des beauftragten CIVITAS/CORE-Betreibers einschließlich datenschutzrechtlicher Rolle],
-- [vollständiger Name und Anschrift des Entwicklungs- beziehungsweise Betriebsdienstleisters einschließlich vertraglicher Rolle],
-- [Betreiber des S3-kompatiblen Datendienstes der Stadt Regensburg einschließlich Hostingort],
-- [Betreiber und Technologie der Produktivdatenbank der Stadt Regensburg],
-- [Anbieter beziehungsweise Betreiber der Kubernetes-, Backup- und Log-Plattform der Stadt Regensburg],
-- [vollständiger Name, Anschrift und datenschutzrechtliche Rolle des Betreibers von `intergeo38.bayernwolke.de` als Bereitsteller der TopPlusOpen-Light-Terrain-Textur],
-- [Betreiber der Matomo-Instanz innerhalb der CIVITAS/CORE-Umgebung der Stadt Regensburg].
+- HYPERTEGRITY AG Lindberghring 1 D-33142 Büren,
+- [vollständiger Name, Anschrift und datenschutzrechtliche Rolle des Betreibers von `intergeo38.bayernwolke.de` als Bereitsteller der TopPlusOpen-Light-Terrain-Textur].
 
 Eine Offenlegung kann außerdem erfolgen, wenn die Stadt Regensburg hierzu gesetzlich verpflichtet ist. Eine Übermittlung freiwilliger Einreichungen an Stellio findet nicht statt.
 
 ## 16. Datenübermittlungen in Drittländer
 
-Die DEZ-Kernkomponenten, die Produktivdatenbank, der S3-kompatible Datendienst, Sicherungskopien und die zentralen Protokolle werden in der CIVITAS/CORE-Umgebung der Stadt Regensburg verarbeitet. [Produktive Hostingregionen und Backupstandorte bestätigen.]
+Die DEZ-Kernkomponenten, die Produktivdatenbank, der S3-kompatible Datendienst, die Matomo-Instanz, Sicherungskopien und die zentralen Protokolle werden in der CIVITAS/CORE-Umgebung der Stadt Regensburg verarbeitet. [Produktive Hostingregionen und Backupstandorte bestätigen.]
 
 Eine Übermittlung personenbezogener Daten in Staaten außerhalb der Europäischen Union oder des Europäischen Wirtschaftsraums findet für die DEZ-Kernfunktionen nicht statt. Für den externen Tile-Endpunkt auf `intergeo38.bayernwolke.de` und andere Zusatzdienste ist ein möglicher Drittlandbezug noch zu bestätigen; gegebenenfalls werden [Empfänger, Staat, Rechtsgrundlage nach Art. 44 ff. DSGVO und geeignete Garantien ergänzen].
 
@@ -367,7 +375,7 @@ Internet: https://www.datenschutz-bayern.de/
 
 ## 20. Sicherheit
 
-Externe Zugriffe werden verschlüsselt über HTTPS bereitgestellt. Der öffentliche Bereich und der Verwaltungsbereich sind technisch getrennt. Administrative Zugriffe werden über Keycloak und APISIX geschützt; im öffentlichen Bereich ist keine Anmeldung erforderlich. Die Datenbank ist nicht direkt aus dem Internet erreichbar.
+Externe Zugriffe werden verschlüsselt über HTTPS bereitgestellt. Der öffentliche Bereich und der Verwaltungsbereich sind technisch getrennt. Administrative Zugriffe werden über die zentrale Benutzerverwaltung der CIVITAS/CORE-Umgebung und das Gateway APISIX geschützt; im öffentlichen Bereich ist keine Anmeldung erforderlich. Die Datenbank ist nicht direkt aus dem Internet erreichbar.
 
 Trotz technischer und organisatorischer Schutzmaßnahmen kann eine Datenübertragung über das Internet nie vollständig risikofrei sein.
 
@@ -375,4 +383,4 @@ Trotz technischer und organisatorischer Schutzmaßnahmen kann eine Datenübertra
 
 Diese Datenschutzhinweise werden angepasst, wenn sich Funktionen, Datenflüsse, Empfänger oder Rechtsgrundlagen ändern.
 
-Stand: 14. Oktober 2026
+Stand: 28. Oktober 2026
