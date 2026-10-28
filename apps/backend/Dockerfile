@@ -23,7 +23,10 @@ ARG SOURCE_COMMIT=local
 RUN node scripts/artifact-sbom.mjs backend
 RUN pnpm --filter ./apps/backend deploy --prod --legacy /workspace/.deploy/backend
 FROM ${RUNTIME_BASE_IMAGE} AS production
-RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates openssl && rm -rf /var/lib/apt/lists/*
+# The runtime only needs node; npm and corepack from the base image are unused
+# and bring their own vulnerable dependencies (e.g. undici, brace-expansion).
+RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates openssl && rm -rf /var/lib/apt/lists/* \
+  && rm -rf /usr/local/lib/node_modules/npm /usr/local/lib/node_modules/corepack /usr/local/bin/npm /usr/local/bin/npx /usr/local/bin/corepack
 ENV NODE_ENV=production HOSTNAME=0.0.0.0 PORT=5000
 WORKDIR /app
 COPY --from=build --chown=node:node /workspace/.deploy/backend/ ./
