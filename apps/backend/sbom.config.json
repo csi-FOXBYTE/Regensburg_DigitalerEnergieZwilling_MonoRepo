@@ -94,9 +94,9 @@
     },
     {
       "name": "node",
-      "version": "24.22.1-bookworm-slim",
+      "version": "24.22.2-bookworm-slim",
       "type": "container",
-      "bom-ref": "node:24.22.1-bookworm-slim",
+      "bom-ref": "node:24.22.2-bookworm-slim",
       "scope": "required",
       "ecosystem": "build toolchain",
       "relationship": "referenced build/runtime software",

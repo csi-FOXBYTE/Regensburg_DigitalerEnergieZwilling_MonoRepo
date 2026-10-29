@@ -125,7 +125,7 @@ Aufgaben:
 
 ### Auth Middleware
 
-Die Auth Middleware validiert produktiv das RS256-signierte Access Token unabhängig von der vorgelagerten APISIX-Prüfung gegen die über `KEYCLOAK_JWKS_URI` konfigurierte JWKS-Quelle und wertet die Rollen aus dem konfigurierten Resource-Access-Client aus. Im Code werden die Rollen `manager`, `maintainer` und `admin` verwendet.
+Die Auth Middleware validiert produktiv das RS256-signierte Access Token unabhängig von der vorgelagerten APISIX-Prüfung gegen die über `KEYCLOAK_JWKS_URI` (nur HTTPS) konfigurierte JWKS-Quelle, prüft Issuer (`KEYCLOAK_ISSUER`), Audience (`AUTH_EXPECTED_AUDIENCE`), Token-Typ `Bearer` sowie die Pflicht-Claims `exp`, `iat` und `sub` und wertet die Rollen aus dem konfigurierten Resource-Access-Client aus. Im Code werden die Rollen `manager`, `maintainer` und `admin` verwendet.
 
 Aufgaben:
 - Annahme des Tokens aus `X-Access-Token` oder `Authorization: Bearer`

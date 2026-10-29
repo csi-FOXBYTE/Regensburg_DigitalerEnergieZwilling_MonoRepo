@@ -26,7 +26,9 @@ services:
       APP_BASE_URL: http://localhost:5000
       PUBLIC_CLIENT_BASE_URL: http://localhost:4321
       ADMIN_CLIENT_BASE_URL: http://localhost:5173
-      KEYCLOAK_JWKS_URI: http://placeholder/not-used-in-development
+      # Dev tokens (pnpm jwt:dev) are HS256 and only decoded, so the
+      # KEYCLOAK_* and AUTH_EXPECTED_AUDIENCE values are not needed here.
+      AUTH_INSECURE_DEV_DECODE: "true"
       REDIS_HOST: redis
       VITE_API_BASE_URL: http://localhost:5000
     depends_on:

@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export const SelectionSchema = z.object({
   value: z.string(),
-  localization: z.record(z.string()),
+  localization: z.record(z.string(), z.string()),
 });
 export type Selection = z.infer<typeof SelectionSchema>;
 
