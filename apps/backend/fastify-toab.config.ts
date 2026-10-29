@@ -43,15 +43,21 @@ export default defineConfig({
     ADMIN_CLIENT_BASE_URL: Type.String(),
     PORT: Type.Optional(Type.String()),
     NODE_ENV: Type.Optional(Type.String()),
-    // Must use HTTPS; checked with the issuer and audience in auth.service.ts.
-    KEYCLOAK_JWKS_URI: Type.String({ minLength: 1 }),
-    KEYCLOAK_ISSUER: Type.String({ minLength: 1 }),
-    AUTH_EXPECTED_AUDIENCE: Type.String({ minLength: 1 }),
+    // Comma-separated origins allowed in addition to the two client apps.
+    AUTH_CORS_ADDITIONAL_ORIGINS: Type.Optional(Type.String()),
+    // Required unless AUTH_INSECURE_DEV_DECODE is set. resolveAuthConfig() in
+    // auth.service.ts enforces them (and HTTPS) when the auth service starts.
+    KEYCLOAK_JWKS_URI: Type.Optional(Type.String()),
+    KEYCLOAK_ISSUER: Type.Optional(Type.String()),
+    AUTH_EXPECTED_AUDIENCE: Type.Optional(Type.String()),
     // Local development only; rejected at startup outside development/test.
-    AUTH_INSECURE_DEV_DECODE: Type.Optional(Type.String({ pattern: "^true$" })),
+    AUTH_INSECURE_DEV_DECODE: Type.Optional(Type.String()),
   }),
   onRouteError: routeErrorHandler,
-  // onReady runs after fastify.ready(), when error handlers are locked.
+  // onReady runs after fastify.ready(), when error handlers are locked. API
+  // routes are registered after onPreStart and use this handler; plugin-owned
+  // routes registered before it (/health, CORS preflight) keep their own
+  // documented error schemas.
   onPreStart: async (fastify) => {
     fastify.setErrorHandler(requestErrorHandler);
     // Fail at startup instead of on the first cross-origin request.
@@ -78,6 +84,8 @@ export default defineConfig({
     // Disabled in development by fastify-toab; elsewhere never reflect Origin.
     cors: {
       origin: createCorsOrigin(),
+      // fastify-toab's default list lacks X-Access-Token, which auth.service.ts accepts.
+      allowedHeaders: ["Content-Type", "Authorization", "X-Access-Token", "X-Requested-With"],
     },
     underPressure: {
       exposeStatusRoute: "/health",

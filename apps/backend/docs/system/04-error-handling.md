@@ -19,9 +19,11 @@ Außerhalb von Development wird kein Stacktrace an Clients ausgeliefert.
 
 ## Quelle der Fehlerbehandlung
 
-- `AppError`: `src/errors/app-error.ts`
-- globaler Handler über `fastify-toab` `onRouteError`: `src/errors/route-error-handler.ts`
-- Produktive JWT/OIDC-Validierung und Routenschutz erfolgen vorgelagert in APISIX; Backend-Auth-Fehler betreffen Header-/Claim-Auswertung innerhalb gateway-gerouteter Requests.
+- `AppError` und gemeinsames Senden (`sendAppError`): `src/errors/app-error.ts`
+- Fehler aus Controllern, Services und Middlewares: `fastify-toab` `onRouteError` → `src/errors/route-error-handler.ts`
+- Fehler, die Fastify oder Plugins vor dem Handler auslösen (Schema-Validierung, Body-Parsing, `415`, `413`, Rate Limit `429`, Under-Pressure `503`): Fastify-`setErrorHandler` → `src/errors/request-error-handler.ts`. Er wird in `onPreStart` gesetzt und gilt damit für alle API-Routen; die vorher registrierten Plugin-Routen (`/health`, CORS-Preflight) behalten ihr eigenes Fehlerschema.
+- APISIX prüft Token vorgelagert; das Backend verifiziert Signatur und Claims zusätzlich selbst (`src/auth/auth.service.ts`).
+- Statuscodes aus Framework-/Plugin-Fehlern bleiben erhalten. `5xx`-Antworten enthalten nie die interne Fehlermeldung.
 
 ## Status-Typen (AppErrorStatus)
 
@@ -30,7 +32,13 @@ Außerhalb von Development wird kein Stacktrace an Clients ausgeliefert.
 - `FORBIDDEN`
 - `NOT_FOUND`
 - `METHOD_NOT_ALLOWED`
+- `PAYLOAD_TOO_LARGE` (`413`)
+- `UNSUPPORTED_MEDIA_TYPE` (`415`)
+- `TOO_MANY_REQUESTS` (`429`, Header `Retry-After` bleibt erhalten)
 - `INTERNAL_ERROR`
+- `SERVICE_UNAVAILABLE` (`503`, Header `Retry-After` bleibt erhalten)
+
+Andere `4xx`-Codes behalten ihren Code und erhalten den Status `BAD_REQUEST`.
 
 ## Aktuell implementierte Fehlerarten
 
@@ -40,11 +48,13 @@ Außerhalb von Development wird kein Stacktrace an Clients ausgeliefert.
 - `UNAUTHORIZED` / `401` / `Authorization header must be a Bearer token`
 - `UNAUTHORIZED` / `401` / `Access token is missing`
 
-### Token-Claims / lokale Dev-Middleware
+### Token-Prüfung
 
+- `UNAUTHORIZED` / `401` / `Access token is invalid` (Signatur, `iss`, `aud`, Token-Typ, Algorithmus, unbekannter Schlüssel)
 - `UNAUTHORIZED` / `401` / `Access token payload is invalid`
 - `UNAUTHORIZED` / `401` / `Access token has expired`
 - `UNAUTHORIZED` / `401` / `Access token is not active yet`
+- `SERVICE_UNAVAILABLE` / `503` / `Access token cannot be verified right now` (JWKS nicht erreichbar oder ungültig; Log-Event `auth_key_set_unavailable`)
 
 ### Fallback (unbekannte Fehler)
 

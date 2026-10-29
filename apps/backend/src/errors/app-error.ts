@@ -1,10 +1,31 @@
+import type { FastifyReply } from "fastify";
+
 export type AppErrorStatus =
   | "BAD_REQUEST"
   | "UNAUTHORIZED"
   | "FORBIDDEN"
   | "NOT_FOUND"
   | "METHOD_NOT_ALLOWED"
-  | "INTERNAL_ERROR";
+  | "PAYLOAD_TOO_LARGE"
+  | "UNSUPPORTED_MEDIA_TYPE"
+  | "TOO_MANY_REQUESTS"
+  | "INTERNAL_ERROR"
+  | "SERVICE_UNAVAILABLE";
+
+// HTTP status codes that framework and plugin errors (rate limit, body limit,
+// under-pressure) carry, mapped to the status clients branch on.
+export const httpErrorStatus: Readonly<Record<number, AppErrorStatus>> = {
+  400: "BAD_REQUEST",
+  401: "UNAUTHORIZED",
+  403: "FORBIDDEN",
+  404: "NOT_FOUND",
+  405: "METHOD_NOT_ALLOWED",
+  413: "PAYLOAD_TOO_LARGE",
+  415: "UNSUPPORTED_MEDIA_TYPE",
+  429: "TOO_MANY_REQUESTS",
+  500: "INTERNAL_ERROR",
+  503: "SERVICE_UNAVAILABLE",
+};
 
 type AppErrorInput = {
   status: AppErrorStatus;
@@ -52,4 +73,9 @@ export class AppError extends Error {
       cause: error,
     });
   }
+}
+
+export function sendAppError(reply: FastifyReply, error: AppError): void {
+  const includeStack = process.env.NODE_ENV === "development";
+  reply.code(error.code).send(error.toResponse(includeStack));
 }

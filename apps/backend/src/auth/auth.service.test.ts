@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { before, describe, it } from "node:test";
 import {
   createLocalJWKSet,
+  errors as joseErrors,
   exportJWK,
   generateKeyPair,
   SignJWT,
@@ -130,6 +131,8 @@ describe("auth configuration", () => {
       () => resolveAuthConfig({ NODE_ENV: "development", AUTH_INSECURE_DEV_DECODE: "1" }),
       /must be "true"/,
     );
+    // An empty value from a deployment template keeps verification on.
+    assert.equal(resolveAuthConfig({ ...productionEnv, AUTH_INSECURE_DEV_DECODE: "" }).mode, "verify");
   });
 
   it("refuses to start the service with the dev decode in production", async (t) => {
@@ -174,6 +177,34 @@ describe("access token verification", () => {
     assert.equal(token.sub, "user-1");
     assert.equal(token.email, "admin@example.de");
     assert.deepEqual(token.resource_access?.[audience]?.roles, ["Administrator"]);
+  });
+
+  it("accepts the aud array that Keycloak's audience mapper produces", async () => {
+    // Without the mapper Keycloak only sets aud "account" (rejected below).
+    const token = await verify()(await signToken({ aud: [audience, "account"] }));
+    assert.equal(token.sub, "user-1");
+  });
+
+  it("reports an unreachable key set as 503 instead of an invalid token", async () => {
+    const events: unknown[] = [];
+    const outages = [
+      new joseErrors.JWKSTimeout(),
+      new joseErrors.JOSEError("Expected 200 OK from the JSON Web Key Set HTTP response"),
+      new TypeError("fetch failed"),
+    ];
+    for (const outage of outages) {
+      const failingKeySet: JWTVerifyGetKey = async () => { throw outage; };
+      const verifyWithOutage = createAccessTokenVerifier(verifyConfig, failingKeySet, (event) => events.push(event));
+      await assert.rejects(
+        verifyWithOutage(await signToken()),
+        (error: unknown) =>
+          error instanceof AppError && error.code === 503 && error.status === "SERVICE_UNAVAILABLE",
+      );
+    }
+    assert.deepEqual(events, outages.map(() => ({ event: "auth_key_set_unavailable" })));
+
+    const unknownKey: JWTVerifyGetKey = async () => { throw new joseErrors.JWKSNoMatchingKey(); };
+    await rejectsUnauthorized(createAccessTokenVerifier(verifyConfig, unknownKey, () => {})(await signToken()));
   });
 
   it("rejects a token signed with another key", async () => {
