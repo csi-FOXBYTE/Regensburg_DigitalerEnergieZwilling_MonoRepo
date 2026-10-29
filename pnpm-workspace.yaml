@@ -17,3 +17,6 @@ minimumReleaseAgeExclude:
 overrides:
   '@types/react': 19.2.17
   '@types/react-dom': 19.2.3
+  # @mdxeditor/editor 3.x, orval and @hey-api pin js-yaml 4.1.1 exactly;
+  # 4.3.2 fixes the merge-key DoS advisories (F-STAT-019).
+  'js-yaml@>=4.0.0 <4.3.2': ^4.3.2
