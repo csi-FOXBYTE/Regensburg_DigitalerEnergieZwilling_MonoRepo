@@ -27,7 +27,7 @@ function checkYearBands(bands: RangeBands<any>, rangeKeys: RangeKey[], path: str
 export function validateConfig(data: unknown): ValidationResult<DETConfig> {
   const result = DETConfigSchema.safeParse(data);
   if (!result.success) {
-    return { success: false, issues: mapZodError(result.error) };
+    return { success: false, issues: mapZodError(result.error, data) };
   }
 
   const config = result.data;

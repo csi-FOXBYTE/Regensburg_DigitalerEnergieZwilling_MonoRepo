@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
-ARG NODE_BASE_IMAGE=node:24.22.1-bookworm-slim
-ARG RUNTIME_BASE_IMAGE=node:24.22.1-bookworm-slim
+ARG NODE_BASE_IMAGE=node:24.22.2-bookworm-slim
+ARG RUNTIME_BASE_IMAGE=node:24.22.2-bookworm-slim
 FROM ${NODE_BASE_IMAGE} AS build
 ARG RELEASE_REFRESH=0
 RUN echo "External dependency refresh: ${RELEASE_REFRESH}" && apt-get update && apt-get install -y --no-install-recommends git ca-certificates openssl python3 make g++ && rm -rf /var/lib/apt/lists/*
@@ -23,7 +23,10 @@ ARG SOURCE_COMMIT=local
 RUN node scripts/artifact-sbom.mjs backend
 RUN pnpm --filter ./apps/backend deploy --prod --legacy /workspace/.deploy/backend
 FROM ${RUNTIME_BASE_IMAGE} AS production
-RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates openssl && rm -rf /var/lib/apt/lists/*
+# The server and the migration init container (node_modules/.bin/zenstack) run
+# without npm, whose bundled dependencies lag behind their security fixes.
+RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates openssl && rm -rf /var/lib/apt/lists/* \
+  && rm -rf /usr/local/lib/node_modules/npm /usr/local/bin/npm /usr/local/bin/npx
 ENV NODE_ENV=production HOSTNAME=0.0.0.0 PORT=5000
 WORKDIR /app
 COPY --from=build --chown=node:node /workspace/.deploy/backend/ ./

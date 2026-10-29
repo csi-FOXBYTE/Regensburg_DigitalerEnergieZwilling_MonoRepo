@@ -4,15 +4,138 @@ on:
     branches: [main]
   pull_request:
   workflow_dispatch:
-permissions:
-  contents: read
+# Every job declares the permissions it needs.
+permissions: {}
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
+# Scanner images are pinned in .github/scanners/Dockerfile.
 jobs:
+  # The app builds run in image-scan, through the release Dockerfiles.
   check:
+    name: Typecheck, tests and lint
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    permissions:
+      contents: read
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
       - uses: ./.github/actions/check
+      - run: pnpm -r run lint
+
+  dependency-audit:
+    name: Dependency audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup-workspace
+        with:
+          install: "false"
+      - name: Runtime dependencies, high and critical
+        run: pnpm audit --prod --audit-level high
+      - name: All dependencies including build tools, critical
+        if: ${{ !cancelled() }}
+        run: pnpm audit --audit-level critical
+
+  semgrep:
+    name: Static analysis (semgrep)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+      # The registry packs change without notice, so the rules come from the
+      # semgrep-rules commit pinned in rules.lock (update-rules.sh). Secrets
+      # are left to gitleaks and trivy.
+      - name: Fetch the pinned rules
+        run: |
+          repository=$(awk '$1 == "repository" { print $2 }' .github/semgrep/rules.lock)
+          commit=$(awk '$1 == "commit" { print $2 }' .github/semgrep/rules.lock)
+          git init -q "$RUNNER_TEMP/semgrep-rules"
+          git -C "$RUNNER_TEMP/semgrep-rules" fetch -q --depth 1 "$repository" "$commit"
+          git -C "$RUNNER_TEMP/semgrep-rules" checkout -q FETCH_HEAD
+      - name: Scan tracked files
+        run: |
+          image=$(.github/scanners/image.sh semgrep)
+          docker run --rm -e SEMGREP_ENABLE_VERSION_CHECK=0 \
+            -v "$GITHUB_WORKSPACE:/src:ro" -v "$RUNNER_TEMP/semgrep-rules:/rules:ro" -w /src "$image" \
+            sh -c "git config --global --add safe.directory /src &&
+            python3 .github/semgrep/select-rules.py /rules .github/semgrep/rules.lock /semgrep-rules.yaml &&
+            semgrep scan --metrics=off --error --severity WARNING --severity ERROR --config /semgrep-rules.yaml"
+
+  gitleaks:
+    name: Secret scan (gitleaks)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      # Pull requests scan their own commits and pushes the pushed range, so an
+      # old finding elsewhere in the history does not block unrelated work. A
+      # manual run, or a push whose previous commit is unknown, scans everything.
+      - name: Scan the commits
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          PR_BASE: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD: ${{ github.event.pull_request.head.sha }}
+          PUSH_BEFORE: ${{ github.event.before }}
+        run: |
+          range=
+          case "$EVENT_NAME" in
+            pull_request) range="$PR_BASE..$PR_HEAD" ;;
+            push) if git cat-file -e "$PUSH_BEFORE^{commit}" 2>/dev/null; then range="$PUSH_BEFORE..$GITHUB_SHA"; fi ;;
+          esac
+          echo "Scanning ${range:-the whole history}"
+          image=$(.github/scanners/image.sh gitleaks)
+          docker run --rm -v "$GITHUB_WORKSPACE:/repo:ro" "$image" \
+            git --redact --no-banner --config /repo/.gitleaks.toml ${range:+--log-opts="$range"} /repo
+
+  image-scan:
+    name: Image scan (trivy) ${{ matrix.component }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        component: [frontend, adminfrontend, backend]
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+      - uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3.12.0
+      # Only pushes to main write the layer cache; pull requests read it.
+      - name: Build the runtime image
+        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6.19.2
+        with:
+          context: .
+          file: apps/${{ matrix.component }}/Dockerfile
+          load: true
+          provenance: false
+          sbom: false
+          tags: ci/${{ matrix.component }}:scan
+          cache-from: type=gha,scope=ci-${{ matrix.component }}
+          cache-to: ${{ github.event_name == 'push' && format('type=gha,mode=max,scope=ci-{0}', matrix.component) || '' }}
+      - name: Scan for fixable high and critical vulnerabilities and secrets
+        env:
+          COMPONENT: ${{ matrix.component }}
+        run: |
+          image=$(.github/scanners/image.sh trivy)
+          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock "$image" \
+            image --skip-version-check --image-src docker --scanners vuln,secret \
+            --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 "ci/$COMPONENT:scan"

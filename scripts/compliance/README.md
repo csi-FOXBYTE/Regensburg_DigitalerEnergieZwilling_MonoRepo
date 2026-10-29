@@ -30,7 +30,7 @@ The audit does not change Git refs, image tags or remote repositories.
 
 ### Dedicated tools container (Linux host)
 
-From the repository root, build the local tools image once. It supplies Node 24.22.1,
+From the repository root, build the local tools image once. It supplies Node 24.22.2,
 pnpm 11.22.0, ScanCode 32.5.0, Syft 1.54.1, Python 3.11 and the SPDX validator.
 Python dependencies are pinned in `requirements.txt`.
 

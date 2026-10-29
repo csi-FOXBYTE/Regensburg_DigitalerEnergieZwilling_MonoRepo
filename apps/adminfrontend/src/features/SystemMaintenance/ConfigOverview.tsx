@@ -320,19 +320,15 @@ export function ConfigOverview() {
 
   const saveConfig = useSaveConfig();
 
-  useEffect(() => {
-    if (
-      activeConfig.isSuccess &&
-      activeConfig.data?.versionName &&
-      !selectedConfigFile
-    ) {
-      setSelectedConfigFile(activeConfig.data.versionName);
-    }
-  }, [
-    activeConfig.isSuccess,
-    activeConfig.data?.versionName,
-    selectedConfigFile,
-  ]);
+  // Preselect the active version once it is known. Adjusting state during
+  // render avoids the extra effect pass; the condition stops after one update.
+  if (
+    activeConfig.isSuccess &&
+    activeConfig.data?.versionName &&
+    !selectedConfigFile
+  ) {
+    setSelectedConfigFile(activeConfig.data.versionName);
+  }
 
   const handleSaveAll = async (fileName: string, autoActivate: boolean) => {
     try {
