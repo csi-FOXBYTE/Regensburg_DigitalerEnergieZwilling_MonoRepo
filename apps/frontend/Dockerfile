@@ -23,8 +23,9 @@ RUN node scripts/artifact-sbom.mjs frontend
 RUN cp apps/frontend/LICENSE apps/frontend/COPYING apps/frontend/COPYING.LESSER apps/frontend/NOTICE apps/frontend/dist/
 RUN mkdir -p apps/frontend/dist/licenses && cp apps/frontend/node_modules/@fontsource-variable/geist/LICENSE apps/frontend/dist/licenses/Geist-OFL-1.1.txt && cp apps/frontend/node_modules/@fontsource/open-sans/LICENSE apps/frontend/dist/licenses/Open-Sans-OFL-1.1.txt
 FROM ${RUNTIME_BASE_IMAGE} AS production
-# The base image lags behind Alpine security fixes; the refresh epoch reruns this.
 ARG RELEASE_REFRESH=0
+# Pick up Alpine fixes published after the base image was built. A new
+# refresh epoch rebuilds this layer.
 USER root
 RUN echo "External dependency refresh: ${RELEASE_REFRESH}" && apk upgrade --no-cache
 COPY --chown=101:101 apps/frontend/nginx.conf /etc/nginx/conf.d/default.conf

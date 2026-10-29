@@ -131,6 +131,10 @@ jobs:
           tags: ci/${{ matrix.component }}:scan
           cache-from: type=gha,scope=ci-${{ matrix.component }}
           cache-to: ${{ github.event_name == 'push' && format('type=gha,mode=max,scope=ci-{0}', matrix.component) || '' }}
+      - name: Smoke test the runtime image
+        env:
+          COMPONENT: ${{ matrix.component }}
+        run: .github/smoke/image.sh "$COMPONENT" "ci/$COMPONENT:scan"
       - name: Scan for fixable high and critical vulnerabilities and secrets
         env:
           COMPONENT: ${{ matrix.component }}

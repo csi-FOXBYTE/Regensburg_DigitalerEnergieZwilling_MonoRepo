@@ -111,6 +111,24 @@
       ]
     },
     {
+      "name": "debian",
+      "version": "bookworm-slim",
+      "type": "container",
+      "bom-ref": "debian:bookworm-slim",
+      "scope": "required",
+      "ecosystem": "build toolchain",
+      "relationship": "referenced build/runtime software",
+      "metadataSource": "Dockerfile / root package.json",
+      "notes": "Runtime base of the backend image, which adds only the node binary of the build image. Release image SBOM attestations additionally inventory final OS packages.",
+      "licenses": [
+        {
+          "license": {
+            "name": "NOASSERTION"
+          }
+        }
+      ]
+    },
+    {
       "name": "pnpm",
       "version": "11.22.0",
       "type": "application",

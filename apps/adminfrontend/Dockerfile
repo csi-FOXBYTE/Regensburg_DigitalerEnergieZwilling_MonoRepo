@@ -22,8 +22,9 @@ ARG SOURCE_COMMIT=local
 RUN node scripts/artifact-sbom.mjs adminfrontend
 RUN cp apps/adminfrontend/LICENSE apps/adminfrontend/COPYING apps/adminfrontend/COPYING.LESSER apps/adminfrontend/NOTICE apps/adminfrontend/dist/
 FROM ${RUNTIME_BASE_IMAGE} AS production
-# The base image lags behind Alpine security fixes; the refresh epoch reruns this.
 ARG RELEASE_REFRESH=0
+# Pick up Alpine fixes published after the base image was built. A new
+# refresh epoch rebuilds this layer.
 USER root
 RUN echo "External dependency refresh: ${RELEASE_REFRESH}" && apk upgrade --no-cache
 COPY --chown=101:101 apps/adminfrontend/nginx.conf /etc/nginx/conf.d/default.conf
