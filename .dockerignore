@@ -1,6 +1,8 @@
 .git
+**/.git
 **/node_modules
 .local
+**/.local
 **/.env*
 **/dist
 **/.build
@@ -15,4 +17,7 @@ apps/frontend/public/cesium
 .tanstack
 **/.tanstack
 .tmp
+**/.tmp
+**/coverage
+**/.cache
 **/.claude
