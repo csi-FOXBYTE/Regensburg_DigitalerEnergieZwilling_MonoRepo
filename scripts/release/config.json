@@ -10,20 +10,20 @@
   "images": {
     "frontend": {
       "repository": "ghcr.io/csi-foxbyte/regensburg-web-frontend",
-      "base": "node:24.22.1-bookworm-slim",
-      "runtimeBase": "nginxinc/nginx-unprivileged:1.30.4-alpine",
+      "base": "node:24.22.2-bookworm-slim",
+      "runtimeBase": "nginxinc/nginx-unprivileged:1.30.6-alpine",
       "packageName": "frontend"
     },
     "adminfrontend": {
       "repository": "ghcr.io/csi-foxbyte/regensburg-web-adminfrontend",
-      "base": "node:24.22.1-bookworm-slim",
-      "runtimeBase": "nginxinc/nginx-unprivileged:1.30.4-alpine",
+      "base": "node:24.22.2-bookworm-slim",
+      "runtimeBase": "nginxinc/nginx-unprivileged:1.30.6-alpine",
       "packageName": "base-frontend"
     },
     "backend": {
       "repository": "ghcr.io/csi-foxbyte/regensburg-web-backend",
-      "base": "node:24.22.1-bookworm-slim",
-      "runtimeBase": "node:24.22.1-bookworm-slim",
+      "base": "node:24.22.2-bookworm-slim",
+      "runtimeBase": "node:24.22.2-bookworm-slim",
       "packageName": "rg-dez-backend"
     }
   }

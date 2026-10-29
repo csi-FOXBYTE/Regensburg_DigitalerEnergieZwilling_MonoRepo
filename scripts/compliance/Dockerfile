@@ -1,7 +1,7 @@
 # Local, explicit openCode audits only. Normal CI and release images never build this.
 FROM anchore/syft:v1.54.1 AS syft
 FROM docker:29-cli AS docker-cli
-FROM node:24.22.1-bookworm-slim
+FROM node:24.22.2-bookworm-slim
 RUN apt-get update && apt-get install -y --no-install-recommends git ca-certificates python3 python3-venv libgomp1 make g++ && rm -rf /var/lib/apt/lists/*
 RUN npm install --global pnpm@11.22.0
 COPY scripts/compliance/requirements.txt /tmp/compliance-requirements.txt

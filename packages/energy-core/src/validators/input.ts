@@ -12,7 +12,7 @@ import { mapZodError, type ValidationIssue, type ValidationResult } from "./type
 export function validateInput(data: unknown, config: DETConfig): ValidationResult<DETInput> {
   const result = DETInputSchema.safeParse(data);
   if (!result.success) {
-    return { success: false, issues: mapZodError(result.error) };
+    return { success: false, issues: mapZodError(result.error, data) };
   }
 
   const input = result.data;

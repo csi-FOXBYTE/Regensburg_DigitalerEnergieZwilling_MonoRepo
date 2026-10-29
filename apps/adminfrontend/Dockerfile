@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
-ARG NODE_BASE_IMAGE=node:24.22.1-bookworm-slim
-ARG RUNTIME_BASE_IMAGE=nginxinc/nginx-unprivileged:1.30.4-alpine
+ARG NODE_BASE_IMAGE=node:24.22.2-bookworm-slim
+ARG RUNTIME_BASE_IMAGE=nginxinc/nginx-unprivileged:1.30.6-alpine
 FROM ${NODE_BASE_IMAGE} AS build
 ARG RELEASE_REFRESH=0
 RUN echo "External dependency refresh: ${RELEASE_REFRESH}" && apt-get update && apt-get install -y --no-install-recommends git ca-certificates openssl python3 make g++ && rm -rf /var/lib/apt/lists/*
@@ -22,6 +22,10 @@ ARG SOURCE_COMMIT=local
 RUN node scripts/artifact-sbom.mjs adminfrontend
 RUN cp apps/adminfrontend/LICENSE apps/adminfrontend/COPYING apps/adminfrontend/COPYING.LESSER apps/adminfrontend/NOTICE apps/adminfrontend/dist/
 FROM ${RUNTIME_BASE_IMAGE} AS production
+# The base image lags behind Alpine security fixes; the refresh epoch reruns this.
+ARG RELEASE_REFRESH=0
+USER root
+RUN echo "External dependency refresh: ${RELEASE_REFRESH}" && apk upgrade --no-cache
 COPY --chown=101:101 apps/adminfrontend/nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=build --chown=101:101 /workspace/apps/adminfrontend/dist /usr/share/nginx/html
 COPY --from=build --chown=101:101 /workspace/apps/adminfrontend/SBOM.cdx.json /usr/share/regensburg/SBOM.cdx.json
