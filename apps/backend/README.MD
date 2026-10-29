@@ -1,6 +1,6 @@
 # Backend API
 
-Node.js/TypeScript-Backend auf Fastify v5 mit `@csi-foxbyte/fastify-toab`, APISIX-geschuetzter Auth-/Rollenpruefung und BullMQ-UI.
+Node.js/TypeScript-Backend auf Fastify v5 mit `@csi-foxbyte/fastify-toab`, eigener JWT-Pruefung (zusaetzlich zu APISIX), Rollenpruefung und BullMQ-UI.
 
 ## Basis-URL
 
@@ -10,13 +10,13 @@ Wichtig: Alle Requests in der lokalen Umgebung ueber
 
 Die API wird intern auf Port `5000` gestartet, aber der externe Einstieg ist APISIX.
 Von außen ist nur APISIX auf `localhost:5000` sichtbar.
-Ist der User nicht authentifiziert, erfolgt der Login ueber Keycloak. Nach erfolgreichem Login setzt Keycloak ein verschluesseltes JWT-Token als Browser-Cookie; APISIX prueft dieses Cookie und schuetzt die Routen. Das Backend prueft keine JWT-Signatur.
+Ist der User nicht authentifiziert, erfolgt der Login ueber Keycloak. Nach erfolgreichem Login setzt Keycloak ein verschluesseltes JWT-Token als Browser-Cookie; APISIX prueft dieses Cookie und schuetzt die Routen. Das Backend prueft das weitergereichte Access Token zusaetzlich selbst (RS256-Signatur gegen die Keycloak-JWKS, `iss`, `aud`, Token-Typ, Laufzeit), siehe [Umgebungsvariablen](#umgebungsvariablen-env).
 
 ## Zweck
 
 Dieses Repo startet einen HTTP-Server mit:
 
-- Auswertung von APISIX-geprueften Access-Token-Claims und Rollen
+- eigener Pruefung der Access Tokens (Signatur und Claims) und Auswertung der Rollen
 - TOAB-Controller/Service-Registrierung
 - Swagger UI unter `/docs`
 - BullMQ-Board unter `/bullMQ`
@@ -77,9 +77,35 @@ Interner App-Port ist `5000` (falls `PORT` nicht gesetzt ist). Externe Requests 
 
 ## Umgebungsvariablen (.env)
 
-Aktuell sind keine verpflichtenden Auth-Umgebungsvariablen konfiguriert.
-JWT/OIDC-Validierung, Signaturpruefung und Routenschutz erfolgen in APISIX. Grundlage ist das von Keycloak nach dem Login gesetzte verschluesselte JWT-Cookie im Browser.
-Das Backend dekodiert den uebergebenen Token nur zur Auswertung von Claims/Rollen und vertraut produktiv ausschliesslich auf Gateway-geroutete Requests.
+APISIX prueft das Token vorgelagert; das Backend verifiziert es zusaetzlich selbst. Pflicht sind:
+
+```env
+KEYCLOAK_JWKS_URI=https://<keycloak>/realms/<realm>/protocol/openid-connect/certs
+KEYCLOAK_ISSUER=https://<keycloak>/realms/<realm>
+AUTH_EXPECTED_AUDIENCE=<audience des DEZ-Clients>
+```
+
+`KEYCLOAK_JWKS_URI` muss HTTPS verwenden. Akzeptiert werden nur RS256-signierte Keycloak-Access-Tokens (`typ: Bearer`) mit passendem `iss`/`aud` und den Claims `exp`, `iat`, `sub`.
+Fehlt eine der drei Variablen oder ist sie ungueltig, bricht der Start ab. Vor dem Ausrollen eines Images mit dieser Pruefung (z. B. per `scripts/deploy-dev.sh`) muessen sie im Deployment gesetzt sein; das Add-on setzt sie.
+
+Keycloak schreibt ohne weitere Konfiguration nur `account` in `aud` (die Client-ID steht in `azp`). Damit `aud` den Wert aus `AUTH_EXPECTED_AUDIENCE` enthaelt, braucht der DEZ-Client einen Protocol Mapper vom Typ **Audience** (`oidc-audience-mapper`, *Included Client Audience* = DEZ-Client, *Add to access token* = an). Das Add-on legt ihn an (`digital-energy-twin-audience`). Fehlt er, lehnt das Backend jedes echte Token mit `401` ab.
+
+Ist die JWKS-Quelle nicht erreichbar (Timeout, DNS/TLS, keine gueltige Antwort), antworten Admin-Routen mit `503 SERVICE_UNAVAILABLE` statt `401`, und das Log enthaelt `auth_key_set_unavailable`.
+
+Nur fuer lokale Entwicklung mit `pnpm jwt:dev`-Tokens (HS256) kann die Signaturpruefung abgeschaltet werden:
+
+```env
+AUTH_INSECURE_DEV_DECODE=true
+```
+
+Das ist nur mit `NODE_ENV=development` oder `test` erlaubt; in jeder anderen Umgebung bricht der Start ab. Der Devcontainer setzt die Variable.
+
+CORS: Ausserhalb von `NODE_ENV=development` beantwortet das Backend Cross-Origin-Anfragen nur fuer die Origins aus `PUBLIC_CLIENT_BASE_URL` und `ADMIN_CLIENT_BASE_URL` sowie optional aus der kommagetrennten Liste `AUTH_CORS_ADDITIONAL_ORIGINS` (leer = keine); jede andere `Origin` wird nicht reflektiert. Erlaubte Request-Header sind `Content-Type`, `Authorization`, `X-Access-Token` und `X-Requested-With`.
+
+```env
+AUTH_CORS_ADDITIONAL_ORIGINS=https://partner.example,https://other.example
+```
+
 Optional fuer Rollenpruefung ueber `resource_access`:
 
 ```env

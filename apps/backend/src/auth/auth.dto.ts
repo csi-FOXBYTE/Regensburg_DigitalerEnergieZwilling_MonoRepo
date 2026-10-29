@@ -10,6 +10,8 @@ export const AccessTokenDto = Type.Object(
     client_id: Type.Optional(Type.String()),
     username: Type.Optional(Type.String()),
     token_type: Type.Optional(Type.String()),
+    typ: Type.Optional(Type.String()),
+    azp: Type.Optional(Type.String()),
     exp: Type.Optional(Type.Number()),
     iat: Type.Optional(Type.Number()),
     nbf: Type.Optional(Type.Number()),

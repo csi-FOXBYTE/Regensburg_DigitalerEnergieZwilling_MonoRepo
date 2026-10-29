@@ -17,7 +17,7 @@ import { normalizeFeedbackInput } from "../feedback/feedback.service.js";
 import { ConfigNotFoundError } from "../submissions/submissions.errors.js";
 import { routeErrorHandler } from "../errors/route-error-handler.js";
 import { schema } from "../zenstack/schema.js";
-import { createPrivacyLogger, injectPinoLogger } from "./pino.js";
+import { createPrivacyLogger, errorCategory, injectPinoLogger } from "./pino.js";
 import { installRequestLogging } from "./request-logging.js";
 
 const secret = "PRIVATE_USER_DATA_MARKER";
@@ -247,4 +247,15 @@ it("console forwarding drops arbitrary strings, objects, formatting arguments an
   assertSafe(output);
   assert.equal(output.records().length, 5);
   assert.equal(output.records()[3].errorCode, "DATABASE_ERROR");
+});
+
+it("classifies framework and plugin errors by their status code", () => {
+  assert.equal(errorCategory({ statusCode: 413 }), "PAYLOAD_TOO_LARGE");
+  assert.equal(errorCategory({ statusCode: 415 }), "UNSUPPORTED_MEDIA_TYPE");
+  assert.equal(errorCategory({ statusCode: 429 }), "TOO_MANY_REQUESTS");
+  assert.equal(errorCategory({ statusCode: 503 }), "SERVICE_UNAVAILABLE");
+  assert.equal(errorCategory({ statusCode: 418 }), "BAD_REQUEST");
+  assert.equal(errorCategory({ statusCode: 502 }), "INTERNAL_ERROR");
+  assert.equal(errorCategory({ status: "SERVICE_UNAVAILABLE", code: 503 }), "SERVICE_UNAVAILABLE");
+  assert.equal(errorCategory({ status: secret }), "INTERNAL_ERROR");
 });

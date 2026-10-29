@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { chmodSync, copyFileSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { chmodSync, copyFileSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -128,6 +128,19 @@ test('publication refuses a version tag belonging to different content', (t) => 
   assert.notEqual(f.run().status, 0);
   assert.equal(f.state().release, null);
   assert.deepEqual(f.state().tags, tags);
+});
+
+test('publication replaces the SBOMs of retired images and stages their removal', (t) => {
+  const f = fixture(t);
+  const released = path.join(f.dir, 'release', 'sboms');
+  mkdirSync(released, { recursive: true });
+  writeFileSync(path.join(released, 'matomo-runtime.cdx.json'), '{}');
+  const result = f.run();
+  assert.equal(result.status, 0, result.stderr);
+  assert.deepEqual(readdirSync(released).sort(),
+    [...Object.keys(f.manifest.sboms.files), 'receipt.json'].sort());
+  assert(f.state().calls.some(([tool, ...args]) =>
+    tool === 'git' && args[0] === 'add' && args.includes('release/sboms')));
 });
 
 test('identical resulting image digests do not publish another app version', (t) => {

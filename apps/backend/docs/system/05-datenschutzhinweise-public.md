@@ -1,6 +1,6 @@
 # Datenschutzhinweise für das öffentliche Sanierungstool
 
-> **Status:** Entwurf, Stand 14. Oktober 2026  
+> **Status:** Entwurf, Stand 28. Oktober 2026  
 > **Geltungsbereich:** Öffentlicher/bürgerseitiger Teil des Digitalen Energie Zwillings (DEZ)  
 > **Freigabe:** Vor Veröffentlichung durch Betreiber, zuständige Dienststelle und behördlichen Datenschutzbeauftragten zu prüfen. Eckige Klammern kennzeichnen noch zu ergänzende oder verbindlich festzulegende Angaben.
 
@@ -259,9 +259,7 @@ Dabei werden insbesondere IP-Adresse, Zeitpunkt, Challenge-Daten, Prüfergebnis 
 
 ## 12. Webanalyse mit Matomo
 
-> **Aktivierung ausstehend:** Die Webanalyse ist technisch umgesetzt, wird aber nur angeboten, wenn für die Umgebung eine Matomo-Instanz konfiguriert ist. Andernfalls erscheint sie nicht in den Datenschutzeinstellungen und es werden keine Analyseereignisse übermittelt. Vor der Aktivierung müssen Betrieb, Zuständigkeit sowie die unten offenen Angaben festgelegt werden. [Hinweis nach Aktivierung entfernen.]
-
-Ist die Webanalyse aktiviert, verwenden wir Matomo zur statistischen Auswertung der Nutzung des Sanierungstools. Die Matomo-Instanz wird unter [interne Matomo-URL ergänzen] in der CIVITAS/CORE-Umgebung der Stadt Regensburg betrieben. Zuständig ist [zuständige Stelle der Stadt Regensburg oder beauftragter Betreiber ergänzen]. Eine Übermittlung der Analysedaten an Matomo Cloud findet nicht statt.
+Wir verwenden Matomo zur statistischen Auswertung der Nutzung des Sanierungstools. Die Matomo-Instanz wird unter `https://matomo.det.[Domain des Sanierungstools ergänzen]` als eigener Dienst mit eigener Datenbank in der CIVITAS/CORE-Umgebung der Stadt Regensburg betrieben. Technischer Betreiber ist der in Abschnitt 4 genannte Betreiber dieser Umgebung. Fachlich zuständig ist [zuständige Stelle der Stadt Regensburg ergänzen]. Eine Übermittlung der Analysedaten an Matomo Cloud findet nicht statt.
 
 ### Einwilligung und Widerruf
 
@@ -292,20 +290,36 @@ Gebäudetypen und Sanierungsmaßnahmen werden nur anhand festgelegter Kategorien
 
 ### Verarbeitung in Matomo
 
-Die Matomo-Instanz ist zum Start nach der CNIL-Compliance-Richtlinie von Matomo für datensparsame Reichweitenmessung konfiguriert. Es handelt sich um Anfangseinstellungen, die sich künftig ändern können; wesentliche Änderungen werden in diesen Datenschutzhinweisen nachgetragen. Derzeit gilt:
+Die Matomo-Instanz ist datensparsam konfiguriert. Es handelt sich um Anfangseinstellungen, die sich künftig ändern können; wesentliche Änderungen werden in diesen Datenschutzhinweisen nachgetragen. Derzeit speichert Matomo je Sitzung:
 
-- Die IP-Adresse wird vor der Speicherung vollständig maskiert (bei IPv4 0.0.0.0) und auch für die weitere Auswertung nur maskiert verwendet. Eine Geolokalisierung findet nicht statt.
-- Referrer werden nicht gespeichert.
-- Von Browser und Betriebssystem wird nur die Hauptversion gespeichert; Gerätemodell und Bildschirmauflösung werden nicht erfasst.
-- Matomo setzt keine Cookies.
-- Zusammengehörige Ereignisse werden über die zufällige Session-ID zugeordnet.
-- Das Besucher-Log und Besucherprofile sind deaktiviert; einzelne Sitzungen sind in der Matomo-Oberfläche nicht einsehbar. Zahlen in Berichten zu Teilmengen werden auf Zehnerwerte gerundet.
+- die zufällige Session-ID, über die zusammengehörige Ereignisse zugeordnet werden,
+- die vollständig maskierte IP-Adresse,
+- die Spracheinstellung des Browsers,
+- Zeitpunkt des ersten und des letzten Ereignisses, Anzahl der Ereignisse und die daraus berechnete Sitzungsdauer,
+- eine von Matomo aus technischen Merkmalen der Anfrage gebildete Prüfsumme zur internen Zuordnung von Anfragen zu einem Besuch.
+
+Je Ereignis speichert Matomo:
+
+- die Ereigniskategorie „Sanierungstool“ und die Ereignisart, zum Beispiel „Abschnitt abgeschlossen“ oder „PDF-Bericht heruntergeladen“,
+- soweit vorgesehen den zugehörigen Kategorieschlüssel für Abschnitt, Gebäudetyp, Sanierungsmaßnahme, Dokumenttyp oder Kontaktweg,
+- die Startadresse der gewählten Sprachversion als Seitenadresse,
+- den Zeitpunkt des Eingangs bei Matomo.
+
+Die Browserkennung (User-Agent) wird beim Eingang einer Anfrage nur zur Erkennung automatisierter Zugriffe und zur Bildung der genannten Prüfsumme ausgewertet. Gerätetyp, Gerätehersteller und -modell, Betriebssystem, Browser, Bildschirmauflösung und Browser-Plugins werden nicht gespeichert. Referrer werden nicht gespeichert, eine Geolokalisierung findet nicht statt und Matomo setzt keine Cookies.
+
+Berechtigte Nutzer der Matomo-Oberfläche sehen neben aggregierten Berichten auch den Ablauf einzelner Sitzungen. Diese sind nur über die zufällige Session-ID gekennzeichnet.
+
+Ihre IP-Adresse wird beim Aufruf von Matomo vom Gateway APISIX weitergeleitet (Abschnitt 4). Matomo maskiert sie vor jeder Speicherung vollständig (bei IPv4 0.0.0.0) und verwendet auch für die weitere Auswertung nur die maskierte Adresse. Das Zugriffsprotokoll der Matomo-Instanz enthält Ihre IP-Adresse nicht, sondern nur die interne Adresse des vorgelagerten Gateways, sowie keine URL-Parameter, keinen Referrer und keine Browserkennung.
 
 Technisch erforderliche IP-Verarbeitungen auf Ebene von Webserver und APISIX richten sich nach Abschnitt 4.
 
 ### Speicherdauer, Zugriff und Rechtsgrundlage
 
-Die einzelnen Ereignisse einschließlich Session-ID werden nach den derzeitigen Einstellungen nach 180 Tagen gelöscht. Daraus erstellte aggregierte Berichte ohne Bezug zu einzelnen Sitzungen werden für [Aufbewahrungsfrist der Berichte ergänzen] gespeichert. Zugriff erhalten [berechtigte Rollen und Berichtsempfänger ergänzen].
+Die einzelnen Ereignisse einschließlich Session-ID werden nach [Löschfrist der Rohdaten festlegen, in Matomo einstellen und ergänzen] gelöscht. Daraus erstellte aggregierte Berichte ohne Bezug zu einzelnen Sitzungen werden für [Aufbewahrungsfrist der Berichte ergänzen] gespeichert.
+
+Die Matomo-Datenbank wird jede Nacht innerhalb der CIVITAS/CORE-Umgebung der Stadt Regensburg gesichert. Sicherungskopien werden in der Regel nach 14 Tagen gelöscht. Bereits in Matomo gelöschte Daten können bis dahin noch in Sicherungskopien enthalten sein.
+
+Zugriff auf Matomo erhalten nur Personen, die sich über die zentrale Benutzerverwaltung der CIVITAS/CORE-Umgebung anmelden und denen ausdrücklich Lese- oder Verwaltungsrechte für Matomo zugewiesen sind. Für Notfälle besteht zusätzlich ein gesondert gesichertes Administratorkonto. Berechtigt sind [berechtigte Stellen und Berichtsempfänger ergänzen].
 
 Rechtsgrundlagen sind Art. 6 Abs. 1 Buchst. a DSGVO sowie für die Speicherung der Session-ID im Browser § 25 Abs. 1 TDDDG. Ein Widerruf wirkt für die Zukunft und berührt nicht die Rechtmäßigkeit der bis dahin erfolgten Verarbeitung.
 
@@ -341,7 +355,7 @@ Eine Offenlegung kann außerdem erfolgen, wenn die Stadt Regensburg hierzu geset
 
 ## 16. Datenübermittlungen in Drittländer
 
-Die DEZ-Kernkomponenten, die Produktivdatenbank, der S3-kompatible Datendienst, Sicherungskopien und die zentralen Protokolle werden in der CIVITAS/CORE-Umgebung der Stadt Regensburg verarbeitet. [Produktive Hostingregionen und Backupstandorte bestätigen.]
+Die DEZ-Kernkomponenten, die Produktivdatenbank, der S3-kompatible Datendienst, die Matomo-Instanz, Sicherungskopien und die zentralen Protokolle werden in der CIVITAS/CORE-Umgebung der Stadt Regensburg verarbeitet. [Produktive Hostingregionen und Backupstandorte bestätigen.]
 
 Eine Übermittlung personenbezogener Daten in Staaten außerhalb der Europäischen Union oder des Europäischen Wirtschaftsraums findet für die DEZ-Kernfunktionen nicht statt. Für den externen Tile-Endpunkt auf `intergeo38.bayernwolke.de` und andere Zusatzdienste ist ein möglicher Drittlandbezug noch zu bestätigen; gegebenenfalls werden [Empfänger, Staat, Rechtsgrundlage nach Art. 44 ff. DSGVO und geeignete Garantien ergänzen].
 
@@ -379,7 +393,7 @@ Internet: https://www.datenschutz-bayern.de/
 
 ## 20. Sicherheit
 
-Externe Zugriffe werden verschlüsselt über HTTPS bereitgestellt. Der öffentliche Bereich und der Verwaltungsbereich sind technisch getrennt. Administrative Zugriffe werden über Keycloak und APISIX geschützt; im öffentlichen Bereich ist keine Anmeldung erforderlich. Die Datenbank ist nicht direkt aus dem Internet erreichbar.
+Externe Zugriffe werden verschlüsselt über HTTPS bereitgestellt. Der öffentliche Bereich und der Verwaltungsbereich sind technisch getrennt. Administrative Zugriffe werden über die zentrale Benutzerverwaltung der CIVITAS/CORE-Umgebung und das Gateway APISIX geschützt; im öffentlichen Bereich ist keine Anmeldung erforderlich. Die Datenbank ist nicht direkt aus dem Internet erreichbar.
 
 Trotz technischer und organisatorischer Schutzmaßnahmen kann eine Datenübertragung über das Internet nie vollständig risikofrei sein.
 
@@ -387,4 +401,4 @@ Trotz technischer und organisatorischer Schutzmaßnahmen kann eine Datenübertra
 
 Diese Datenschutzhinweise werden angepasst, wenn sich Funktionen, Datenflüsse, Empfänger oder Rechtsgrundlagen ändern.
 
-Stand: 14. Oktober 2026
+Stand: 28. Oktober 2026

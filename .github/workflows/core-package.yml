@@ -6,8 +6,8 @@ on:
         description: Publish a distinct test package without using the existing core package name
         type: boolean
         default: false
-permissions:
-  contents: read
+# Every job declares the permissions it needs.
+permissions: {}
 jobs:
   package:
     runs-on: ubuntu-latest
@@ -16,9 +16,10 @@ jobs:
       contents: read
       packages: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           fetch-depth: 0
+          persist-credentials: false
       - uses: ./.github/actions/check
       - name: Generate a fresh SBOM and pack the independently versioned core
         env:
@@ -29,7 +30,7 @@ jobs:
           else
             node scripts/prepare-core-package.mjs
           fi
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         if: always()
         with:
           name: energy-core-package

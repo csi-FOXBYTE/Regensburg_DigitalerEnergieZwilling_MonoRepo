@@ -46,6 +46,11 @@ Core source, all workspace manifests, lockfile, scripts, patches, own applicatio
 files, Dockerfile and release policy invalidate the affected images. File deletion,
 rename and executable mode count. Both base digests, platform and `refreshEpoch`
 also count. Increment `refreshEpoch` to refresh externally changing OS/build inputs.
+The runtime stages upgrade their OS packages (`apk upgrade` in the client images,
+`apt-get upgrade` in the backend image), so the installed packages come from the
+distribution at build time, not only from the base digest. The layer cache keeps
+them for one base digest and refresh epoch; the runtime SBOM generated from the
+pushed digest records what the image actually contains.
 Generated files, environment files, dependency/cache directories and the release
 manifest are never build inputs. Update the allowlist if a new shared input is added.
 

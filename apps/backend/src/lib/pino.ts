@@ -1,14 +1,9 @@
 import { pino, type DestinationStream, type LoggerOptions } from "pino";
+import { httpErrorStatus, type AppErrorStatus } from "../errors/app-error.js";
 
-export type ErrorCategory =
-  | "DATABASE_ERROR"
-  | "VALIDATION_ERROR"
-  | "BAD_REQUEST"
-  | "UNAUTHORIZED"
-  | "FORBIDDEN"
-  | "NOT_FOUND"
-  | "METHOD_NOT_ALLOWED"
-  | "INTERNAL_ERROR";
+export type ErrorCategory = AppErrorStatus | "DATABASE_ERROR" | "VALIDATION_ERROR";
+
+const appErrorStatuses = new Set<unknown>(Object.values(httpErrorStatus));
 
 // Values from exceptions are classified, never copied into a log record.
 export function errorCategory(error: unknown): ErrorCategory {
@@ -16,14 +11,12 @@ export function errorCategory(error: unknown): ErrorCategory {
   if ("reason" in error && error.reason === "db-query-error") return "DATABASE_ERROR";
   if ("validation" in error) return "VALIDATION_ERROR";
   if ("code" in error && error.code === "FST_ERR_CTP_INVALID_JSON_BODY") return "BAD_REQUEST";
-  if ("status" in error) {
-    switch (error.status) {
-      case "BAD_REQUEST": return "BAD_REQUEST";
-      case "UNAUTHORIZED": return "UNAUTHORIZED";
-      case "FORBIDDEN": return "FORBIDDEN";
-      case "NOT_FOUND": return "NOT_FOUND";
-      case "METHOD_NOT_ALLOWED": return "METHOD_NOT_ALLOWED";
-    }
+  if ("status" in error && appErrorStatuses.has(error.status)) return error.status as AppErrorStatus;
+  // Framework and plugin errors (413, 415, 429, 503) only carry a statusCode.
+  if ("statusCode" in error && typeof error.statusCode === "number") {
+    const status = httpErrorStatus[error.statusCode];
+    if (status) return status;
+    if (error.statusCode >= 400 && error.statusCode < 500) return "BAD_REQUEST";
   }
   return "INTERNAL_ERROR";
 }
@@ -42,6 +35,7 @@ type LogEvent =
     }
   | { event: "console_output"; level: ConsoleLevel; errorCode?: ErrorCategory }
   | { event: "feedback_notification_failed" }
+  | { event: "auth_key_set_unavailable" }
   | { event: "analytics_config"; state: "active" | "inactive" | "invalid" }
   | { event: "server_listening" | "server_closed" };
 
@@ -79,7 +73,7 @@ export function createPrivacyLogger(
         durationMs: event.durationMs,
         errorCode: event.errorCode,
       });
-    } else if (event.event === "feedback_notification_failed") {
+    } else if (event.event === "feedback_notification_failed" || event.event === "auth_key_set_unavailable") {
       output.error({ event: event.event });
     } else if (event.event === "analytics_config") {
       // Only whether web analytics is on, never the tracker URL or site ID.
