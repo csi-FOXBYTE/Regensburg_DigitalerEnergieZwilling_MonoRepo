@@ -13,3 +13,13 @@ updates:
     groups:
       github-actions:
         patterns: ["*"]
+  # Scanner images, pinned by digest in .github/scanners/Dockerfile.
+  - package-ecosystem: docker
+    directory: "/.github/scanners"
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    groups:
+      scanners:
+        patterns: ["*"]

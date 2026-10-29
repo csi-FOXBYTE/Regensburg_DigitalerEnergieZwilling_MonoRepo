@@ -121,6 +121,18 @@ jobs:
           dockerfile: ${{ matrix.dockerfile }}
           username: ${{ github.actor }}
           token: ${{ github.token }}
+      # Gates exactly what ships: the pushed digest built on the planned base images.
+      - name: Scan the pushed image for fixable high and critical vulnerabilities and secrets
+        env:
+          IMAGE_REF: ${{ matrix.image }}@${{ steps.image.outputs.digest }}
+          PLATFORM: ${{ matrix.platform }}
+          TRIVY_USERNAME: ${{ github.actor }}
+          TRIVY_PASSWORD: ${{ github.token }}
+        run: |
+          image=$(.github/scanners/image.sh trivy)
+          docker run --rm -e TRIVY_USERNAME -e TRIVY_PASSWORD "$image" \
+            image --skip-version-check --image-src remote --platform "$PLATFORM" --scanners vuln,secret \
+            --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 "$IMAGE_REF"
       - name: Verify and record pushed image
         env:
           COMPONENT: ${{ matrix.component }}
