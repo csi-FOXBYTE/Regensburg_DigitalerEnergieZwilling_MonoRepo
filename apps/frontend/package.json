@@ -50,7 +50,7 @@
   "devDependencies": {
     "@astrojs/react": "^7.1.1",
     "@axe-core/playwright": "^4.13.0",
-    "@hey-api/openapi-ts": "^0.92.3",
+    "@hey-api/openapi-ts": "^0.97.3",
     "@playwright/test": "^1.62.1",
     "@react-pdf/types": "^2.11.1",
     "@tailwindcss/vite": "^4.1.18",
