@@ -7,18 +7,18 @@
       "type": "application",
       "name": "regensburg-web",
       "version": "0.0.0",
-      "bom-ref": "regensburg:source:517863f96ee065bd9b2b48732088931c27b23a5e",
+      "bom-ref": "regensburg:source:a865bf3a80f68ffc164308e4d7a12d65912e94da",
       "licenses": [
         {
           "expression": "LGPL-3.0-or-later"
         }
       ]
     },
-    "timestamp": "2026-10-22T07:49:21.000Z",
+    "timestamp": "2026-10-29T13:44:49.000Z",
     "properties": [
       {
         "name": "regensburg:release-source",
-        "value": "517863f96ee065bd9b2b48732088931c27b23a5e"
+        "value": "a865bf3a80f68ffc164308e4d7a12d65912e94da"
       },
       {
         "name": "regensburg:release-inventory",
@@ -27,5 +27,5 @@
     ]
   },
   "components": [],
-  "serialNumber": "urn:uuid:ebda6433-814c-5322-a6cf-cbefbc6d2c63"
+  "serialNumber": "urn:uuid:744c88eb-ff59-5a2f-8bde-a1688c558498"
 }
