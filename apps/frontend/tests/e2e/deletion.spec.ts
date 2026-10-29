@@ -118,19 +118,46 @@ test.describe('submission deletion links', () => {
     ).toBeVisible();
   });
 
+  test('follows a second link pasted into the same tab', async ({ page }) => {
+    const deletedTokens: string[] = [];
+    await page.route('**/api/public/submissions/status', (route) =>
+      route.fulfill(
+        route.request().postDataJSON()?.deletionToken === 'second-token'
+          ? { json: { available: true } }
+          : { status: 404, json: {} },
+      ),
+    );
+    await page.route('**/api/public/submissions/delete', async (route) => {
+      deletedTokens.push(route.request().postDataJSON()?.deletionToken);
+      await route.fulfill({
+        json: { success: true, receipt: deletionReceipt },
+      });
+    });
+
+    await page.goto('/en/delete#first-token');
+    await expect(
+      page.getByRole('heading', { name: 'Deletion link unavailable' }),
+    ).toBeVisible();
+
+    // Only the fragment changes, so the browser does not reload the page.
+    await page.goto('/en/delete#second-token');
+    await expect(
+      page.getByRole('heading', { name: 'Really delete data?' }),
+    ).toBeVisible();
+    await page.getByRole('button', { name: 'Yes, delete data' }).click();
+    await expect.poll(() => deletedTokens).toEqual(['second-token']);
+  });
+
   test('offers retry for a service failure', async ({ page }) => {
     let statusRequests = 0;
-    await page.route(
-      '**/api/public/submissions/status',
-      async (route) => {
-        statusRequests += 1;
-        await route.fulfill(
-          statusRequests === 1
-            ? { status: 503, json: {} }
-            : { json: { available: true } },
-        );
-      },
-    );
+    await page.route('**/api/public/submissions/status', async (route) => {
+      statusRequests += 1;
+      await route.fulfill(
+        statusRequests === 1
+          ? { status: 503, json: {} }
+          : { json: { available: true } },
+      );
+    });
 
     await page.goto('/en/delete#retry');
     await expect(

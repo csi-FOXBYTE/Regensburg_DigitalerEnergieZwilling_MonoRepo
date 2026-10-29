@@ -35,7 +35,7 @@ alt Token verfügbar
     Benutzer -> client : Dialog abbrechen
     client --> Benutzer : Einreichung bleibt bestehen
   end
-else Token fehlt, ist ungültig, abgelaufen oder bereits verwendet
+else Token fehlt, ist ungültig oder bereits verwendet\n(die Ablauffrist gilt hier nicht)
   uds --> api : Nicht gefunden
   api --> gateway : 404 NOT_FOUND
   gateway --> client : Nicht verfügbar
@@ -49,7 +49,8 @@ opt JSON-Link aus PDF öffnen
   api -> uds : Öffentliche Exportdaten laden
   uds -> db : Einreichung und optionale Konfiguration lesen
   db --> uds : Exportdaten oder nicht gefunden
-  uds --> api : Exportdaten
+  uds -> uds : Ablauffrist des Tokens prüfen
+  uds --> api : Exportdaten oder nicht gefunden (auch abgelaufen)
   api --> gateway : JSON, Cache-Control: no-store
   gateway --> client : Daten oder 404
   client --> Benutzer : Datei speichern oder neutrale Nicht-verfügbar-Ansicht

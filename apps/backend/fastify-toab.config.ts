@@ -42,8 +42,12 @@ export default defineConfig({
     PORT: Type.Optional(Type.String()),
     NODE_ENV: Type.Optional(Type.String()),
     KEYCLOAK_JWKS_URI: Type.String(),
-    // Days until a new public deletion token expires; unset means no expiry.
-    SUBMISSION_DELETION_TOKEN_TTL_DAYS: Type.Optional(Type.String({ pattern: "^[1-9][0-9]*$" })),
+    // Days until a new public deletion token stops allowing downloads (1 to
+    // 9999, which keeps the expiry a valid Date); unset (default) means no
+    // expiry. Expires only the link, never the data: enable it only together
+    // with a retention-deletion process and the same period, see
+    // issueDeletionToken in submissions.service.ts and the backend README.
+    SUBMISSION_DELETION_TOKEN_TTL_DAYS: Type.Optional(Type.String({ pattern: "^[1-9][0-9]{0,3}$" })),
   }),
   onRouteError: routeErrorHandler,
   onReady: async (fastify) => {

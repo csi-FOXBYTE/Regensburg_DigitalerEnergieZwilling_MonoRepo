@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { describe, it, mock } from "node:test";
+import type { TSchema } from "@sinclair/typebox";
+import { Value } from "@sinclair/typebox/value";
 import Fastify from "fastify";
 import {
   ControllerRegistry,
@@ -17,6 +19,7 @@ import { SubmissionNotFoundError } from "./submissions.errors.js";
 import {
   assertAvailableByToken,
   deleteByToken,
+  deletionTokenTtlDays,
   getPublicDownloadByToken,
   hashDeletionToken,
   issueDeletionToken,
@@ -51,26 +54,38 @@ const transaction = <T>(db: object) =>
   mock.fn(async (operation: (tx: object) => Promise<T>) => operation(db));
 
 const expired = () => new Date(Date.now() - 1000);
-const notExpired = () => new Date(Date.now() + 60_000);
 
 describe("public submission token service operations", () => {
   it("issues a random token once and stores only its SHA-256 hash", () => {
     const now = new Date("2026-10-27T12:00:00.000Z");
-    const issued = issueDeletionToken("", now);
+    const issued = issueDeletionToken(null, now);
     assert.match(issued.deletionToken, /^[A-Za-z0-9_-]{43}$/);
     assert.equal(
       issued.deletionTokenHash,
       createHash("sha256").update(issued.deletionToken, "utf8").digest("hex"),
     );
     assert.equal(issued.deletionTokenExpiresAt, null);
-    assert.notEqual(issueDeletionToken("", now).deletionToken, issued.deletionToken);
+    assert.notEqual(issueDeletionToken(null, now).deletionToken, issued.deletionToken);
 
     assert.deepEqual(
-      issueDeletionToken("30", now).deletionTokenExpiresAt,
+      issueDeletionToken(30, now).deletionTokenExpiresAt,
       new Date("2026-11-26T12:00:00.000Z"),
     );
-    assert.throws(() => issueDeletionToken("0", now), /positive integer/);
-    assert.throws(() => issueDeletionToken("1.5", now), /positive integer/);
+  });
+
+  it("reads the TTL once and bounds it so the expiry stays a valid date", async () => {
+    assert.equal(deletionTokenTtlDays(undefined), null);
+    assert.equal(deletionTokenTtlDays(""), null);
+    assert.equal(deletionTokenTtlDays("30"), 30);
+
+    const { default: config } = await import("../../fastify-toab.config.js");
+    const schema = (config.env as { properties: Record<string, TSchema> }).properties
+      .SUBMISSION_DELETION_TOKEN_TTL_DAYS;
+    const ttl = (value: string) => Value.Check(schema, value);
+    for (const value of ["1", "30", "9999"]) assert.equal(ttl(value), true, value);
+    for (const value of ["0", "1.5", "-1", "10000", "999999999"]) assert.equal(ttl(value), false, value);
+    const latest = issueDeletionToken(9999, new Date("2026-10-27T12:00:00.000Z")).deletionTokenExpiresAt;
+    assert.equal(Number.isNaN(latest?.getTime()), false);
   });
 
   it("matches the hash the migration derives from legacy plaintext tokens", () => {
@@ -85,37 +100,16 @@ describe("public submission token service operations", () => {
   it("checks availability with a minimal hashed lookup and rejects unavailable tokens", async () => {
     const findUnique = mock.fn(async (_query: unknown) => ({
       id: publicSubmission.id,
-      deletionTokenExpiresAt: null,
     }));
     const db = { submission: { findUnique } };
 
     await assertAvailableByToken(db as never, "available-token");
     assert.deepEqual(findUnique.mock.calls[0]?.arguments[0], {
       where: { deletionTokenHash: hashDeletionToken("available-token") },
-      select: { id: true, deletionTokenExpiresAt: true },
+      select: { id: true },
     });
     assert.equal(JSON.stringify(findUnique.mock.calls[0]?.arguments[0]).includes("available-token"), false);
 
-    const expiredDb = {
-      submission: {
-        findUnique: mock.fn(async (_query: unknown) => ({
-          id: publicSubmission.id,
-          deletionTokenExpiresAt: expired(),
-        })),
-      },
-    };
-    await assert.rejects(
-      assertAvailableByToken(expiredDb as never, "expired-token"),
-      SubmissionNotFoundError,
-    );
-    await assertAvailableByToken(
-      {
-        submission: {
-          findUnique: async () => ({ id: publicSubmission.id, deletionTokenExpiresAt: notExpired() }),
-        },
-      } as never,
-      "valid-token",
-    );
 
     const missingDb = {
       submission: { findUnique: mock.fn(async (_query: unknown) => null) },
@@ -251,13 +245,15 @@ describe("public submission token service operations", () => {
         })),
         deleteMany: mock.fn(async (_query: unknown) => ({ count: 1 })),
       },
+      deletionAuditEvent: { create: mock.fn(async (query: unknown) => query) },
     };
     Object.assign(expiredDb, { $transaction: transaction(expiredDb) });
-    await assert.rejects(
-      deleteByToken(expiredDb as never, "expired-token"),
-      SubmissionNotFoundError,
-    );
-    assert.equal(expiredDb.submission.deleteMany.mock.calls.length, 0);
+    // Withdrawing consent must keep working while the data is stored, even
+    // after the link stopped allowing downloads.
+    const expiredReceipt = await deleteByToken(expiredDb as never, "expired-token");
+    assert.equal(expiredReceipt.targetId, publicSubmission.id);
+    assert.equal(expiredDb.submission.deleteMany.mock.calls.length, 1);
+    await assertAvailableByToken(expiredDb as never, "expired-token");
   });
 });
 

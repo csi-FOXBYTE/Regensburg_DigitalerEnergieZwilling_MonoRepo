@@ -6,19 +6,27 @@ import {
   type SubmissionDownload as Download,
   SubmissionUnavailableError,
 } from '@/lib/api/public';
-import { readCapabilityLink } from '@/lib/capability-link';
+import { useCapabilityLink } from '@/hooks/useCapabilityLink';
+import { downloadJson } from '@/lib/downloadJson';
 import { LoaderCircle } from 'lucide-react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 type State = 'loading' | 'ready' | 'unavailable' | 'service-error';
 
-const getRouteContext = () => readCapabilityLink('download');
+type PageProps = { locale: 'de' | 'en'; token: string | null };
 
 /** Target of the JSON link in the PDF report (`/<locale>/download#<token>`). */
 export default function SubmissionDownload() {
+  const { locale, token } = useCapabilityLink('download');
+  // Another link pasted into the same tab starts over with fresh state.
+  return (
+    <SubmissionDownloadPage key={token ?? ''} locale={locale} token={token} />
+  );
+}
+
+function SubmissionDownloadPage({ locale, token }: PageProps) {
   const { t } = useTranslation('map');
-  const { locale, token } = useMemo(getRouteContext, []);
   const [state, setState] = useState<State>(token ? 'loading' : 'unavailable');
   const [download, setDownload] = useState<Download | null>(null);
 
@@ -42,14 +50,7 @@ export default function SubmissionDownload() {
   }, [load]);
 
   function saveFile() {
-    if (!download) return;
-    const blob = new Blob([download.json], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const anchor = document.createElement('a');
-    anchor.href = url;
-    anchor.download = download.filename;
-    anchor.click();
-    URL.revokeObjectURL(url);
+    if (download) downloadJson(download.data, download.filename);
   }
 
   const openApplication = (

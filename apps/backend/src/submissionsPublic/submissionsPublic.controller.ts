@@ -27,8 +27,12 @@ const submissionsPublicController = createController().rootPath(
 const DeletionTokenBody = Type.Object({
   deletionToken: Type.String({ minLength: 1, maxLength: 256 }),
 });
-// Only for JSON links in PDFs issued before the token left the URL.
-const LegacyDeletionTokenParams = DeletionTokenBody;
+// Only for JSON links in PDFs issued before the token left the URL. Kept
+// separate from the body schema so tightening that one for new tokens cannot
+// break the legacy nanoid links.
+const LegacyDeletionTokenParams = Type.Object({
+  deletionToken: Type.String({ minLength: 1, maxLength: 256 }),
+});
 
 const catchSubmissionNotFound = (err: unknown) => {
   if (err instanceof SubmissionNotFoundError)

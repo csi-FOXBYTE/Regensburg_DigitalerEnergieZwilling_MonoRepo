@@ -151,7 +151,7 @@ export async function deleteSubmission(
   return parseDeletionReceipt(result.receipt);
 }
 
-export type SubmissionDownload = { filename: string; json: string };
+export type SubmissionDownload = { filename: string; data: unknown };
 
 export async function downloadSubmission(
   token: string,
@@ -166,7 +166,7 @@ export async function downloadSubmission(
   }
   return {
     filename: `submission-${result.id.replace(/[^A-Za-z0-9_-]/g, '_')}.json`,
-    json: JSON.stringify(result, null, 2),
+    data: result,
   };
 }
 
