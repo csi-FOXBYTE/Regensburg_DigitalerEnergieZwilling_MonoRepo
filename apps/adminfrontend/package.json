@@ -25,7 +25,6 @@
     "@nanostores/react": "^1.1.0",
     "@tanstack/react-query": "^5.90.21",
     "@tanstack/react-router": "^1.170.46",
-    "@tanstack/react-router-devtools": "^1.167.2",
     "@types/leaflet": "^1.9.21",
     "cesium": "^1.141.0",
     "i18next": "^25.8.13",
@@ -45,7 +44,6 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
-    "@tanstack/router-generator": "1.167.46",
     "@tanstack/router-plugin": "^1.168.48",
     "@types/node": "^24.10.1",
     "@types/react": "^19.2.7",

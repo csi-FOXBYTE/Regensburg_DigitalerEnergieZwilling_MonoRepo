@@ -4,7 +4,9 @@ import { createFileRoute, notFound } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 
 // Shows the caller's own token claims; a development aid only. Production
-// builds answer /dev with the regular not-found page.
+// builds answer /dev with the regular not-found page, and because
+// import.meta.env.DEV is a build-time constant, the claims viewer below is
+// dropped from their bundle.
 export const Route = createFileRoute("/_with_header/dev/")({
   beforeLoad: () => {
     if (!import.meta.env.DEV) throw notFound();
@@ -13,6 +15,10 @@ export const Route = createFileRoute("/_with_header/dev/")({
 });
 
 function DevPage() {
+  return import.meta.env.DEV ? <TokenClaims /> : null;
+}
+
+function TokenClaims() {
   const { data, error, isPending } = useQuery({
     queryKey: ["auth-verify"],
     queryFn: () =>

@@ -5,7 +5,7 @@
   "license": "LGPL-3.0-or-later",
   "scripts": {
     "dev": "astro dev --host 0.0.0.0",
-    "build": "node ./scripts/copyCesiumAssets.mjs && astro build",
+    "build": "node ./scripts/copyCesiumAssets.mjs && astro build && node ./scripts/checkCesiumExternal.mjs",
     "preview": "astro preview",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
