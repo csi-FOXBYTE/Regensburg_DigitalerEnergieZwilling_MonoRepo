@@ -114,6 +114,14 @@ AUTH_RESOURCE_ACCESS_CLIENT_ID=digital-energy-twin
 
 Wenn nicht gesetzt, wird standardmaessig `digital-energy-twin` verwendet.
 
+Optional, standardmaessig aus: Ablauffrist neuer oeffentlicher Loeschlinks in Tagen (1 bis 9999):
+
+```env
+SUBMISSION_DELETION_TOKEN_TTL_DAYS=
+```
+
+> **Achtung:** Die Frist laesst nur den Link ablaufen, nicht die Daten. Nach Ablauf ist nur noch der JSON-Download gesperrt; Statuspruefung und Loeschung bleiben moeglich, solange die Einreichung gespeichert ist. Die Frist ist keine Aufbewahrungsregel und loescht nichts. Gespeicherte Einreichungen bleiben bestehen, bis ein Loeschprozess fuer die Aufbewahrungsfrist sie entfernt; einen solchen Prozess gibt es noch nicht. Wie dabei mit bereits angenommenen Einreichungen umzugehen ist, entscheiden Stadt und Datenschutzbeauftragte. Die Variable darf nur zusammen mit diesem Prozess gesetzt werden, und zwar auf dieselbe Aufbewahrungsfrist.
+
 Geplantes Rollenmodell:
 - `Verwalter`: eingereichte Gebaeudedaten lesen und bearbeiten, kein Zugriff auf Systempflege.
 - `Systempfleger`: Zugriff auf Systempflege, kein Zugriff auf eingereichte Gebaeudedaten.

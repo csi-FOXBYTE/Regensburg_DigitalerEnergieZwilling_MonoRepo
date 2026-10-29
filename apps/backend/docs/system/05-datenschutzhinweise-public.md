@@ -225,9 +225,9 @@ Einreichungen werden bis [fachlich und rechtlich freigegebene Regelfrist ergänz
 
 ## 9. Löschung einer freiwilligen Einreichung
 
-Für jede gespeicherte Einreichung erzeugt das Backend einen zufälligen Lösch-Token. Der PDF-Bericht enthält den daraus erzeugten Link zur Löschseite. Die Löschung erfolgt zweistufig: Zuerst wird der zufällige Löschlink aufgerufen, anschließend muss die Löschung in einem Bestätigungsdialog ausdrücklich bestätigt werden.
+Für jede gespeicherte Einreichung erzeugt das Backend einen zufälligen Lösch-Token. Gespeichert wird nur ein daraus berechneter Prüfwert (SHA-256-Hash), nicht der Token selbst. Der PDF-Bericht enthält den Link zur Löschseite; der Token steht darin im URL-Fragment, das Ihr Browser nicht an Server überträgt. Die Löschung erfolgt zweistufig: Zuerst wird der zufällige Löschlink aufgerufen, anschließend muss die Löschung in einem Bestätigungsdialog ausdrücklich bestätigt werden.
 
-Die Löschseite wird vom Public-Frontend angezeigt. Sie prüft beim Backend ausschließlich, ob die Einreichung noch verfügbar ist, und zeigt erst dann den Bestätigungsdialog. Erst die ausdrückliche Bestätigung sendet eine Löschanfrage per HTTP `DELETE`; der vorherige Seiten- und Statusabruf verändert keine Daten. Fehlende, ungültige und bereits verwendete Tokens werden gleich behandelt. Ein zusätzlicher Adressabgleich findet nicht statt.
+Die Löschseite wird vom Public-Frontend angezeigt. Sie prüft beim Backend ausschließlich, ob die Einreichung noch verfügbar ist, und zeigt erst dann den Bestätigungsdialog. Erst die ausdrückliche Bestätigung sendet eine Löschanfrage; der vorherige Seiten- und Statusabruf verändert keine Daten. Fehlende, ungültige und bereits verwendete Tokens werden gleich behandelt. Ein zusätzlicher Adressabgleich findet nicht statt. Die Löschung über den Löschlink bleibt möglich, solange die Einreichung gespeichert ist; sie läuft nicht ab. Ein Ablauf des Links führt nicht zur Löschung Ihrer Daten. Wie lange Einreichungen gespeichert werden, richtet sich allein nach der Speicherdauer in Abschnitt 8.
 
 Nach erfolgreicher Prüfung werden der Einreichungsdatensatz und daraus abgeleitete personenbezogene Gebäudedaten aus der Produktivdatenbank gelöscht. Zugehörige Sicherungskopien werden nach Ablauf des regulären Backupzyklus von [Frist ergänzen] überschrieben beziehungsweise gelöscht.
 
@@ -245,7 +245,7 @@ Der PDF-Bericht kann folgende vertrauliche Verknüpfungen enthalten:
 - bei freiwilliger Einreichung einen Löschlink,
 - bei freiwilliger Einreichung einen Link zum JSON-Export.
 
-Lösch- und JSON-Download-Link enthalten denselben zufälligen, nicht erratbaren Capability-Token. Wer einen solchen Link erhält, kann die gespeicherten öffentlichen Einreichungsdaten herunterladen beziehungsweise nach ausdrücklicher Bestätigung löschen. Der JSON-Export enthält deshalb zusätzlich einen neutralen Löschlink ohne Sprachparameter.
+Lösch- und JSON-Download-Link enthalten denselben zufälligen, nicht erratbaren Capability-Token. Wer einen solchen Link erhält, kann die gespeicherten öffentlichen Einreichungsdaten herunterladen beziehungsweise nach ausdrücklicher Bestätigung löschen. Der JSON-Export enthält deshalb zusätzlich einen neutralen Löschlink ohne Sprachparameter. Der Download über diesen Token ist [Frist ergänzen, sofern `SUBMISSION_DELETION_TOKEN_TTL_DAYS` gesetzt ist: „bis [N] Tage nach der Einreichung möglich; danach ist er nicht mehr verfügbar“ / sonst: „zeitlich nicht begrenzt“]. Die Löschung ist davon nicht betroffen.
 
 Portable Wiederherstellungslinks arbeiten davon unabhängig: Sie enthalten den serialisierten Bearbeitungsstand im URL-Fragment. Dieses Fragment wird ausschließlich im Browser ausgewertet und bei einem normalen HTTP-Aufruf nicht an das Backend übertragen. Für die Wiederherstellung wird kein serverseitiger Sitzungsdatensatz und kein Backend-Token angelegt.
 

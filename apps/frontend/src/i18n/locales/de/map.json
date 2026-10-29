@@ -20,6 +20,19 @@
     "retryButton": "Erneut versuchen",
     "openApplication": "Anwendung öffnen"
   },
+  "submissionDownload": {
+    "loadingTitle": "Eingereichte Daten werden geladen",
+    "loadingDescription": "Bitte warten Sie, während wir Ihre eingereichten Daten abrufen.",
+    "readyTitle": "Eingereichte Daten herunterladen",
+    "readyDescription": "Ihre beim $t(municipality:dataSubmission.server) gespeicherten Daten stehen als JSON-Datei bereit.",
+    "downloadButton": "JSON-Datei herunterladen",
+    "unavailableTitle": "Link nicht verfügbar",
+    "unavailableDescription": "Dieser Link ist nicht mehr gültig oder die eingereichten Daten sind nicht mehr vorhanden.",
+    "serviceErrorTitle": "Dienst vorübergehend nicht erreichbar",
+    "serviceErrorDescription": "Die Daten konnten nicht abgerufen werden. Bitte versuchen Sie es erneut.",
+    "retryButton": "Erneut versuchen",
+    "openApplication": "Anwendung öffnen"
+  },
   "sessionResumeDialog": {
     "title": "Offene Sitzung",
     "description": "Du hast eine offene Sitzung. Möchtest du weitermachen?",

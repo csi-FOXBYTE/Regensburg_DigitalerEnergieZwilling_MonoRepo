@@ -52,6 +52,12 @@ export default defineConfig({
     AUTH_EXPECTED_AUDIENCE: Type.Optional(Type.String()),
     // Local development only; rejected at startup outside development/test.
     AUTH_INSECURE_DEV_DECODE: Type.Optional(Type.String()),
+    // Days until a new public deletion token stops allowing downloads (1 to
+    // 9999, which keeps the expiry a valid Date); unset (default) means no
+    // expiry. Expires only the link, never the data: enable it only together
+    // with a retention-deletion process and the same period, see
+    // issueDeletionToken in submissions.service.ts and the backend README.
+    SUBMISSION_DELETION_TOKEN_TTL_DAYS: Type.Optional(Type.String({ pattern: "^[1-9][0-9]{0,3}$" })),
   }),
   onRouteError: routeErrorHandler,
   // onReady runs after fastify.ready(), when error handlers are locked. API

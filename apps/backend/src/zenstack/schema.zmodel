@@ -78,7 +78,10 @@ model Building with WithTimestamps {
 }
 
 model Submission with Base {
-  deletionToken String                         @unique @default(nanoid())
+  // SHA-256 (hex) of the public deletion token. The token itself is returned
+  // once on submission and never stored. Null expiry means no expiry.
+  deletionTokenHash      String                @unique
+  deletionTokenExpiresAt DateTime?
 
   status        SubmissionStatus
   assignedToId  String?

@@ -183,16 +183,22 @@ describe("request log privacy", () => {
     for (const failure of [undefined, await databaseError()]) {
       const { app, output } = await testApp(failure);
       t.after(() => app.close());
-      for (const suffix of ["status", "download"]) {
-        assert.equal((await app.inject(`/api/public/submissions/${secret}/${suffix}`)).statusCode, failure ? 500 : 200);
+      for (const suffix of ["status", "download", "delete"]) {
+        const response = await app.inject({
+          method: "POST",
+          url: `/api/public/submissions/${suffix}`,
+          payload: { deletionToken: secret },
+        });
+        assert.equal(response.statusCode, failure ? 500 : 200);
       }
-      assert.equal((await app.inject({ method: "DELETE", url: `/api/public/submissions/${secret}` })).statusCode, failure ? 500 : 200);
+      assert.equal((await app.inject(`/api/public/submissions/${secret}/download`)).statusCode, failure ? 500 : 200);
       assert.equal((await app.inject(`/api/public/submissions/${secret}/typo?email=${email}`)).statusCode, 404);
       assertSafe(output);
       assert.deepEqual(output.records().map((record) => record.route), [
-        "/api/public/submissions/:deletionToken/status",
+        "/api/public/submissions/status",
+        "/api/public/submissions/download",
+        "/api/public/submissions/delete",
         "/api/public/submissions/:deletionToken/download",
-        "/api/public/submissions/:deletionToken",
         "unmatched_route",
       ]);
     }

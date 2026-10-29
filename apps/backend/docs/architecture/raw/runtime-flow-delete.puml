@@ -8,11 +8,11 @@ participant "Backend-API" as api
 participant "Nutzerdatendienst" as uds
 database "Datenbank" as db
 
-Benutzer -> client : Löschlink/QR-Code aus PDF öffnen\nGET /delete/{token}
-client -> gateway : GET /api/public/submissions/{token}/status
+Benutzer -> client : Löschlink/QR-Code aus PDF öffnen\nGET /<locale>/delete#{token}\n(Fragment wird nicht übertragen)
+client -> gateway : POST /api/public/submissions/status\n{ deletionToken }
 gateway -> api : Statusanfrage
 api -> uds : Verfügbarkeit prüfen
-uds -> db : Minimale Token-Suche
+uds -> db : Minimale Suche über SHA-256(Token)
 db --> uds : Datensatz oder nicht gefunden
 
 alt Token verfügbar
@@ -22,7 +22,7 @@ alt Token verfügbar
   client --> Benutzer : Bestätigungsdialog anzeigen
   alt Löschung bestätigt
     Benutzer -> client : Löschen bestätigen
-    client -> gateway : DELETE /api/public/submissions/{token}
+    client -> gateway : POST /api/public/submissions/delete\n{ deletionToken }
     gateway -> api : Löschanfrage
     api -> uds : Physisch löschen
     uds -> db : Einreichung löschen
@@ -35,7 +35,7 @@ alt Token verfügbar
     Benutzer -> client : Dialog abbrechen
     client --> Benutzer : Einreichung bleibt bestehen
   end
-else Token fehlt, ist ungültig oder bereits verwendet
+else Token fehlt, ist ungültig oder bereits verwendet\n(die Ablauffrist gilt hier nicht)
   uds --> api : Nicht gefunden
   api --> gateway : 404 NOT_FOUND
   gateway --> client : Nicht verfügbar
@@ -43,15 +43,17 @@ else Token fehlt, ist ungültig oder bereits verwendet
 end
 
 opt JSON-Link aus PDF öffnen
-  Benutzer -> client : JSON-Download anfordern
-  client -> gateway : GET /api/public/submissions/{token}/download
+  Benutzer -> client : JSON-Link öffnen\nGET /<locale>/download#{token}
+  client -> gateway : POST /api/public/submissions/download\n{ deletionToken }
   gateway -> api : Downloadanfrage
   api -> uds : Öffentliche Exportdaten laden
   uds -> db : Einreichung und optionale Konfiguration lesen
   db --> uds : Exportdaten oder nicht gefunden
-  uds --> api : Exportdaten
-  api --> gateway : JSON-Anhang, Cache-Control: no-store
-  gateway --> Benutzer : Datei oder 404
+  uds -> uds : Ablauffrist des Tokens prüfen
+  uds --> api : Exportdaten oder nicht gefunden (auch abgelaufen)
+  api --> gateway : JSON, Cache-Control: no-store
+  gateway --> client : Daten oder 404
+  client --> Benutzer : Datei speichern oder neutrale Nicht-verfügbar-Ansicht
 end
 
 @enduml
