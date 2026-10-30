@@ -1122,30 +1122,30 @@ Mapping-Profile und Kommunenprofile müssen unabhängig voneinander versioniert,
 
 ## 31. Festlegung: Nutzungsdaten und Tracking
 
-*Planungsstand:* Matomo bleibt die vorgesehene Analytics-Lösung, ist technisch jedoch niedrig priorisiert und aktuell keinem verbindlichen Sprint zugeordnet. Entgegen der ursprünglichen Annahme steht in der Kundenumgebung keine bereits nutzbare Matomo-Instanz zur Verfügung. Aufbau, Betrieb und Integration einer eigenen Instanz müssen zunächst abgestimmt werden; eine Umsetzung in Sprint 18 oder 19 ist derzeit unsicher.
+*Umsetzungsstand:* Matomo ist nach Sprint 19 technisch umgesetzt und ab Version v1.8.0 enthalten. Da in der Kundenumgebung keine nutzbare Matomo-Instanz zur Verfügung steht, rollt das Deployment-Add-on optional eine eigene Instanz (Matomo 5 mit MariaDB, Login über Keycloak per LoginOIDC) aus. Produktiv ist Matomo noch nicht aktiviert; dafür sind die Freigabe nach TA-131 sowie die Aktivierung im Add-on (`matomo.enable`) und im Backend (`MATOMO_URL`, `MATOMO_SITE_ID`) erforderlich.
 
 <a id="ta-129"></a>
 
 **TA-129**  
-*Release-Zuordnung:* Nicht im aktuellen Releaseplan zugeordnet.  
+*Release-Zuordnung:* Nach Sprint 19 technisch umgesetzt (ab v1.8.0); produktive Aktivierung offen.  
 Für Nutzungsanalysen ist Matomo verbindlich als Analytics-Lösung einzusetzen.
 
 <a id="ta-130"></a>
 
 **TA-130**  
-*Release-Zuordnung:* Nicht im aktuellen Releaseplan zugeordnet.  
+*Release-Zuordnung:* Nach Sprint 19 technisch umgesetzt (ab v1.8.0); produktive Aktivierung offen.  
 Analytics-Skripte und Tracking-Endpunkte dürfen erst nach gültigem Opt-in aktiviert werden.
 
 <a id="ta-131"></a>
 
 **TA-131**  
-*Release-Zuordnung:* Nicht im aktuellen Releaseplan zugeordnet.  
+*Release-Zuordnung:* Nach Sprint 19 technisch umgesetzt (ab v1.8.0); produktive Aktivierung offen.  
 Vor produktiver Aktivierung von Analytics müssen Eventkatalog, Zweckbindung, Aufbewahrungsfristen, Anonymisierungsregeln, Löschkonzept und Rollen-/Rechtekonzept verbindlich dokumentiert und freigegeben sein. Eventkatalog, KPI-Definitionen und Abnahmekriterien werden im [Matomo-Trackingkonzept](../system/06-matomo-trackingkonzept.md) geführt.
 
 <a id="ta-132"></a>
 
 **TA-132**  
-*Release-Zuordnung:* Nicht im aktuellen Releaseplan zugeordnet.  
+*Release-Zuordnung:* Nach Sprint 19 technisch umgesetzt (ab v1.8.0); produktive Aktivierung offen.  
 Tracking-Funktionen müssen ohne gültiges Opt-in standardmäßig deaktiviert bleiben.
 
 ---
@@ -1251,54 +1251,54 @@ Für den Abnahmeprozess sind bei der Stadt Regensburg jeweils ein fachlicher und
 
 ## 35. Konkretisierung: Matomo-Tracking
 
-*Planungsstand:* Die folgenden Anforderungen bleiben der verbindliche technische Zielzustand für eine spätere Matomo-Aktivierung. Wegen der noch ausstehenden Bereitstellung und Betriebsabstimmung einer eigenen Instanz sind sie aktuell keinem verbindlichen Sprint zugeordnet.
+*Umsetzungsstand:* Die folgenden Anforderungen sind ab Version v1.8.0 im zentralen Tracking-Adapter des Public-Frontends umgesetzt und automatisiert getestet. Ohne Konfiguration und Opt-in bleibt das Tracking inaktiv; Details im [Matomo-Trackingkonzept](../system/06-matomo-trackingkonzept.md#technische-umsetzung).
 
 <a id="ta-143"></a>
 
 **TA-143**  
-*Release-Zuordnung:* Nicht im aktuellen Releaseplan zugeordnet.  
+*Release-Zuordnung:* Nach Sprint 19 technisch umgesetzt (ab v1.8.0); produktive Aktivierung offen.  
 Der gesamte öffentliche Sanierungscheck muss je Laufzeitumgebung über genau eine zentral konfigurierte Matomo-Site-ID erfasst werden. Produktiv-, Test- und Entwicklungsdaten dürfen nicht in derselben Matomo-Site zusammengeführt werden.
 
 <a id="ta-144"></a>
 
 **TA-144**  
-*Release-Zuordnung:* Nicht im aktuellen Releaseplan zugeordnet.  
+*Release-Zuordnung:* Nach Sprint 19 technisch umgesetzt (ab v1.8.0); produktive Aktivierung offen.  
 Das Public-Frontend muss sämtliche Analyseereignisse über einen zentralen Tracking-Adapter senden. Direkte Matomo-Aufrufe aus einzelnen UI-Komponenten sind unzulässig; Eventcodes, Parameter und Werte müssen vor dem Versand gegen versionierte Allow-Lists validiert werden.
 
 <a id="ta-145"></a>
 
 **TA-145**  
-*Release-Zuordnung:* Nicht im aktuellen Releaseplan zugeordnet.  
+*Release-Zuordnung:* Nach Sprint 19 technisch umgesetzt (ab v1.8.0); produktive Aktivierung offen.  
 Vor gültigem Opt-in dürfen keine Matomo-Skripte oder sonstigen Matomo-Ressourcen geladen, keine Matomo-Endpunkte aufgerufen und keine Ereignisse für eine spätere Übermittlung gepuffert werden. Vor der Einwilligung entstandene Ereignisse dürfen nachträglich nicht versendet werden.
 
 <a id="ta-146"></a>
 
 **TA-146**  
-*Release-Zuordnung:* Nicht im aktuellen Releaseplan zugeordnet.  
+*Release-Zuordnung:* Nach Sprint 19 technisch umgesetzt (ab v1.8.0); produktive Aktivierung offen.  
 Tracking-Payloads müssen von Zustands- und Übertragungsobjekten der Gebäudedatenspende getrennt erzeugt werden. Gebäude-, Adress-, Personen-, Verbrauchs-, Kosten-, Berechnungs-, Einreichungs- und Löschdaten sowie daraus gebildete Hashes oder Pseudonyme dürfen nicht an Matomo übergeben werden.
 
 <a id="ta-147"></a>
 
 **TA-147**  
-*Release-Zuordnung:* Nicht im aktuellen Releaseplan zugeordnet.  
+*Release-Zuordnung:* Nach Sprint 19 technisch umgesetzt (ab v1.8.0); produktive Aktivierung offen.  
 An Matomo übermittelte Seitenadressen, Seitentitel, Referrer und benutzerdefinierte Dimensionen müssen vor dem Versand von sensiblen Queryparametern, URL-Fragmenten, Tokens und Objektkennungen bereinigt werden.
 
 <a id="ta-148"></a>
 
 **TA-148**  
-*Release-Zuordnung:* Nicht im aktuellen Releaseplan zugeordnet.  
+*Release-Zuordnung:* Nach Sprint 19 technisch umgesetzt (ab v1.8.0); produktive Aktivierung offen.  
 Ein verwendeter Sitzungsbezug muss zufällig erzeugt, auf den freigegebenen Sitzungszeitraum begrenzt und unabhängig von Gebäude-, Einreichungs- oder Nutzerdaten sein. Ohne gesonderte Freigabe darf keine dauerhafte Besucher- oder kommunenübergreifende Nutzerkennung erzeugt werden.
 
 <a id="ta-149"></a>
 
 **TA-149**  
-*Release-Zuordnung:* Nicht im aktuellen Releaseplan zugeordnet.  
+*Release-Zuordnung:* Nach Sprint 19 technisch umgesetzt (ab v1.8.0); produktive Aktivierung offen.  
 Nach Widerruf der Tracking-Einwilligung muss der Tracking-Adapter weitere Matomo-Aufrufe sofort unterbinden und lokal gespeicherte Matomo-Kennungen entsprechend der freigegebenen Konfiguration entfernen. Die technisch notwendige lokale Speicherung des Bearbeitungsstands und die Einwilligung zur Gebäudedatenspende müssen davon unabhängig bleiben.
 
 <a id="ta-150"></a>
 
 **TA-150**  
-*Release-Zuordnung:* Nicht im aktuellen Releaseplan zugeordnet.  
+*Release-Zuordnung:* Nach Sprint 19 technisch umgesetzt (ab v1.8.0); produktive Aktivierung offen.  
 Consent-Gating, Allow-List-Validierung, Ausschluss sensibler Felder und URLs, Eventtrigger, Schutz vor unbeabsichtigter Mehrfacherfassung sowie KPI-Berechnungen müssen automatisiert getestet werden. Vor Produktivbetrieb müssen außerdem Site-ID, Speichertechniken, Sitzungs-Timeout, IP-Anonymisierung, Aufbewahrungsfristen, Rollen, Berichtsempfänger und Mindestfallzahl für Maßnahmenkombinationen dokumentiert und freigegeben sein.
 
 ---
