@@ -17,6 +17,8 @@ rectangle "CIVITAS/CORE-Plattform" as civitas {
   rectangle "Admin-Frontend\n(Astro/nginx)" as admin_frontend
   database "PostgreSQL" as db
   rectangle "Keycloak (OIDC)" as keycloak
+  rectangle "Matomo-Webanalyse\n(Container, optional)" as matomo
+  database "MariaDB\n(Matomo)" as matomo_db
 }
 
 rectangle "Externer Kacheldienst\n(TILES_URL)" as tiles
@@ -30,6 +32,10 @@ backend --> tiles : Weiterleitung /api/public/tiles/*
 backend --> db
 backend --> keycloak : JWKS
 tiles --> s3 : liest veröffentlichte Kacheln
+
+gateway --> matomo : Host matomo.det.<domain>
+matomo --> keycloak : OIDC-Login
+matomo --> matomo_db : SQL
 
 airflow ..> convert : orchestriert
 airflow ..> enrich : orchestriert

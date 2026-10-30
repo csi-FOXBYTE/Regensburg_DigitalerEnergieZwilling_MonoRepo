@@ -31,6 +31,7 @@ angebunden werden.
   externen Basis- und Fachdaten aktiviert. Die Binärdaten verbleiben an der Quelle
   beziehungsweise im S3-kompatiblen Datendienst.
 - PostgreSQL-Datenbank und Identity Provider werden als Plattformdienste innerhalb von CIVITAS/CORE angebunden.
+- Matomo-Webanalyse ist optional: Mit `matomo.enable` rollt das Deployment-Add-on einen eigenen Matomo-Container mit eigener MariaDB-Datenbank aus. APISIX leitet den Host `matomo.det.<domain>` weiter; darüber laufen sowohl die Tracking-Requests des öffentlichen Clients als auch die Auswertung durch das Fachpersonal.
 
 ---
 
@@ -62,7 +63,8 @@ angebunden werden.
 <a id="deployment-diagramm"></a>
 ## Deployment-Diagramm
 
-Das Diagramm zeigt die Kerncontainer und Zugriffspfade; Stellio als
+Das Diagramm zeigt die Kerncontainer, die optionale Matomo-Webanalyse und die
+Zugriffspfade; Stellio als
 NGSI-LD-Kontextdienst und Piveau als Metadatenkatalog sind ergänzend im Text
 berücksichtigt.
 
