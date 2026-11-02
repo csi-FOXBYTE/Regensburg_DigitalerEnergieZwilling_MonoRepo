@@ -154,13 +154,12 @@ Die Befehle gelten aus dem Stammverzeichnis des jeweiligen Repositories. Sie bes
 
 | Repository | Direkt verfügbarer Einstieg | Einschränkung / benötigte Umgebung |
 |---|---|---|
-| Backend | `pnpm run lint`, `pnpm run build` | Das derzeitige `pnpm test` ist nur ein fehlschlagender Platzhalter; Auth-, API- und Fehlerbehandlungstests benötigen eine Testdatenbank und einen echten Test-Runner-Einstieg. |
-| Frontend | `pnpm run build`, `pnpm run test:e2e` | Playwright verwendet standardmäßig die konfigurierte Webinstanz; für reproduzierbare Prüfung `PLAYWRIGHT_BASE_URL` explizit auf die freigegebene Umgebung setzen. |
-| AdminFrontend | `pnpm run lint`, `pnpm run build` | Noch kein automatisierter Unit- oder E2E-Testeinstieg vorhanden. |
-| EnergyCalculationCore | `pnpm test`, `pnpm run build` | Lokal ohne Plattformzugang ausführbar. |
-| OfflineEnrichment | `pnpm test`, `pnpm run build`, `pnpm run test:e2e:docker` | Docker-E2E benötigt Docker sowie die im Repository beschriebene Containerumgebung. |
-| AirflowDAGs | `python -m pytest` | Benötigt Python-Testabhängigkeiten; Integrationsfälle zusätzlich Airflow, Docker und Test-Objektspeicher. |
-| digital-energy-twin_addon | Manifest-/Policy-Prüfung mit einem festgelegten IaC-Scanner | Noch kein repositoryeigener Test- oder Scan-Einstieg vorhanden. |
+| MonoRepo (Backend, Frontend, AdminFrontend, EnergyCalculationCore) | `pnpm check` (Typecheck und Tests aller Pakete sowie der Release-Skripte), `pnpm -r run lint`, `pnpm build`; einzelne Pakete z. B. mit `pnpm --filter ./apps/backend test` | Läuft auch in der PR-CI (`.github/workflows/ci.yml`, dort zusätzlich `pnpm audit`). In einer frischen Arbeitskopie vor Einzelbefehlen einmal `pnpm prepare:workspace` ausführen (baut den Rechenkern, erzeugt Backend-Client und Admin-Routen). Backend-Tests laufen ohne Datenbank. |
+| MonoRepo, Frontend-E2E | `pnpm --filter ./apps/frontend test:e2e` (Playwright) | Ziel ist standardmäßig die konfigurierte Webinstanz; für reproduzierbare Prüfung `PLAYWRIGHT_BASE_URL` explizit auf die freigegebene Umgebung setzen. Konfiguriert ist der Browser-Kanal `msedge`. Die 3D-Karte braucht WebGL; ohne GPU sind die kartenabhängigen Fälle sehr langsam. |
+| MonoRepo, AdminFrontend-E2E | – | Kein automatisierter E2E-Testeinstieg vorhanden; Unit-Tests über `pnpm check`. |
+| OfflineEnrichment | `pnpm test`, `pnpm run build` (enthält Lint und Tests), `pnpm run test:e2e:docker` | Die Tests der Nachbarwand-Berechnung brauchen SpatiaLite (`libsqlite3-mod-spatialite` bzw. `libspatialite`, sonst `SPATIALITE_PATH`). Docker-E2E baut das Image und benötigt Docker. |
+| AirflowDAGs | `python -m pytest --ignore=s3-gui` (DAG-Tests), `cd s3-gui && python -m pytest tests` (S3-GUI) | DAG-Tests mit Airflow 3.1.7 und dessen Constraints sowie `dags/requirements.txt`; die S3-GUI-Tests brauchen eine eigene Umgebung aus `s3-gui/requirements.txt`. Integrationsfälle zusätzlich Airflow, Docker und Test-Objektspeicher. |
+| digital-energy-twin_addon | `python -m unittest discover -s tests` | Offline-Prüfungen der Tasks und Templates; benötigt Jinja2 und PyYAML. Keine PR-CI, die Tests laufen nicht automatisch. Für Manifest-/Policy-Prüfung (kube-linter, checkov, trivy config) gibt es keinen repositoryeigenen Einstieg. |
 
 ## Freigaberegel
 
