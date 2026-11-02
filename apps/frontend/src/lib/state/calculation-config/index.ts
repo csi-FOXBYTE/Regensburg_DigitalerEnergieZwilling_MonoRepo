@@ -40,11 +40,22 @@ function parseField(value: unknown): unknown {
   return typeof value === 'string' ? JSON.parse(value) : value;
 }
 
-function parseSubsidies(value: unknown): ActiveConfig['subsidies'] {
-  const wrapped =
-    Array.isArray(value) && typeof value[0] === 'string' ? value[0] : value;
-  const parsed = parseField(wrapped);
-  return Array.isArray(parsed) ? (parsed as ActiveConfig['subsidies']) : [];
+/**
+ * The API delivers subsidies as `string[]`: one string holding the whole array
+ * (backend default, current admin) or, as older admin versions saved them, one
+ * JSON string per entry. Both shapes are read.
+ */
+export function parseSubsidies(value: unknown): ActiveConfig['subsidies'] {
+  const items = Array.isArray(value) ? value : [value];
+  return items
+    .flatMap((item) => {
+      const parsed = parseField(item);
+      return Array.isArray(parsed) ? parsed : [parsed];
+    })
+    .filter(
+      (entry): entry is ActiveConfig['subsidies'][number] =>
+        typeof entry === 'object' && entry !== null,
+    );
 }
 
 async function loadActiveConfig() {
