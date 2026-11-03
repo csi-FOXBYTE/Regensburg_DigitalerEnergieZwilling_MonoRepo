@@ -119,6 +119,11 @@ jobs:
         with:
           persist-credentials: false
       - uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3.12.0
+      # The release's refresh epoch decides when OS packages are upgraded again;
+      # the scan builds with the same epoch so it sees what the release ships.
+      - name: Read the refresh epoch
+        id: refresh
+        run: echo "epoch=$(jq -r .refreshEpoch scripts/release/config.json)" >> "$GITHUB_OUTPUT"
       # Only pushes to main write the layer cache; pull requests read it.
       - name: Build the runtime image
         uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6.19.2
@@ -129,8 +134,9 @@ jobs:
           provenance: false
           sbom: false
           tags: ci/${{ matrix.component }}:scan
-          cache-from: type=gha,scope=ci-${{ matrix.component }}
-          cache-to: ${{ github.event_name == 'push' && format('type=gha,mode=max,scope=ci-{0}', matrix.component) || '' }}
+          build-args: RELEASE_REFRESH=${{ steps.refresh.outputs.epoch }}
+          cache-from: type=gha,scope=ci-${{ matrix.component }}-${{ steps.refresh.outputs.epoch }}
+          cache-to: ${{ github.event_name == 'push' && format('type=gha,mode=max,scope=ci-{0}-{1}', matrix.component, steps.refresh.outputs.epoch) || '' }}
       - name: Smoke test the runtime image
         env:
           COMPONENT: ${{ matrix.component }}
