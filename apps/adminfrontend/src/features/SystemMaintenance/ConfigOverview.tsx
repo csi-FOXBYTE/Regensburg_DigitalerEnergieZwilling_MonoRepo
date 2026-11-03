@@ -10,6 +10,7 @@ import FoerderprogrammeSection from "@/features/SystemMaintenance/sections/Subsi
 import SurfaceTempResistenceSection from "@/features/SystemMaintenance/sections/SurfaceTempResistenceSection";
 import UgdSection from "@/features/SystemMaintenance/sections/UgdSection";
 import WindowSection from "@/features/SystemMaintenance/sections/WindowSection";
+import { parseSubsidies } from "@/lib/subsidies";
 import type { DETConfig } from "@csi-foxbyte/regensburg_digitalerenergiezwilling_energycalculationcore";
 import CheckIcon from "@mui/icons-material/Check";
 import { Box, Button, Chip, Paper, Typography } from "@mui/material";
@@ -311,9 +312,9 @@ export function ConfigOverview() {
     const calculationConfig = JSON.parse(
       String(loadConfig.data.calculationConfig),
     ) as DETConfig;
-    const subsidies = JSON.parse(
-      String(loadConfig.data.subsidies),
-    ) as SubsidyWrapper[];
+    const subsidies = parseSubsidies<SubsidyWrapper>(
+      loadConfig.data.subsidies,
+    );
     config.set(calculationConfig);
     foerderprogramme.set(subsidies);
   }, [loadConfig.data]);
