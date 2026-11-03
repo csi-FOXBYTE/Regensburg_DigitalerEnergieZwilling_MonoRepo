@@ -6,7 +6,7 @@
   },
   "prerelease": true,
   "platform": "linux/amd64",
-  "refreshEpoch": 0,
+  "refreshEpoch": 1,
   "images": {
     "frontend": {
       "repository": "ghcr.io/csi-foxbyte/regensburg-web-frontend",
