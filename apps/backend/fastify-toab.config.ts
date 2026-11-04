@@ -6,6 +6,7 @@ import { allowedCorsOrigins, createCorsOrigin } from "./src/lib/cors.js";
 import { requestErrorHandler } from "./src/errors/request-error-handler.js";
 import { routeErrorHandler } from "./src/errors/route-error-handler.js";
 import { installRequestGuards } from "./src/lib/request-guards.js";
+import { installNotFoundHandler } from "./src/errors/not-found.js";
 import { getAltcha, installAltchaGuard } from "./src/altcha/altcha.js";
 
 // fastify-toab 0.2.0-rc.4's CLI reads the module namespace, not its default export.
@@ -75,6 +76,7 @@ export default defineConfig({
   // documented error schemas.
   onPreStart: async (fastify) => {
     fastify.setErrorHandler(requestErrorHandler);
+    installNotFoundHandler(fastify);
     // Before the API routes are registered, so they inherit the hooks and
     // the body validator.
     installRequestGuards(fastify);
