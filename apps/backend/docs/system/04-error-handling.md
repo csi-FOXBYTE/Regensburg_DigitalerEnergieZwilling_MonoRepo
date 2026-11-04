@@ -70,6 +70,13 @@ Ein Code hat immer denselben Status, ob die Antwort aus einem Service, einem Plu
 - `BAD_REQUEST` / `400` / `Numeric parameters must be finite` (z. B. `Infinity` oder `1e400` in Query- oder Pfadparametern)
 - `UNSUPPORTED_MEDIA_TYPE` / `415` / `JSON request bodies must be UTF-8` (JSON-Body mit anderem `charset`)
 
+### Fachliche Konflikte
+
+- `CONFLICT` / `409` / ungültiger Statusübergang einer Einreichung (Triage)
+- `CONFLICT` / `409` / Löschen aller Einreichungen eines Gebäudes, solange nicht alle abgelehnt sind
+- `CONFLICT` / `409` / Konfigurationsversion existiert bereits
+- `CONFLICT` / `409` / aktive Konfiguration kann nicht gelöscht werden
+
 ### Router und HTTP-Parser
 
 - `URI_TOO_LONG` / `414` / `URI too long` (Pfadparameter länger als 100 Zeichen)
