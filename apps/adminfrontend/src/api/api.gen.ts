@@ -1242,16 +1242,3 @@ export const postApiPublicSubmissionsDeletionReceiptsVerify = async (
     },
   );
 };
-
-export const getGetApiAdminTestUrl = () => {
-  return `/api/admin/test`;
-};
-
-export const getApiAdminTest = async (
-  options?: RequestInit,
-): Promise<unknown> => {
-  return apiClient<unknown>(getGetApiAdminTestUrl(), {
-    ...options,
-    method: "GET",
-  });
-};

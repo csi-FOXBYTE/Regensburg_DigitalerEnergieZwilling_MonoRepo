@@ -36,7 +36,6 @@ Dieses Repo startet einen HTTP-Server mit:
 - `src/index.ts`: App-Bootstrap, Fastify-Setup, Plugins, Listen
 - `src/lib/pino.ts`: Logger-Setup + `injectPinoLogger`
 - `src/auth/*`: Auth DTOs, Service, Controller, Middleware
-- `src/test/test.controller.ts`: geschuetzte Test-Route
 - `src/registries.ts`: autogenerierte TOAB Registries
 - `scripts/create-dev-jwt.mjs`: Dev-JWT Generator
 - `dev.ts`: lokaler Dev-Runner mit Watch + Restart
@@ -72,8 +71,7 @@ Interner App-Port ist `5000` (falls `PORT` nicht gesetzt ist). Externe Requests 
 
 - `GET /docs` -> Swagger UI
 - `GET /bullMQ` -> Bull Board UI
-- `GET /admin/api/auth/verify` -> gibt den vom Gateway geprueften Token-Payload zurueck
-- `GET /api/admin/test/` -> geschuetzte Test-Route (Route durch APISIX geschuetzt, Backend-Rollenpruefung aktiv)
+- `GET /api/admin/auth/verify` -> gibt den vom Gateway geprueften Token-Payload zurueck
 
 ## Umgebungsvariablen (.env)
 
@@ -169,10 +167,10 @@ Produktiv werden Tokens durch APISIX/OIDC geprueft. Die folgenden Aufrufe dienen
 ```bash
 TOKEN="$(pnpm -s jwt:dev --output raw)"
 
-curl -i http://localhost:5000/admin/api/auth/verify \
+curl -i http://localhost:5000/api/admin/auth/verify \
   -H "x-access-token: ${TOKEN}"
 
-curl -i http://localhost:5000/api/admin/test/ \
+curl -i http://localhost:5000/api/admin/auth/verify \
   -H "Authorization: Bearer ${TOKEN}"
 ```
 
