@@ -191,14 +191,15 @@ describe("request log privacy", () => {
         });
         assert.equal(response.statusCode, failure ? 500 : 200);
       }
-      assert.equal((await app.inject(`/api/public/submissions/${secret}/download`)).statusCode, failure ? 500 : 200);
+      // The removed legacy GET download route is unmatched now.
+      assert.equal((await app.inject(`/api/public/submissions/${secret}/download`)).statusCode, 404);
       assert.equal((await app.inject(`/api/public/submissions/${secret}/typo?email=${email}`)).statusCode, 404);
       assertSafe(output);
       assert.deepEqual(output.records().map((record) => record.route), [
         "/api/public/submissions/status",
         "/api/public/submissions/download",
         "/api/public/submissions/delete",
-        "/api/public/submissions/:deletionToken/download",
+        "unmatched_route",
         "unmatched_route",
       ]);
     }

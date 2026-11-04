@@ -258,7 +258,7 @@ describe("public submission token service operations", () => {
 });
 
 describe("public submission routes", () => {
-  it("implements the capability contract without the destructive GET route", async (t) => {
+  it("implements the capability contract without token-in-URL GET routes", async (t) => {
     let tokenAvailable = true;
     let includeConfig = true;
     const submit = mock.fn(async () => ({
@@ -377,18 +377,6 @@ describe("public submission routes", () => {
       deletionLink: "https://public.example/delete#opaque-token",
     });
 
-    // JSON links in PDFs issued before the token left the URL keep working.
-    const legacyDownloadResponse = await app.inject({
-      method: "GET",
-      url: "/api/public/submissions/opaque-token/download",
-    });
-    assert.equal(legacyDownloadResponse.statusCode, 200);
-    assert.deepEqual(legacyDownloadResponse.json(), downloadResponse.json());
-    assert.equal(
-      legacyDownloadResponse.headers["content-disposition"],
-      'attachment; filename="submission-submission-1.json"',
-    );
-
     includeConfig = false;
     const withoutConfigResponse = await app.inject({
       method: "POST",
@@ -398,8 +386,10 @@ describe("public submission routes", () => {
     assert.equal(withoutConfigResponse.statusCode, 200);
     assert.equal("configName" in withoutConfigResponse.json(), false);
 
-    // No route accepts the token in the URL for status checks or deletion.
+    // No route accepts the token in the URL, neither for downloads nor for
+    // status checks or deletion.
     for (const request of [
+      { method: "GET" as const, url: "/api/public/submissions/opaque-token/download" },
       { method: "GET" as const, url: "/api/public/submissions/opaque-token/delete" },
       { method: "GET" as const, url: "/api/public/submissions/opaque-token/status" },
       { method: "DELETE" as const, url: "/api/public/submissions/opaque-token" },
@@ -408,6 +398,7 @@ describe("public submission routes", () => {
       assert.equal(response.statusCode, 404);
     }
     assert.equal(assertAvailable.mock.calls.length, 1);
+    assert.equal(getDownload.mock.calls.length, 2);
     assert.equal(remove.mock.calls.length, 0);
 
     const deleteResponse = await app.inject({
@@ -435,7 +426,6 @@ describe("public submission routes", () => {
     for (const request of [
       { method: "POST" as const, url: "/api/public/submissions/status", payload: { deletionToken: "opaque-token" } },
       { method: "POST" as const, url: "/api/public/submissions/download", payload: { deletionToken: "opaque-token" } },
-      { method: "GET" as const, url: "/api/public/submissions/opaque-token/download" },
       { method: "POST" as const, url: "/api/public/submissions/delete", payload: { deletionToken: "opaque-token" } },
     ]) {
       const response = await app.inject(request);

@@ -27,12 +27,6 @@ const submissionsPublicController = createController().rootPath(
 const DeletionTokenBody = Type.Object({
   deletionToken: Type.String({ minLength: 1, maxLength: 256 }),
 });
-// Only for JSON links in PDFs issued before the token left the URL. Kept
-// separate from the body schema so tightening that one for new tokens cannot
-// break the legacy nanoid links.
-const LegacyDeletionTokenParams = Type.Object({
-  deletionToken: Type.String({ minLength: 1, maxLength: 256 }),
-});
 
 const catchSubmissionNotFound = (err: unknown) => {
   if (err instanceof SubmissionNotFoundError)
@@ -172,20 +166,6 @@ submissionsPublicController
     async ({ services, body, reply }) => {
       reply.header("Cache-Control", "no-store");
       return publicDownload(await getSubmissionsService(services), body.deletionToken, reply);
-    },
-    { logLevel: "silent" },
-  );
-
-// Deprecated: keeps the JSON links in already distributed PDFs working. New
-// PDFs link to the client download page with the token in the fragment.
-submissionsPublicController
-  .addRoute("GET", "/:deletionToken/download")
-  .params(LegacyDeletionTokenParams)
-  .output(PublicSubmissionDownloadOutputDto)
-  .handler(
-    async ({ services, params, reply }) => {
-      reply.header("Cache-Control", "no-store");
-      return publicDownload(await getSubmissionsService(services), params.deletionToken, reply);
     },
     { logLevel: "silent" },
   );

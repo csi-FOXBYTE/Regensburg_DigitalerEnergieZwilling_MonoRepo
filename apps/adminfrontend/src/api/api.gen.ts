@@ -741,27 +741,6 @@ export type PostApiPublicSubmissionsDeletionReceiptsVerify200 = {
   valid: boolean;
 };
 
-export type GetApiPublicSubmissionsDeletionTokenDownload200Raw = {
-  [key: string]: unknown;
-};
-
-export type GetApiPublicSubmissionsDeletionTokenDownload200NgsiData = {
-  [key: string]: unknown;
-};
-
-export type GetApiPublicSubmissionsDeletionTokenDownload200 = {
-  id: string;
-  buildingId: string;
-  address: string;
-  longitude: number;
-  latitude: number;
-  configName?: string;
-  createdAt: string;
-  raw: GetApiPublicSubmissionsDeletionTokenDownload200Raw;
-  ngsiData: GetApiPublicSubmissionsDeletionTokenDownload200NgsiData;
-  deletionLink: string;
-};
-
 export const getGetHealthUrl = () => {
   return `/health`;
 };
@@ -1260,25 +1239,6 @@ export const postApiPublicSubmissionsDeletionReceiptsVerify = async (
       method: "POST",
       headers: { "Content-Type": "application/json", ...options?.headers },
       body: JSON.stringify(postApiPublicSubmissionsDeletionReceiptsVerifyBody),
-    },
-  );
-};
-
-export const getGetApiPublicSubmissionsDeletionTokenDownloadUrl = (
-  deletionToken: string,
-) => {
-  return `/api/public/submissions/${deletionToken}/download`;
-};
-
-export const getApiPublicSubmissionsDeletionTokenDownload = async (
-  deletionToken: string,
-  options?: RequestInit,
-): Promise<GetApiPublicSubmissionsDeletionTokenDownload200> => {
-  return apiClient<GetApiPublicSubmissionsDeletionTokenDownload200>(
-    getGetApiPublicSubmissionsDeletionTokenDownloadUrl(deletionToken),
-    {
-      ...options,
-      method: "GET",
     },
   );
 };
