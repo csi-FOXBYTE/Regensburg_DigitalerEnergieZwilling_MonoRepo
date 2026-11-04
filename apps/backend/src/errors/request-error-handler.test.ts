@@ -10,6 +10,7 @@ import {
   type WorkerRegistry,
 } from "@csi-foxbyte/fastify-toab";
 import submissionsPublicController from "../submissionsPublic/submissionsPublic.controller.js";
+import { createGuardedTestApp } from "../lib/guarded-test-app.js";
 import { requestErrorHandler, toRequestAppError } from "./request-error-handler.js";
 import { routeErrorHandler } from "./route-error-handler.js";
 
@@ -102,6 +103,60 @@ describe("request error handler", () => {
 
     assert.equal(response.statusCode, 415);
     assert.equal(response.json().status, "UNSUPPORTED_MEDIA_TYPE");
+  });
+
+  it("answers body parser errors with fixed messages that quote no request values", async (t) => {
+    const app = await createTestApp();
+    t.after(() => app.close());
+    const marker = "CLIENT_SUPPLIED_MARKER";
+    const requests = [
+      { payload: "<x/>", contentType: `application/x-${marker}`, expected: [415, "UNSUPPORTED_MEDIA_TYPE", "Unsupported media type"] },
+      { payload: `{"input": ${marker}}`, contentType: "application/json", expected: [400, "BAD_REQUEST", "Request body is not valid JSON"] },
+      { payload: "", contentType: `application/json; ${marker}=1`, expected: [400, "BAD_REQUEST", "Request body must not be empty"] },
+    ];
+    for (const { payload, contentType, expected } of requests) {
+      const response = await app.inject({
+        method: "POST",
+        url: "/api/public/submissions",
+        payload,
+        headers: { "content-type": contentType },
+      });
+      const body = response.json();
+      assert.deepEqual([response.statusCode, body.status, body.message], expected, contentType);
+      assert.ok(!response.body.includes(marker), contentType);
+    }
+  });
+
+  it("keeps the message of non-UTF-8 JSON bodies, which the request guard raises", async (t) => {
+    const app = await createGuardedTestApp([submissionsPublicController]);
+    t.after(() => app.close());
+
+    const response = await app.inject({
+      method: "POST",
+      url: "/api/public/submissions",
+      payload: "{}",
+      headers: { "content-type": "application/json; charset=latin1" },
+    });
+    assert.equal(response.statusCode, 415);
+    assert.deepEqual(response.json(), {
+      status: "UNSUPPORTED_MEDIA_TYPE",
+      code: 415,
+      message: "JSON request bodies must be UTF-8",
+    });
+  });
+
+  it("never passes a plugin's 4xx message to the client", () => {
+    const marker = "CLIENT_SUPPLIED_MARKER";
+    const pluginError = (statusCode: number, code = "FST_PLUGIN") =>
+      Object.assign(new Error(`rejected ${marker}`), { statusCode, code }) as FastifyError;
+    assert.deepEqual(
+      [400, 413, 415, 418].map((statusCode) => toRequestAppError(pluginError(statusCode)).message),
+      ["Bad request", "Request body is too large", "Unsupported media type", "Bad request"],
+    );
+    assert.equal(
+      toRequestAppError(pluginError(400, "FST_ERR_CTP_INVALID_CONTENT_LENGTH")).message,
+      "Request body size does not match Content-Length",
+    );
   });
 
   it("keeps the status of plugin errors instead of calling them bad requests", () => {

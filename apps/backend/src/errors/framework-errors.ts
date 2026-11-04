@@ -1,16 +1,9 @@
 import { STATUS_CODES } from "node:http";
 import type { Socket } from "node:net";
 import type { FastifyInstance, FastifyServerOptions } from "fastify";
-import { AppError, httpErrorStatus, sendAppError } from "./app-error.js";
+import { AppError, httpErrorMessage, httpErrorStatus, sendAppError } from "./app-error.js";
 
 type FrameworkErrorHandler = NonNullable<FastifyServerOptions["frameworkErrors"]>;
-
-const fixedMessages: Readonly<Record<number, string>> = {
-  400: "Bad request",
-  408: "Request timeout",
-  414: "URI too long",
-  431: "Request header fields too large",
-};
 
 // Router errors (FST_ERR_BAD_URL, FST_ERR_MAX_PARAM_LENGTH,
 // FST_ERR_ASYNC_CONSTRAINT) carry the request path in their message, so only
@@ -21,7 +14,7 @@ export function toFrameworkAppError(statusCode: number | undefined): AppError {
   return new AppError({
     status: httpErrorStatus[code] ?? "BAD_REQUEST",
     code,
-    message: fixedMessages[code] ?? "Bad request",
+    message: httpErrorMessage[code] ?? "Bad request",
   });
 }
 

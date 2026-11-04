@@ -36,6 +36,23 @@ export const httpErrorStatus: Readonly<Record<number, AppErrorStatus>> = {
   503: "SERVICE_UNAVAILABLE",
 };
 
+// Fixed client messages for framework and plugin errors, whose own messages
+// may carry request values (path, headers, parser input).
+export const httpErrorMessage: Readonly<Record<number, string>> = {
+  400: "Bad request",
+  401: "Unauthorized",
+  403: "Forbidden",
+  404: "Not found",
+  405: "Method not allowed",
+  408: "Request timeout",
+  409: "Conflict",
+  413: "Request body is too large",
+  414: "URI too long",
+  415: "Unsupported media type",
+  429: "Too many requests",
+  431: "Request header fields too large",
+};
+
 type AppErrorInput = {
   status: AppErrorStatus;
   code: number;

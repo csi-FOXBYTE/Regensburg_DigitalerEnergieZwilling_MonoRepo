@@ -25,7 +25,7 @@ Außerhalb von Development wird kein Stacktrace an Clients ausgeliefert.
 - Unbekannte Routen: `src/errors/not-found.ts` antwortet mit `NOT_FOUND` / `404` / `Not found` und wiederholt die angefragte URL nicht.
 - Fehler, die Router und HTTP-Parser vor jedem Hook auslösen (Pfadparameter über 100 Zeichen, ungültige Prozentkodierung im Pfad, zu große Header, Parser- und Timeout-Fehler): `src/errors/framework-errors.ts`. fastify-toab legt die Fastify-Instanz ohne Serveroptionen an; `installFrameworkErrorHandlers` setzt deshalb in `onPreStart` `frameworkErrors` auf der Instanz und ersetzt den `clientError`-Handler des HTTP-Servers. Die Antwort enthält nur Status und eine feste Meldung, nie den angefragten Pfad. Diese Antworten erscheinen nicht im Request-Log, weil Fastify für sie keine Hooks ausführt.
 - APISIX prüft Token vorgelagert; das Backend verifiziert Signatur und Claims zusätzlich selbst (`src/auth/auth.service.ts`).
-- Statuscodes aus Framework-/Plugin-Fehlern bleiben erhalten. `5xx`-Antworten enthalten nie die interne Fehlermeldung.
+- Statuscodes aus Framework-/Plugin-Fehlern bleiben erhalten. `5xx`-Antworten enthalten nie die interne Fehlermeldung. `4xx`-Fehler von Body-Parser und Plugins erhalten eine feste Meldung je Fehlercode bzw. HTTP-Status (`httpErrorMessage` in `src/errors/app-error.ts`), damit weder `Content-Type` noch Body-Inhalte zurückgegeben werden. Ausgenommen sind Schema-Validierungsmeldungen (sie nennen Pfad und Regel, nicht den Wert) und `AppError`s aus Hooks wie den Request-Guards.
 
 ## Status-Typen (AppErrorStatus)
 
@@ -70,6 +70,9 @@ Ein Code hat immer denselben Status, ob die Antwort aus einem Service, einem Plu
 - `BAD_REQUEST` / `400` / `Request body must not be nested deeper than 32 levels`
 - `BAD_REQUEST` / `400` / `Numeric parameters must be finite` (z. B. `Infinity` oder `1e400` in Query- oder Pfadparametern)
 - `UNSUPPORTED_MEDIA_TYPE` / `415` / `JSON request bodies must be UTF-8` (JSON-Body mit anderem `charset`)
+- `UNSUPPORTED_MEDIA_TYPE` / `415` / `Unsupported media type` (kein Parser für den `Content-Type`)
+- `BAD_REQUEST` / `400` / `Request body is not valid JSON`, `Request body must not be empty`, `Request body size does not match Content-Length`
+- `PAYLOAD_TOO_LARGE` / `413` / `Request body is too large`
 
 ### Fachliche Konflikte
 
