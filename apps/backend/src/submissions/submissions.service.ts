@@ -56,8 +56,9 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 // CAUTION: the TTL expires only the link, never the data. It is not a
 // retention control: stored submissions stay until a retention-deletion
 // process removes them (none exists yet; its rules for accepted submissions
-// are a decision for the city and its data protection officer). Only enable
-// the TTL together with that process and set it to the same retention period.
+// are a decision for the city and its data protection officer). The deployment
+// add-on enables it (30 days) before that process exists, to limit how long a
+// leaked download link works; align it with the retention period once defined.
 export const deletionTokenTtlDays = (
   value = process.env.SUBMISSION_DELETION_TOKEN_TTL_DAYS,
 ): number | null => (value ? Number(value) : null);
