@@ -232,7 +232,7 @@ Der PDF-Bericht kann folgende vertrauliche Verknüpfungen enthalten:
 - bei freiwilliger Einreichung einen Löschlink,
 - bei freiwilliger Einreichung einen Link zum JSON-Export.
 
-Lösch- und JSON-Download-Link enthalten denselben zufälligen, nicht erratbaren Capability-Token. Wer einen solchen Link erhält, kann die gespeicherten öffentlichen Einreichungsdaten herunterladen beziehungsweise nach ausdrücklicher Bestätigung löschen. Der JSON-Export enthält deshalb zusätzlich einen neutralen Löschlink ohne Sprachparameter.
+Lösch- und JSON-Download-Link enthalten denselben zufälligen, nicht erratbaren Capability-Token. Wer einen solchen Link erhält, kann die gespeicherten öffentlichen Einreichungsdaten herunterladen beziehungsweise nach ausdrücklicher Bestätigung löschen. Der JSON-Export enthält deshalb zusätzlich einen neutralen Löschlink ohne Sprachparameter. Der Download der Einreichungsdaten über den Link ist 30 Tage ab der Einreichung möglich; die Löschung über den Löschlink bleibt möglich, solange die Einreichung gespeichert ist.
 
 Portable Wiederherstellungslinks arbeiten davon unabhängig: Sie enthalten den serialisierten Bearbeitungsstand im URL-Fragment. Dieses Fragment wird ausschließlich im Browser ausgewertet und bei einem normalen HTTP-Aufruf nicht an das Backend übertragen. Für die Wiederherstellung wird kein serverseitiger Sitzungsdatensatz und kein Backend-Token angelegt.
 
