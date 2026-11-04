@@ -196,7 +196,7 @@ dokumentiert.
 
 Quelle: `raw/data-model.puml`
 
-### Public Write Flow (APISIX-Altcha + Verifikation)
+### Public Write Flow (Altcha + Verifikation)
 
 ![public-write-flow.png](./attachments/public-write-flow.png)
 
@@ -211,10 +211,10 @@ Quelle: `raw/public-write-flow.puml`
 - **Ressourcen**: Gebäude, Eingaben, Berechnungen, Konfigurationen, Kataloge, Triage, Reports
 - **Auth/Session**: OIDC für Admin; öffentlicher Bereich ohne Auth mit Local Storage für Zustandswiederherstellung und optionalem Schreibzugriff für Berechnungsergebnisse
 - **Validation**: Public Write prüft Eingaben (Range/Schema)
-- **Abuse-Schutz**: Öffentliche Schreibzugriffe sind durch die globale, von der externen Deployment-Plattform betriebene APISIX-Policy für Altcha-Challenges und Rate Limiting geschützt
+- **Abuse-Schutz**: Öffentliche Schreibzugriffe sind durch eine vom Backend geprüfte Altcha-Challenge und durch Rate Limiting am APISIX-Gateway geschützt
 - **State-Restore**: Local Storage und portable, ausschließlich im Browser ausgewertete URL-Fragmente stellen Bearbeitungsstände wieder her; das Backend persistiert keine Frontend-Sitzung und bietet keinen Wiederherstellungsendpunkt
-- **Altcha kurz erklärt**: Altcha ist eine selbsthostbare, datenschutzfreundliche Challenge; der Client löst eine kleine Rechenaufgabe und sendet ein Token, das von der globalen APISIX-Policy der externen Deployment-Plattform geprüft wird.
-- **Enforcement**: Bereitstellung, Betrieb und Nachweis der Altcha- und Rate-Limit-Policy sind externe Plattformverantwortung und nicht Bestandteil der DEZ-Repositories. Das Backend übernimmt danach Schema-/Fachvalidierung und Recompute-Verifikation.
+- **Altcha kurz erklärt**: Altcha ist eine selbsthostbare, datenschutzfreundliche Proof-of-Work-Challenge. Der Client holt vor jedem Schreibzugriff eine HMAC-signierte Challenge (`GET /api/public/altcha/challenge`, fünf Minuten gültig), löst sie mit dem selbst gehosteten Altcha-Widget und sendet die Lösung im Header `X-Altcha`.
+- **Enforcement**: Das Backend prüft die Lösung bei `POST /api/public/submissions` und `POST /api/public/feedback` im `onRequest`-Hook, also bevor der Body gelesen und validiert wird. Fehlende, ungültige, abgelaufene und bereits verwendete Lösungen werden mit `403 FORBIDDEN` abgewiesen. Verwendete Challenges merkt sich der Backend-Prozess bis zu ihrem Ablauf im Speicher; bei mehreren Replikas wäre eine Lösung einmal je Replika verwendbar. Danach folgen Schema-/Fachvalidierung und Recompute-Verifikation. Rate Limiting erfolgt am APISIX-Gateway.
 - **Publish-Flow**: Admin veröffentlicht Konfiguration → JSON-Snapshot wird erzeugt → Public Client liest JSON
 - **Versionierung**: Konfigurations- und API-Versionen klar trennen
 - **Fehlerformate**: Standardisierte Fehlercodes und Validierungsdetails
@@ -251,7 +251,7 @@ Diese Vertragsregeln entsprechen insbesondere TA-48 bis TA-50, TA-80 bis TA-83, 
 ### Abgleich mit technischen Anforderungen
 
 - Die Trennung von öffentlichen und administrativen APIs entspricht TA-02, TA-03 und TA-35.
-- Public Write mit der extern betriebenen globalen APISIX-Policy für Altcha und Rate Limiting entspricht TA-47 bis TA-51.
+- Public Write mit Altcha-Prüfung im Backend und Rate Limiting am APISIX-Gateway entspricht TA-47 bis TA-51.
 - Konfigurations-Publishing mit Snapshot entspricht TA-27 bis TA-46.
 - Offline-Pipeline, 3D Tiles Prinzipien und NGSI-LD-Export nach Stellio entsprechen TA-10 bis TA-18 sowie TA-72.
 

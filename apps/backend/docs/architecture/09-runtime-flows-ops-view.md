@@ -23,9 +23,9 @@ operative Aspekte wie Monitoring, Logging und Betrieb.
 ## Runtime-Flows
 
 **Bürger (Eigentümer/Vermieter)-Flow**  
-Der öffentliche Client lädt statische Inhalte, die veröffentlichte Konfiguration und 3D Tiles. Tile-Anfragen laufen über `GET /api/public/tiles/*`; das Backend leitet sie per Redirect an die über `TILES_URL` konfigurierte externe Tiles-URL weiter. Nutzer wählen ein Gebäude, führen Berechnungen clientseitig aus und übermitteln Ergebnisse optional über APISIX an das Backend; Altcha und Rate Limiting werden dabei durch die globale Policy der externen Deployment-Plattform geprüft. Der Bearbeitungszustand wird über Local Storage für Wiederbesuche wiederhergestellt. Portable Wiederherstellungslinks serialisieren den Zustand ausschließlich im clientseitig ausgewerteten URL-Fragment; das Backend stellt dafür keinen Sitzungsendpunkt bereit.
+Der öffentliche Client lädt statische Inhalte, die veröffentlichte Konfiguration und 3D Tiles. Tile-Anfragen laufen über `GET /api/public/tiles/*`; das Backend leitet sie per Redirect an die über `TILES_URL` konfigurierte externe Tiles-URL weiter. Nutzer wählen ein Gebäude, führen Berechnungen clientseitig aus und übermitteln Ergebnisse optional über APISIX an das Backend; APISIX begrenzt dabei die Anfragerate, das Backend prüft vor der Verarbeitung die Altcha-Lösung im Header `X-Altcha`. Der Bearbeitungszustand wird über Local Storage für Wiederbesuche wiederhergestellt. Portable Wiederherstellungslinks serialisieren den Zustand ausschließlich im clientseitig ausgewerteten URL-Fragment; das Backend stellt dafür keinen Sitzungsendpunkt bereit.
 Beteiligte Komponenten: APISIX (Web/API-Gateway), Public Client, externer Tiles-Dienst, Config Snapshot, Backend API.  
-Fehlerpfade: fehlende Tiles/Config, ungültige Eingaben, APISIX-Altcha-/Rate-Limit-Prüfung fehlgeschlagen, Server-Recompute abweichend.
+Fehlerpfade: fehlende Tiles/Config, ungültige Eingaben, Altcha-Lösung fehlt, ist ungültig, abgelaufen oder bereits verwendet (`403`), Rate Limit am Gateway überschritten (`429`), Server-Recompute abweichend.
 
 ![runtime-flow-public.png](./attachments/runtime-flow-public.png)
 

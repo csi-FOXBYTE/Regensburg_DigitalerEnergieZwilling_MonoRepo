@@ -253,7 +253,7 @@ Speichern Sie Bericht und Links daher geschützt und geben Sie sie nur an vertra
 
 ## 11. Schutz vor automatisierten Zugriffen
 
-Öffentliche Schreibzugriffe werden durch Rate Limiting und eine selbst gehostete Altcha-Challenge am APISIX-Gateway vor Missbrauch geschützt. Die dafür eingesetzte globale Gateway-Policy wird durch die externe Deployment-Plattform bereitgestellt und betrieben; sie ist nicht Bestandteil der DEZ-Repositories. Altcha lässt den Browser eine kleine Rechenaufgabe lösen; hierfür ist kein Konto erforderlich.
+Öffentliche Schreibzugriffe (Datenspende und Feedback) werden durch Rate Limiting am APISIX-Gateway und eine selbst gehostete Altcha-Challenge vor Missbrauch geschützt. Altcha lässt den Browser vor dem Absenden eine kleine Rechenaufgabe lösen; die Aufgabe stellt das Backend der Anwendung aus und prüft auch die Lösung. Dafür werden keine Cookies gesetzt, keine Maus- oder Scrollbewegungen ausgewertet und keine Dienste Dritter eingebunden; ein Konto ist nicht erforderlich. Bereits verwendete Aufgaben merkt sich das Backend ohne IP-Adresse bis zu ihrem Ablauf nach fünf Minuten im Arbeitsspeicher, damit jede Lösung nur einmal gilt.
 
 Dabei werden insbesondere IP-Adresse, Zeitpunkt, Challenge-Daten, Prüfergebnis und technische Anfragedaten verarbeitet. Zweck ist der Schutz der Anwendung und der gespeicherten Daten vor automatisierten Massenanfragen. Rechtsgrundlage ist Art. 6 Abs. 1 Buchst. e DSGVO in Verbindung mit Art. 4 Abs. 1 BayDSG. Die Challenge- und Rate-Limit-Daten werden für [konkrete Frist ergänzen] innerhalb der CIVITAS/CORE-Umgebung der Stadt Regensburg gespeichert.
 

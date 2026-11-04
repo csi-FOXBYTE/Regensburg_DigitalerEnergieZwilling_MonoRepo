@@ -9,7 +9,7 @@ title Backend-Architektur
 
 rectangle "CIVITAS/CORE-Plattform" as civitas {
   rectangle "Orchestrierung" as orchestrator
-  rectangle "APISIX-Regeln\n(Routenschutz, Altcha + Ratenbegrenzung)" as protect
+  rectangle "APISIX-Regeln\n(Routenschutz, Ratenbegrenzung)" as protect
 
   rectangle "Backend Add-on\n(Container)" as backend {
     rectangle "Öffentliche API" as public_api
@@ -49,7 +49,8 @@ auth -right-> keycloak : JWKS / RS256
 
 note right of protect
 Schutz öffentlicher Schreibzugriffe:
-Altcha + Ratenbegrenzung in APISIX
+Ratenbegrenzung in APISIX,
+Altcha-Prüfung in der öffentlichen API
 end note
 
 note right of auth

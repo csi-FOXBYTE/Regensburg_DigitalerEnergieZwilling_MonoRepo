@@ -48,13 +48,14 @@ alt Konfiguration oder Kacheln fehlen
 end
 
 alt Optional: Ergebnisse übermitteln
-  client -> altcha: Aufgabe anfordern
-  altcha --> client: Aufgabe
   client -> altcha: Aufgabe lösen
-  altcha --> client: Token
-  client -> gateway: POST /api/public/inputs + Token
-  gateway -> gateway: Altcha-Token, Ratenbegrenzung und API-Regeln prüfen
-  gateway -> api: Geprüfte Anfrage weiterleiten
+  altcha -> api: GET /api/public/altcha/challenge (über APISIX)
+  api --> altcha: HMAC-signierte Aufgabe
+  altcha --> client: Lösung
+  client -> gateway: POST /api/public/submissions + Header X-Altcha
+  gateway -> gateway: Ratenbegrenzung und API-Regeln prüfen
+  gateway -> api: Anfrage weiterleiten
+  api -> api: Altcha-Lösung prüfen (Signatur, Ablauf, einmalig)
   api -> api: Eingabebereiche prüfen (Konfiguration)
   api -> calc: Neuberechnung auf dem Server
   calc --> api: Ergebnis
@@ -64,8 +65,13 @@ alt Optional: Ergebnisse übermitteln
   api --> gateway: Angenommen/Abgelehnt
   gateway --> client: Angenommen/Abgelehnt
 
-  alt Altcha oder Rate Limit fehlgeschlagen
-    gateway --> client: Abgelehnt (Gateway-Regel)
+  alt Rate Limit überschritten
+    gateway --> client: Abgelehnt (429, Gateway-Regel)
+  end
+
+  alt Altcha-Lösung fehlt, ungültig, abgelaufen oder verwendet
+    api --> gateway: Abgelehnt (403)
+    gateway --> client: Abgelehnt (403)
   end
 
   alt Validierung fehlgeschlagen

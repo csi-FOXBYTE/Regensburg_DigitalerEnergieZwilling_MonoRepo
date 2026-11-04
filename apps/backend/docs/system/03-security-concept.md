@@ -124,7 +124,7 @@ Ein Status `⚠️` bezeichnet eine vorhandene Umsetzung mit noch fehlendem voll
   - `manager` (Verwalter): Zugriff auf eingereichte Gebäudedaten und deren Bearbeitung; kein Zugriff auf Systempflege.
   - `maintainer` (Systempfleger): Zugriff auf Systempflege; kein Zugriff auf eingereichte Gebäudedaten.
   - `admin` (Administrator): voller Zugriff auf den internen Client.
-- Öffentliche Schreibzugriffe nur mit der globalen APISIX-Policy der externen Deployment-Plattform für Altcha und Rate Limiting sowie serverseitiger fachlicher Validierung im Backend. Bereitstellung, Betrieb und Nachweis der Gateway-Policy liegen außerhalb der DEZ-Repositories.
+- Öffentliche Schreibzugriffe (`POST /api/public/submissions`, `POST /api/public/feedback`) nur mit einer gelösten, unbenutzten Altcha-Challenge, die das Backend selbst ausstellt (HMAC-signiert, fünf Minuten gültig) und vor jeder Verarbeitung prüft (Header `X-Altcha`, sonst `403`), mit Rate Limiting am APISIX-Gateway sowie mit serverseitiger fachlicher Validierung im Backend.
 - Namespace-Policy für APIs:
   - `"/api/admin/*"` ist per Default geschützt; APISIX erzwingt den externen Routenschutz.
   - Das Backend nimmt Access Tokens aus `X-Access-Token` oder `Authorization: Bearer` entgegen, validiert sie produktiv per RS256/JWKS und wertet danach Claims/Rollen für die fachliche Zugriffskontrolle aus.
@@ -174,7 +174,7 @@ Ein Status `⚠️` bezeichnet eine vorhandene Umsetzung mit noch fehlendem voll
 - APISIX ist der verbindliche externe Enforcement-Point für Routenschutz und die vorgelagerte JWT/OIDC-Prüfung.
 - Das Backend bildet eine eigenständige zweite Enforcement-Schicht: Es übernimmt das Access Token aus `X-Access-Token` oder `Authorization: Bearer`, prüft Signatur und zeitliche Gültigkeit erneut per RS256/JWKS und erzwingt die fachlichen Rollen und Berechtigungen. Eine alleinige Freigabe durch APISIX reicht für administrative Aktionen nicht aus.
 - Keycloak stellt das Access Token aus. APISIX kann es im OIDC-Flow über das geschützte Browser-Cookie verarbeiten; das Backend erhält das Token über `X-Access-Token` oder `Authorization: Bearer` und führt darauf seine unabhängige Prüfung aus.
-- Die externe Deployment-Plattform betreibt APISIX als Enforcement-Point für die globale Altcha- und Rate-Limit-Policy bei öffentlichen Schreibzugriffen. Die DEZ-Repositories setzen diese Policy voraus, stellen sie aber nicht selbst bereit; der Betriebsnachweis ist daher auf Plattformebene zu führen.
+- Die Altcha-Prüfung öffentlicher Schreibzugriffe erzwingt das Backend selbst; sie hängt nicht von einer Gateway-Policy ab. Den HMAC-Schlüssel erzeugt das Add-on einmalig als Kubernetes-Secret. Bereits verwendete Challenges hält der Backend-Prozess bis zu ihrem Ablauf im Speicher; das genügt für eine Replika, bei mehreren Replikas wäre ein gemeinsamer Speicher nötig. APISIX begrenzt zusätzlich die Anfragerate.
 - Das Backend hat kein eigenes Rate Limit: Hinter APISIX teilen sich alle Clients die Gateway-Adresse, ein prozessinterner Zähler würde daher alle Clients gemeinsam begrenzen. Das Rate Limiting erfolgt je Client in APISIX.
 - Datenbankzugriff nur aus dem Backend, keine direkten Client-Verbindungen.
 
