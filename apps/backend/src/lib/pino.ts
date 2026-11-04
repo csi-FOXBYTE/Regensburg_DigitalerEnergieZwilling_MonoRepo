@@ -32,6 +32,12 @@ type LogEvent =
       statusCode?: number;
       durationMs: number;
       errorCode?: ErrorCategory;
+      // Admin routes only: who acted on which object (see request-logging.ts).
+      actor?: "user" | "anonymous";
+      actorId?: string;
+      actorRoles?: string[];
+      targetType?: string;
+      targetId?: string;
     }
   | { event: "console_output"; level: ConsoleLevel; errorCode?: ErrorCategory }
   | { event: "feedback_notification_failed" }
@@ -72,6 +78,11 @@ export function createPrivacyLogger(
         statusCode: event.statusCode,
         durationMs: event.durationMs,
         errorCode: event.errorCode,
+        actor: event.actor,
+        actorId: event.actorId,
+        actorRoles: event.actorRoles,
+        targetType: event.targetType,
+        targetId: event.targetId,
       });
     } else if (event.event === "feedback_notification_failed" || event.event === "auth_key_set_unavailable") {
       output.error({ event: event.event });
