@@ -21,7 +21,7 @@ Außerhalb von Development wird kein Stacktrace an Clients ausgeliefert.
 
 - `AppError` und gemeinsames Senden (`sendAppError`): `src/errors/app-error.ts`
 - Fehler aus Controllern, Services und Middlewares: `fastify-toab` `onRouteError` → `src/errors/route-error-handler.ts`
-- Fehler, die Fastify oder Plugins vor dem Handler auslösen (Schema-Validierung, Body-Parsing, `415`, `413`, Rate Limit `429`, Under-Pressure `503`): Fastify-`setErrorHandler` → `src/errors/request-error-handler.ts`. Er wird in `onPreStart` gesetzt und gilt damit für alle API-Routen; die vorher registrierten Plugin-Routen (`/health`, CORS-Preflight) behalten ihr eigenes Fehlerschema.
+- Fehler, die Fastify oder Plugins vor dem Handler auslösen (Schema-Validierung, Body-Parsing, `415`, `413`, Under-Pressure `503`; das Backend hat kein eigenes Rate Limit, das übernimmt APISIX je Client): Fastify-`setErrorHandler` → `src/errors/request-error-handler.ts`. Er wird in `onPreStart` gesetzt und gilt damit für alle API-Routen; die vorher registrierten Plugin-Routen (`/health`, CORS-Preflight) behalten ihr eigenes Fehlerschema.
 - APISIX prüft Token vorgelagert; das Backend verifiziert Signatur und Claims zusätzlich selbst (`src/auth/auth.service.ts`).
 - Statuscodes aus Framework-/Plugin-Fehlern bleiben erhalten. `5xx`-Antworten enthalten nie die interne Fehlermeldung.
 

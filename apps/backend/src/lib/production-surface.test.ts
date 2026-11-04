@@ -40,6 +40,8 @@ it("keeps development tools off and CORS restricted outside development", async 
     assert.equal(fastify.swagger.enabled, false, `swagger (${nodeEnv})`);
     assert.equal(fastify.swaggerUi.enabled, false, `swaggerUi (${nodeEnv})`);
     assert.equal(fastify.bullBoard.enabled, false, `bullBoard (${nodeEnv})`);
+    // F-DYN-007: APISIX rate-limits per client; a backend counter would be shared by all clients.
+    assert.equal(fastify.rateLimit.enabled, false, `rateLimit (${nodeEnv})`);
     assert.equal(fastify.cors.enabled, true, `cors (${nodeEnv})`);
     // A non-function origin ("*", true, a RegExp or a list) is never accepted here.
     assert.equal(typeof fastify.cors.origin, "function", `cors origin (${nodeEnv})`);

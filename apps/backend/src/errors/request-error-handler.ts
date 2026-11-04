@@ -2,7 +2,7 @@ import type { FastifyError, FastifyReply, FastifyRequest } from "fastify";
 import { AppError, httpErrorStatus, sendAppError } from "./app-error.js";
 
 // Errors raised by Fastify and its plugins outside a fastify-toab handler
-// (schema validation, body parsing, rate limit, under-pressure). Fastify's
+// (schema validation, body parsing, under-pressure). Fastify's
 // default reply lacks `status`, which the generic ERROR_4xx response schemas
 // require, so serialization would turn every 400 into a 500. Handler errors
 // keep going through routeErrorHandler.

@@ -93,6 +93,12 @@ export default defineConfig({
       // fastify-toab's default list lacks X-Access-Token, which auth.service.ts accepts.
       allowedHeaders: ["Content-Type", "Authorization", "X-Access-Token", "X-Requested-With"],
     },
+    // Off: behind APISIX every client shares the gateway's address, so one
+    // in-process counter would let a single client exhaust it for everyone.
+    // The gateway rate-limits per client (F-DYN-007).
+    rateLimit: {
+      enabled: false,
+    },
     underPressure: {
       exposeStatusRoute: "/health",
     },

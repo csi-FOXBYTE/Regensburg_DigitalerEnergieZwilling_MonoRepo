@@ -12,7 +12,7 @@ export type AppErrorStatus =
   | "INTERNAL_ERROR"
   | "SERVICE_UNAVAILABLE";
 
-// HTTP status codes that framework and plugin errors (rate limit, body limit,
+// HTTP status codes that framework and plugin errors (body limit, media type,
 // under-pressure) carry, mapped to the status clients branch on.
 export const httpErrorStatus: Readonly<Record<number, AppErrorStatus>> = {
   400: "BAD_REQUEST",
