@@ -16,6 +16,7 @@ import submissionsPublicController, {
   buildPublicDeletionLink,
 } from "../submissionsPublic/submissionsPublic.controller.js";
 import { SubmissionNotFoundError } from "./submissions.errors.js";
+import { coreBaseInput } from "./submission-input.fixture.js";
 import {
   assertAvailableByToken,
   deleteByToken,
@@ -330,7 +331,7 @@ describe("public submission routes", () => {
       method: "POST",
       url: "/api/public/submissions",
       payload: {
-        input: {},
+        input: coreBaseInput(),
         buildingId: "building-1",
         address: publicSubmission.address,
         longitude: publicSubmission.longitude,

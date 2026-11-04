@@ -19,6 +19,7 @@ import submissionsController from "../submissionsPublic/submissionsPublic.contro
 import { AppError } from "../errors/app-error.js";
 import { normalizeFeedbackInput } from "../feedback/feedback.service.js";
 import { ConfigNotFoundError } from "../submissions/submissions.errors.js";
+import { coreBaseInput } from "../submissions/submission-input.fixture.js";
 import { routeErrorHandler } from "../errors/route-error-handler.js";
 import { schema } from "../zenstack/schema.js";
 import { createPrivacyLogger, errorCategory, injectPinoLogger } from "./pino.js";
@@ -27,7 +28,13 @@ import { installRequestLogging } from "./request-logging.js";
 const secret = "PRIVATE_USER_DATA_MARKER";
 const email = "private@example.invalid";
 const feedback = { category: "bug", message: secret, emailAddress: email };
-const submission = { input: { details: secret }, address: secret, buildingId: secret, longitude: 12, latitude: 49 };
+const submission = {
+  input: { ...coreBaseInput(), heat: { primaryEnergyCarrier: secret } },
+  address: secret,
+  buildingId: secret,
+  longitude: 12,
+  latitude: 49,
+};
 const userId = "0b6f3f2e-5d55-4c1a-9f7e-3a1d2c4b5e6f";
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
 

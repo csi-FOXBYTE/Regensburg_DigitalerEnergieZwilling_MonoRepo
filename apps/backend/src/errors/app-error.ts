@@ -6,6 +6,7 @@ export type AppErrorStatus =
   | "FORBIDDEN"
   | "NOT_FOUND"
   | "METHOD_NOT_ALLOWED"
+  | "CONFLICT"
   | "PAYLOAD_TOO_LARGE"
   | "UNSUPPORTED_MEDIA_TYPE"
   | "TOO_MANY_REQUESTS"
@@ -20,6 +21,7 @@ export const httpErrorStatus: Readonly<Record<number, AppErrorStatus>> = {
   403: "FORBIDDEN",
   404: "NOT_FOUND",
   405: "METHOD_NOT_ALLOWED",
+  409: "CONFLICT",
   413: "PAYLOAD_TOO_LARGE",
   415: "UNSUPPORTED_MEDIA_TYPE",
   429: "TOO_MANY_REQUESTS",

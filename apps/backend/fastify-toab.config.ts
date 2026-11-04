@@ -5,6 +5,7 @@ import { Type } from "@sinclair/typebox";
 import { allowedCorsOrigins, createCorsOrigin } from "./src/lib/cors.js";
 import { requestErrorHandler } from "./src/errors/request-error-handler.js";
 import { routeErrorHandler } from "./src/errors/route-error-handler.js";
+import { installRequestGuards } from "./src/lib/request-guards.js";
 
 // fastify-toab 0.2.0-rc.4's CLI reads the module namespace, not its default export.
 // Also export this setting by name so Pino's transport workers stay in node_modules.
@@ -66,6 +67,9 @@ export default defineConfig({
   // documented error schemas.
   onPreStart: async (fastify) => {
     fastify.setErrorHandler(requestErrorHandler);
+    // Before the API routes are registered, so they inherit the hooks and
+    // the body validator.
+    installRequestGuards(fastify);
     // Fail at startup instead of on the first cross-origin request.
     allowedCorsOrigins();
   },

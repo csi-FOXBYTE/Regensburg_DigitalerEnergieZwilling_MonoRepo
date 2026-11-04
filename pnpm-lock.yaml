@@ -176,6 +176,9 @@ importers:
       '@csi-foxbyte/regensburg_digitalerenergiezwilling_energycalculationcore':
         specifier: workspace:*
         version: link:../../packages/energy-core
+      '@fastify/ajv-compiler':
+        specifier: ^4.0.5
+        version: 4.0.5
       '@fastify/multipart':
         specifier: ^9.3.0
         version: 9.4.0

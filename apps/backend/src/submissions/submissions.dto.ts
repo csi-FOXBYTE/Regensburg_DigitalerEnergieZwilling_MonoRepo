@@ -1,4 +1,5 @@
 import { Static, Type } from "@sinclair/typebox";
+import { SubmissionCalculationInputDto } from "./submission-input.dto.js";
 
 const SubmissionStatusDto = Type.Union([
   Type.Literal("NEW"),
@@ -17,14 +18,19 @@ const UserRefDto = Type.Object({
 
 // --- Submit (public) ---
 
+export const MAX_ID_LENGTH = 256;
+export const MAX_ADDRESS_LENGTH = 512;
+
 export const SubmitInputDto = Type.Object({
-  input: Type.Unknown(),
-  configName: Type.Optional(Type.String()),
-  buildingId: Type.String(),
-  address: Type.String(),
-  longitude: Type.Number(),
-  latitude: Type.Number(),
-});
+  input: SubmissionCalculationInputDto,
+  configName: Type.Optional(Type.String({ minLength: 1, maxLength: MAX_ID_LENGTH })),
+  buildingId: Type.String({ minLength: 1, maxLength: MAX_ID_LENGTH }),
+  // Empty when the building model has no address; the public client then
+  // still submits (NextStepsSection.tsx).
+  address: Type.String({ maxLength: MAX_ADDRESS_LENGTH }),
+  longitude: Type.Number({ minimum: -180, maximum: 180 }),
+  latitude: Type.Number({ minimum: -90, maximum: 90 }),
+}, { additionalProperties: false });
 export type SubmitInput = Static<typeof SubmitInputDto>;
 
 export const SubmitOutputDto = Type.Object({
@@ -76,7 +82,7 @@ export const DeletionReceiptDto = Type.Object({
   targetId: Type.String(),
   deletedCount: Type.Integer({ minimum: 1 }),
   verificationSecret: Type.String({ minLength: 43, maxLength: 43 }),
-});
+}, { additionalProperties: false });
 export type DeletionReceiptInput = Static<typeof DeletionReceiptDto>;
 
 export const VerifyDeletionReceiptOutputDto = Type.Object({
@@ -102,8 +108,8 @@ export const DeleteBuildingSubmissionsOutputDto = Type.Object({
 // --- Assign ---
 
 export const AssignInputDto = Type.Object({
-  userId: Type.Optional(Type.String()),
-});
+  userId: Type.Optional(Type.String({ maxLength: MAX_ID_LENGTH })),
+}, { additionalProperties: false });
 export type AssignInput = Static<typeof AssignInputDto>;
 
 export const AssignmentOutputDto = Type.Object({
@@ -116,7 +122,7 @@ export type AssignmentOutput = Static<typeof AssignmentOutputDto>;
 
 export const DecisionInputDto = Type.Object({
   comment: Type.Optional(Type.String({ maxLength: 4000 })),
-});
+}, { additionalProperties: false });
 export type DecisionInput = Static<typeof DecisionInputDto>;
 
 export const AcceptOutputDto = Type.Intersect([
@@ -130,13 +136,16 @@ export type AcceptOutput = Static<typeof AcceptOutputDto>;
 
 // --- List (admin) ---
 
+// Largest PostgreSQL integer; also keeps "1e24" out of OFFSET.
+export const MAX_LIST_SKIP = 2_147_483_647;
+
 export const ListQueryDto = Type.Object({
-  managerId: Type.Optional(Type.String()),
-  skip: Type.Optional(Type.Integer({ minimum: 0 })),
+  managerId: Type.Optional(Type.String({ maxLength: MAX_ID_LENGTH })),
+  skip: Type.Optional(Type.Integer({ minimum: 0, maximum: MAX_LIST_SKIP })),
   limit: Type.Optional(Type.Integer({ minimum: 1, maximum: 100 })),
   status: Type.Optional(SubmissionStatusDto),
   sortBy: Type.Optional(Type.Union([Type.Literal("status"), Type.Literal("submitted")])),
-});
+}, { additionalProperties: false });
 export type ListQuery = Static<typeof ListQueryDto>;
 
 export const ListOutputDto = Type.Object({

@@ -4,7 +4,7 @@ export const CreateConfigInputDto = Type.Object({
   versionName: Type.String({ minLength: 1 }),
   calculationConfig: Type.String(),
   subsidies: Type.Array(Type.String()),
-});
+}, { additionalProperties: false });
 
 export const ConfigDto = Type.Object({
   versionName: Type.String(),

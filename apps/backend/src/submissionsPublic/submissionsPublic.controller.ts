@@ -26,7 +26,7 @@ const submissionsPublicController = createController().rootPath(
 // up in gateway or ingress access logs.
 const DeletionTokenBody = Type.Object({
   deletionToken: Type.String({ minLength: 1, maxLength: 256 }),
-});
+}, { additionalProperties: false });
 
 const catchSubmissionNotFound = (err: unknown) => {
   if (err instanceof SubmissionNotFoundError)

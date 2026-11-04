@@ -42,6 +42,7 @@
     "@bull-board/fastify": "^6.15.0",
     "@csi-foxbyte/fastify-toab": "https://registry.npmjs.org/@csi-foxbyte/fastify-toab/-/fastify-toab-0.2.0-rc.4.tgz",
     "@csi-foxbyte/regensburg_digitalerenergiezwilling_energycalculationcore": "workspace:*",
+    "@fastify/ajv-compiler": "^4.0.5",
     "@fastify/multipart": "^9.3.0",
     "@fastify/otel": "^0.16.0",
     "@fastify/swagger": "^9.6.1",
