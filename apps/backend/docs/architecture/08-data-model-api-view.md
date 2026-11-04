@@ -175,8 +175,9 @@ dokumentiert.
 - **Public Write**: Der öffentliche Bereich darf Berechnungsergebnisse schreiben (inkl. Eingaben und Config-Version).
 - **Server-Recompute**: Beim Speichern werden die Ergebnisse serverseitig mit dem gleichen Berechnungskern
   neu berechnet.
-- **Input-Validation**: Eingangsgrößen werden gegen konfigurierte Grenzen geprüft
-  (z.B. Wertebereiche wie 100–2000).
+- **Input-Validation**: Das Request-Schema begrenzt Eingangsgrößen vor der Berechnung auf feste Wertebereiche,
+  Längen und Jahresgrenzen; unbekannte Felder werden mit `400` abgewiesen. Danach prüft die Core-Validierung
+  Typen und Katalogwerte.
 - **Public Capability API**: Nach dem Speichern erhält der Client einmalig einen zufälligen Lösch-Token (32 Byte, base64url); gespeichert wird nur dessen SHA-256-Hash (`deletionTokenHash`) und optional ein Ablaufzeitpunkt (`deletionTokenExpiresAt`, gesetzt über `SUBMISSION_DELETION_TOKEN_TTL_DAYS`). Derselbe Token schützt die nicht verändernde Verfügbarkeitsprüfung (`POST /api/public/submissions/status`), den vom Backend erzeugten JSON-Download (`POST …/download`) und die physische Löschung (`POST …/delete`). Der Token steht nur im Request-Body, nie in der URL; eine `GET`-Route mit Token im Pfad gibt es nicht. Die Ablauffrist gilt nur für den Download; Statusprüfung und Löschung bleiben möglich, solange die Einreichung gespeichert ist. Fehlende, ungültige, bereits verwendete und (beim Download) abgelaufene Tokens sind als `404` nicht unterscheidbar; die frühere mutierende `GET`-Route entfällt. Nach erfolgreicher Löschung erhält der Client einen Löschbeleg, den er lokal herunterladen und später über `POST /api/public/submissions/deletion-receipts/verify` prüfen lassen kann.
 - **Triage**: Stadtverwaltung / Fachpersonal prüft Datensätze auf Plausibilität, gibt sie intern frei oder lehnt sie ab. Eine tatsächliche Löschung erfolgt separat über die dafür vorgesehenen Delete-Endpunkte. Der Endpunkt für eine einzelne Einreichung löscht nur diese Einreichung; der Endpunkt für eine Gebäudegruppe prüft atomar, dass alle zugehörigen Einreichungen abgelehnt sind.
 - **Indexierung**: Aus verifizierten und triagierten Ergebnissen werden abgeleitete Basisdaten pro Gebäude erzeugt
@@ -233,7 +234,7 @@ Quelle: `raw/public-write-flow.puml`
 Security by Design wird in Datenmodell und API-Vertrag explizit verankert:
 
 - **Minimale Datenerhebung**: Pflicht zur Berechnung ohne obligatorische personenbezogene Übermittlung; Persistenz bleibt optional und explizit.
-- **Vertragsbasierte Eingabehärtung**: Public-Write-Requests werden über Schema und Wertebereiche geprüft; ungültige Payloads werden verworfen.
+- **Vertragsbasierte Eingabehärtung**: Public-Write-Requests werden über Schema und Wertebereiche geprüft; ungültige Payloads und unbekannte Felder werden mit `400` verworfen.
 - **Verifikation vor Weiterverwendung**: Serverseitige Neu-Berechnung und Triage sind Voraussetzungen für interne Indexierung.
 - **Lebenszyklus-Kontrolle**: Statuswechsel folgen einem definierten Triage-Lifecycle, werden auditierbar protokolliert und lassen pro Gebäude höchstens eine aktive Freigabe zu.
 - **Löschsicherheit**: Die gebündelte administrative Löschung wird vollständig zurückgewiesen, sobald mindestens eine Einreichung der Gebäude-ID nicht den Status `abgelehnt` besitzt; eine Teillöschung findet nicht statt.
