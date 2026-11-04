@@ -5,6 +5,7 @@ import {
   type ServiceRegistry,
   type WorkerRegistry,
 } from "@csi-foxbyte/fastify-toab";
+import { installFrameworkErrorHandlers } from "../errors/framework-errors.js";
 import { requestErrorHandler } from "../errors/request-error-handler.js";
 import { routeErrorHandler } from "../errors/route-error-handler.js";
 import { installRequestGuards } from "./request-guards.js";
@@ -32,6 +33,7 @@ export async function createGuardedTestApp(
 
   const app = Fastify();
   app.setErrorHandler(requestErrorHandler);
+  installFrameworkErrorHandlers(app);
   installRequestGuards(app);
   if (altcha) installAltchaGuard(app, altcha);
   await app.register(fastifyToab, {
