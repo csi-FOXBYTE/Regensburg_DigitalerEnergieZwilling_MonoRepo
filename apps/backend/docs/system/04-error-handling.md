@@ -4,17 +4,42 @@ Dieses Dokument beschreibt das einheitliche Fehlermodell im Backend.
 
 ## Ziel
 
-Alle Fehlerantworten folgen demselben Schema:
+Alle Fehlerantworten sind JSON-Objekte mit diesen Feldern:
+
+| Feld | Vorhanden | Inhalt |
+| --- | --- | --- |
+| `status` | immer | Stabiler Fehlertyp (`AppErrorStatus`, siehe unten), auf den Clients verzweigen |
+| `message` | immer | Feste oder fachliche Meldung ohne Pfade, SQL-Texte, Stacktraces oder Abhängigkeitsdetails |
+| `code` | optional | HTTP-Statuscode, identisch mit dem Statuscode der Antwort |
+
+```json
+{
+  "status": "CONFLICT",
+  "code": 409,
+  "message": "The resource was changed by a concurrent request, please retry"
+}
+```
+
+`AppError.toResponse` erzeugt immer `status`, `code` und `message`. API-Routen
+serialisieren Antworten mit den Statuscodes `400`, `401`, `403`, `404`, `405`
+und `500` jedoch über die generischen Antwortschemas von fastify-toab
+(`ERROR_400` … `ERROR_500`), die nur `status` und `message` kennen; `code`
+entfällt dort:
 
 ```json
 {
   "status": "UNAUTHORIZED",
-  "code": 401,
   "message": "Access token is missing"
 }
 ```
 
-In `NODE_ENV=development` wird zusätzlich `stack` zurückgegeben.
+`code` ist enthalten bei allen anderen Statuscodes auf API-Routen (z. B. `409`,
+`413`, `415`, `503`) und bei Antworten ohne Routenschema (unbekannte Routen,
+Router- und HTTP-Parser-Fehler). Clients müssen `code` daher als optional
+behandeln und den HTTP-Statuscode der Antwort verwenden.
+
+In `NODE_ENV=development` wird zusätzlich `stack` zurückgegeben, soweit die
+Antwort nicht über ein generisches Routenschema serialisiert wird.
 Außerhalb von Development wird kein Stacktrace an Clients ausgeliefert.
 
 ## Quelle der Fehlerbehandlung
@@ -108,6 +133,6 @@ normalisiert.
 
 Neue fachliche Fehler sollen als `AppError` geworfen werden, damit:
 
-- `status`, `code`, `message` konsistent bleiben,
+- `status` und `message` konsistent bleiben und `code` zum HTTP-Status passt,
 - Clients stabile Fehlertypen erhalten,
 - Produktionsantworten keinen Stacktrace enthalten.
