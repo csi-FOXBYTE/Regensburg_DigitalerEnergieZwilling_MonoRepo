@@ -1,4 +1,5 @@
 import { createController } from "@csi-foxbyte/fastify-toab";
+import { AltchaHeadersDto } from "../altcha/altcha.dto.js";
 import { getFeedbackService } from "../@internals/index.js";
 import {
   CreateFeedbackInputDto,
@@ -12,6 +13,7 @@ const feedbackPublicController = createController().rootPath(
 
 feedbackPublicController
   .addRoute("POST", "/")
+  .headers(AltchaHeadersDto)
   .body(CreateFeedbackInputDto)
   .handler(async ({ services, body, reply }) => {
     const feedbackService = await getFeedbackService(services);

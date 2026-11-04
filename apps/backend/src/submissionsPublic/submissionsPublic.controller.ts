@@ -2,6 +2,7 @@ import { createController } from "@csi-foxbyte/fastify-toab";
 import { Type, type Static } from "@sinclair/typebox";
 import type { FastifyReply } from "fastify";
 import { getSubmissionsService } from "../@internals/index.js";
+import { AltchaHeadersDto } from "../altcha/altcha.dto.js";
 import { AppError } from "../errors/app-error.js";
 import {
   DeletionReceiptDto,
@@ -63,6 +64,7 @@ const safeDownloadFilename = (submissionId: string) =>
 
 submissionsPublicController
   .addRoute("POST", "/")
+  .headers(AltchaHeadersDto)
   .body(SubmitInputDto)
   .output(SubmitOutputDto)
   .handler(async ({ services, body }) => {

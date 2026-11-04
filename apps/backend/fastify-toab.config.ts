@@ -6,6 +6,7 @@ import { allowedCorsOrigins, createCorsOrigin } from "./src/lib/cors.js";
 import { requestErrorHandler } from "./src/errors/request-error-handler.js";
 import { routeErrorHandler } from "./src/errors/route-error-handler.js";
 import { installRequestGuards } from "./src/lib/request-guards.js";
+import { getAltcha, installAltchaGuard } from "./src/altcha/altcha.js";
 
 // fastify-toab 0.2.0-rc.4's CLI reads the module namespace, not its default export.
 // Also export this setting by name so Pino's transport workers stay in node_modules.
@@ -59,6 +60,13 @@ export default defineConfig({
     // with a retention-deletion process and the same period, see
     // issueDeletionToken in submissions.service.ts and the backend README.
     SUBMISSION_DELETION_TOKEN_TTL_DAYS: Type.Optional(Type.String({ pattern: "^[1-9][0-9]{0,3}$" })),
+    // HMAC key for the Altcha challenges of the public writes (TA-51), at
+    // least 32 random characters. Required unless ALTCHA_DISABLED is set;
+    // resolveAltchaConfig() in src/altcha/altcha.ts enforces it at startup.
+    ALTCHA_HMAC_KEY: Type.Optional(Type.String()),
+    // Tests and local development only; rejected at startup outside
+    // development/test.
+    ALTCHA_DISABLED: Type.Optional(Type.String()),
   }),
   onRouteError: routeErrorHandler,
   // onReady runs after fastify.ready(), when error handlers are locked. API
@@ -70,6 +78,8 @@ export default defineConfig({
     // Before the API routes are registered, so they inherit the hooks and
     // the body validator.
     installRequestGuards(fastify);
+    // Also resolves the Altcha key, so a missing key fails at startup.
+    installAltchaGuard(fastify, getAltcha());
     // Fail at startup instead of on the first cross-origin request.
     allowedCorsOrigins();
   },
@@ -94,8 +104,9 @@ export default defineConfig({
     // Disabled in development by fastify-toab; elsewhere never reflect Origin.
     cors: {
       origin: createCorsOrigin(),
-      // fastify-toab's default list lacks X-Access-Token, which auth.service.ts accepts.
-      allowedHeaders: ["Content-Type", "Authorization", "X-Access-Token", "X-Requested-With"],
+      // fastify-toab's default list lacks X-Access-Token, which auth.service.ts
+      // accepts, and X-Altcha, which carries the public writes' Altcha solution.
+      allowedHeaders: ["Content-Type", "Authorization", "X-Access-Token", "X-Requested-With", "X-Altcha"],
     },
     // Off: behind APISIX every client shares the gateway's address, so one
     // in-process counter would let a single client exhaust it for everyone.

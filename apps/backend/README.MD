@@ -98,10 +98,24 @@ AUTH_INSECURE_DEV_DECODE=true
 
 Das ist nur mit `NODE_ENV=development` oder `test` erlaubt; in jeder anderen Umgebung bricht der Start ab. Der Devcontainer setzt die Variable.
 
-CORS: Ausserhalb von `NODE_ENV=development` beantwortet das Backend Cross-Origin-Anfragen nur fuer die Origins aus `PUBLIC_CLIENT_BASE_URL` und `ADMIN_CLIENT_BASE_URL` sowie optional aus der kommagetrennten Liste `AUTH_CORS_ADDITIONAL_ORIGINS` (leer = keine); jede andere `Origin` wird nicht reflektiert. Erlaubte Request-Header sind `Content-Type`, `Authorization`, `X-Access-Token` und `X-Requested-With`.
+CORS: Ausserhalb von `NODE_ENV=development` beantwortet das Backend Cross-Origin-Anfragen nur fuer die Origins aus `PUBLIC_CLIENT_BASE_URL` und `ADMIN_CLIENT_BASE_URL` sowie optional aus der kommagetrennten Liste `AUTH_CORS_ADDITIONAL_ORIGINS` (leer = keine); jede andere `Origin` wird nicht reflektiert. Erlaubte Request-Header sind `Content-Type`, `Authorization`, `X-Access-Token`, `X-Requested-With` und `X-Altcha`.
 
 ```env
 AUTH_CORS_ADDITIONAL_ORIGINS=https://partner.example,https://other.example
+```
+
+Altcha (TA-51): Oeffentliche Schreibzugriffe (`POST /api/public/submissions`, `POST /api/public/feedback`) brauchen im Header `X-Altcha` eine geloeste, noch unbenutzte Altcha-Challenge von `GET /api/public/altcha/challenge`; sonst antwortet das Backend mit `403 FORBIDDEN`, bevor der Body gelesen wird. Die Challenges werden mit diesem Schluessel per HMAC signiert (mindestens 32 zufaellige Zeichen, z. B. `openssl rand -hex 32`); ohne ihn bricht der Start ab. Das Add-on erzeugt ihn einmalig als Kubernetes-Secret.
+
+```env
+ALTCHA_HMAC_KEY=<zufaelliger Schluessel>
+```
+
+Benutzte Challenges merkt sich das Backend bis zu ihrem Ablauf (5 Minuten) im Speicher des Prozesses. Bei mehreren Backend-Replikas koennte eine Loesung deshalb einmal je Replika verwendet werden; bei einem Neustart gehen die Eintraege verloren.
+
+Nur fuer automatisierte Tests oder lokale Entwicklung ohne Widget laesst sich die Pruefung abschalten (nur mit `NODE_ENV=development` oder `test`, sonst bricht der Start ab):
+
+```env
+ALTCHA_DISABLED=true
 ```
 
 Optional fuer Rollenpruefung ueber `resource_access`:

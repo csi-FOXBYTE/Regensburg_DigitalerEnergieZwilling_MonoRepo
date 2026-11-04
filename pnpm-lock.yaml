@@ -209,6 +209,9 @@ importers:
       '@zenstackhq/orm':
         specifier: ^3.3.3
         version: 3.3.3(better-sqlite3@12.6.2)(mysql2@3.24.6(@types/node@25.9.3))(pg@8.19.0)(sql.js@1.14.1)(zod@4.6.7)
+      altcha-lib:
+        specifier: 2.8.0
+        version: 2.8.0(@fastify/cors@11.2.0)(cors@2.8.6)(express@5.2.1(supports-color@7.2.0))(fastify@5.12.7)(h3@1.15.11)(hono@4.12.25)
       bullmq:
         specifier: ^5.66.0
         version: 5.66.0(supports-color@7.2.0)
@@ -312,6 +315,9 @@ importers:
       '@uidotdev/usehooks':
         specifier: ^2.4.1
         version: 2.4.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+      altcha:
+        specifier: 3.5.0
+        version: 3.5.0
       cesium:
         specifier: ^1.136.0
         version: 1.142.0
@@ -4290,6 +4296,57 @@ packages:
   ajv@8.20.0:
     resolution: {integrity: sha512-Thbli+OlOj+iMPYFBVBfJ3OmCAnaSyNn4M1vz9T6Gka5Jt9ba/HIR56joy65tY6kx/FCF5VXNB819Y7/GUrBGA==}
 
+  altcha-lib@2.8.0:
+    resolution: {integrity: sha512-at1DAqS8u6Z+XbPV2xQd/oATDTxYN83gITqIfsCSz7a2ENqUNIvn9h9xPuAbjeQ3JFqrW8KCjinphhm+bUrRzQ==}
+    hasBin: true
+    peerDependencies:
+      '@fastify/cookie': ^11.0.0
+      '@fastify/cors': ^11.0.0
+      '@fastify/formbody': ^8.0.0 || ^9.0.0
+      '@nestjs/common': ^10.0.0 || ^11.0.0 || ^12.0.0
+      '@nestjs/core': ^10.0.0 || ^11.0.0 || ^12.0.0
+      '@nestjs/platform-express': ^10.0.0 || ^11.0.0 || ^12.0.0
+      '@nestjs/platform-fastify': ^10.0.0 || ^11.0.0 || ^12.0.0
+      '@sveltejs/kit': ^2.0.0 || ^3.0.0
+      cookie-parser: ^1.0.0
+      cors: ^2.0.0
+      express: ^4.0.0 || ^5.0.0
+      fastify: ^5.0.0
+      h3: ^1.15.0 || ^2.0.0
+      hono: ^4.0.0
+    peerDependenciesMeta:
+      '@fastify/cookie':
+        optional: true
+      '@fastify/cors':
+        optional: true
+      '@fastify/formbody':
+        optional: true
+      '@nestjs/common':
+        optional: true
+      '@nestjs/core':
+        optional: true
+      '@nestjs/platform-express':
+        optional: true
+      '@nestjs/platform-fastify':
+        optional: true
+      '@sveltejs/kit':
+        optional: true
+      cookie-parser:
+        optional: true
+      cors:
+        optional: true
+      express:
+        optional: true
+      fastify:
+        optional: true
+      h3:
+        optional: true
+      hono:
+        optional: true
+
+  altcha@3.5.0:
+    resolution: {integrity: sha512-wBXNK1bBeWs/XTOZiyE3JQvRNECgFKYEJqcPxFW7tFd7ErG62yQmMlRasygZrza3zyNTTuon3BfMF/PcBcepcw==}
+
   am-i-vibing@0.5.0:
     resolution: {integrity: sha512-KLcsDhqf1XRrJmJr+9I/C0EX2K+sGrAGZFgkmd84c8TJO9zJBu+/kFInjazu1KfJWFhWDKdRWkpBzEs7s35DVA==}
     hasBin: true
@@ -5675,6 +5732,9 @@ packages:
     resolution: {integrity: sha512-1cDNdwJ2Jaohmb3sg4OmKaMBwuC48sYni5HUw2DvsC8LjGTLK9h+eb1X6RyuOHe4hT0ULCW68iomhjUoKUqlPQ==}
     engines: {node: '>= 0.4'}
 
+  hash-wasm@4.12.0:
+    resolution: {integrity: sha512-+/2B2rYLb48I/evdOIhP+K/DD2ca2fgBjp6O+GBEnCDk2e4rpeXIK8GvIyRPjTezgmWn9gmKwkQjjx6BtqDHVQ==}
+
   hasown@2.0.2:
     resolution: {integrity: sha512-0hJU9SCPvmMzIBdZFqNPXWa6dqh7WdH0cII9y+CyS8rG3nL48Bclra9HmKhVVUHyPWNH5Y7xDwAB7bfgSjkUMQ==}
     engines: {node: '>= 0.4'}
@@ -5765,10 +5825,6 @@ packages:
     peerDependenciesMeta:
       typescript:
         optional: true
-
-  iconv-lite@0.7.2:
-    resolution: {integrity: sha512-im9DjEDQ55s9fL4EYzOAv0yMqmMBSZp6G0VvFyTMPKWxiSBHUj9NW/qqLmXUwXrrM7AvqSlTCfvqRb0cM8yYqw==}
-    engines: {node: '>=0.10.0'}
 
   iconv-lite@0.7.3:
     resolution: {integrity: sha512-IKXpvIzjnC9XTAUbVBcMfGS0EPaIXtW6v+zr+RRp+hqULEpo0owZax6wyRwPOJbWbzjYspQwusTsfVr0ifh4uQ==}
@@ -7274,10 +7330,6 @@ packages:
   pure-rand@6.1.0:
     resolution: {integrity: sha512-bVWawvoZoBYpp6yIoQtQXHZjmz35RSVHnUOTefl8Vcjr8snTPY1wnpSPMWekcFwbxI6gtmT7rSYPFvz71ldiOA==}
 
-  qs@6.15.0:
-    resolution: {integrity: sha512-mAZTtNCeetKMH+pSjrb76NAM8V9a05I9aBZOHztWy/UqcJdQYNsf59vrRKWnojAT9Y+GbIvoTBC++CPHqpDBhQ==}
-    engines: {node: '>=0.6'}
-
   qs@6.16.1:
     resolution: {integrity: sha512-5Px6J7rfHBAGUhNQ3es4YzcOdBBw0SDcVtThJml4RdnKw4tKs2epA0kPZ+K8X+WiHktT93RHVcQ/3ym5aTCgtg==}
     engines: {node: '>=0.6'}
@@ -7726,10 +7778,6 @@ packages:
     resolution: {integrity: sha512-OcRW72ngQvc+MSVWBRIovC/BTW589iUE/Vxav7VeM4RcY9MUjqB+IR6ILG1k9nuW6LiG/nct9uma4/MBtnZbmQ==}
     engines: {node: '>=20'}
 
-  side-channel-list@1.0.0:
-    resolution: {integrity: sha512-FCLHtRD/gnpCiCHEiJLOwdmFP+wzCmDEkc9y7NsYxeF4u7Btsn1ZuwgwJGxImImHicJArLP4R0yX4c2KCrMrTA==}
-    engines: {node: '>= 0.4'}
-
   side-channel-list@1.0.1:
     resolution: {integrity: sha512-mjn/0bi/oUURjc5Xl7IaWi/OJJJumuoJFQJfDDyO46+hBWsfaVM65TBHq2eoZBhzl9EchxOijpkbRC8SVBQU0w==}
     engines: {node: '>= 0.4'}
@@ -7740,10 +7788,6 @@ packages:
 
   side-channel-weakmap@1.0.2:
     resolution: {integrity: sha512-WPS/HvHQTYnHisLo9McqBHOJk2FkHO/tlpvldyrnem4aeQp4hai3gythswg6p01oSoTl58rcpiFAjF2br2Ak2A==}
-    engines: {node: '>= 0.4'}
-
-  side-channel@1.1.0:
-    resolution: {integrity: sha512-ZX99e6tRweoUXqR+VBrslhda51Nh5MTQwou5tnUDgbtyM0dBgmhEDtWGP/xbKn6hqfPRHujUNwz5fy/wbbhnpw==}
     engines: {node: '>= 0.4'}
 
   side-channel@1.1.1:
@@ -8084,10 +8128,6 @@ packages:
   type-fest@5.10.0:
     resolution: {integrity: sha512-NoSdpq/WEiAg5sjmBkmV/hfxv6HJH4NqPNrqjtSO5CwRmpsDfaf4begxW34KdJykH/l1yHtwBWQkCRdoXO8mPA==}
     engines: {node: '>=20'}
-
-  type-is@2.0.1:
-    resolution: {integrity: sha512-OZs6gsjF4vMp32qrCbiVSkrFmXtG/AZhY3t0iAMrMBiAZyV9oALtXO8hsrHbMXF9x6L3grlFuwW2oAz7cav+Gw==}
-    engines: {node: '>= 0.6'}
 
   type-is@2.1.0:
     resolution: {integrity: sha512-faYHw0anBbc/kWF3zFTEnxSFOAGUX9GFbOBthvDdLsIlEoWOFOtS0zgCiQYwIskL9iGXZL3kAXD8OoZ4GmMATA==}
@@ -12748,6 +12788,19 @@ snapshots:
       json-schema-traverse: 1.0.0
       require-from-string: 2.0.2
 
+  altcha-lib@2.8.0(@fastify/cors@11.2.0)(cors@2.8.6)(express@5.2.1(supports-color@7.2.0))(fastify@5.12.7)(h3@1.15.11)(hono@4.12.25):
+    optionalDependencies:
+      '@fastify/cors': 11.2.0
+      cors: 2.8.6
+      express: 5.2.1(supports-color@7.2.0)
+      fastify: 5.12.7
+      h3: 1.15.11
+      hono: 4.12.25
+
+  altcha@3.5.0:
+    dependencies:
+      hash-wasm: 4.12.0
+
   am-i-vibing@0.5.0:
     dependencies:
       process-ancestry: 0.1.0
@@ -12920,7 +12973,7 @@ snapshots:
 
   babel-plugin-react-compiler@1.0.0:
     dependencies:
-      '@babel/types': 7.29.7
+      '@babel/types': 7.29.11
 
   bail@2.0.2: {}
 
@@ -13958,13 +14011,13 @@ snapshots:
       once: 1.4.0
       parseurl: 1.3.3
       proxy-addr: 2.0.8
-      qs: 6.15.0
+      qs: 6.16.1
       range-parser: 1.2.1
       router: 2.2.0(supports-color@7.2.0)
       send: 1.2.1(supports-color@7.2.0)
       serve-static: 2.2.1(supports-color@7.2.0)
       statuses: 2.0.2
-      type-is: 2.0.1
+      type-is: 2.1.0
       vary: 1.1.2
     transitivePeerDependencies:
       - supports-color
@@ -14338,6 +14391,8 @@ snapshots:
 
   has-symbols@1.1.0: {}
 
+  hash-wasm@4.12.0: {}
+
   hasown@2.0.2:
     dependencies:
       function-bind: 1.1.2
@@ -14459,10 +14514,6 @@ snapshots:
       '@babel/runtime': 7.29.7
     optionalDependencies:
       typescript: 6.0.3
-
-  iconv-lite@0.7.2:
-    dependencies:
-      safer-buffer: 2.1.2
 
   iconv-lite@0.7.3:
     dependencies:
@@ -16112,10 +16163,6 @@ snapshots:
 
   pure-rand@6.1.0: {}
 
-  qs@6.15.0:
-    dependencies:
-      side-channel: 1.1.0
-
   qs@6.16.1:
     dependencies:
       es-define-property: 1.0.1
@@ -16204,7 +16251,7 @@ snapshots:
     dependencies:
       bytes: 3.1.2
       http-errors: 2.0.1
-      iconv-lite: 0.7.2
+      iconv-lite: 0.7.3
       unpipe: 1.0.0
 
   rbush@4.0.1:
@@ -16821,11 +16868,6 @@ snapshots:
       '@shikijs/vscode-textmate': 10.0.2
       '@types/hast': 3.0.5
 
-  side-channel-list@1.0.0:
-    dependencies:
-      es-errors: 1.3.0
-      object-inspect: 1.13.4
-
   side-channel-list@1.0.1:
     dependencies:
       es-errors: 1.3.0
@@ -16845,14 +16887,6 @@ snapshots:
       get-intrinsic: 1.3.0
       object-inspect: 1.13.4
       side-channel-map: 1.0.1
-
-  side-channel@1.1.0:
-    dependencies:
-      es-errors: 1.3.0
-      object-inspect: 1.13.4
-      side-channel-list: 1.0.0
-      side-channel-map: 1.0.1
-      side-channel-weakmap: 1.0.2
 
   side-channel@1.1.1:
     dependencies:
@@ -17157,12 +17191,6 @@ snapshots:
   type-fest@5.10.0:
     dependencies:
       tagged-tag: 1.0.0
-
-  type-is@2.0.1:
-    dependencies:
-      content-type: 1.0.5
-      media-typer: 1.1.0
-      mime-types: 3.0.2
 
   type-is@2.1.0:
     dependencies:
