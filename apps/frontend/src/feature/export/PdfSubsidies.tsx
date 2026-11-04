@@ -1,5 +1,6 @@
 import { pdfTheme } from '@/config/pdfTheme';
 import { $subsidies } from '@/lib/state/calculation-config';
+import { safeSubsidyHref } from '@/lib/subsidy-href';
 import { Link, StyleSheet, Text, View } from '@react-pdf/renderer';
 import i18next from 'i18next';
 import { pdf } from './pdfStyles';
@@ -63,14 +64,19 @@ export function PdfSubsidies() {
           {i18next.t('energyCalculation:export.subsidyColumnLink')}
         </Text>
       </View>
-      {subsidies.map(({ subsidy }) => (
-        <View key={subsidy.title} wrap={false} style={styles.row}>
-          <Text style={styles.cTitle}>{subsidy.title}</Text>
-          <Text style={styles.cLink} hyphenationCallback={breakUrl}>
-            <Link src={subsidy.href}>{subsidy.href}</Link>
-          </Text>
-        </View>
-      ))}
+      {subsidies.map(({ subsidy }) => {
+        // Only https links become /URI actions; anything else is left out
+        // instead of being printed as text a PDF viewer might auto-link.
+        const href = safeSubsidyHref(subsidy.href);
+        return (
+          <View key={subsidy.title} wrap={false} style={styles.row}>
+            <Text style={styles.cTitle}>{subsidy.title}</Text>
+            <Text style={styles.cLink} hyphenationCallback={breakUrl}>
+              {href ? <Link src={href}>{href}</Link> : null}
+            </Text>
+          </View>
+        );
+      })}
     </View>
   );
 }

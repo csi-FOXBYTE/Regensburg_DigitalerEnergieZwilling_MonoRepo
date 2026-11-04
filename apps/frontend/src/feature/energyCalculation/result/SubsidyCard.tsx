@@ -5,6 +5,7 @@ import type {
   SubsidyFinancing,
   SubsidyWithFinancing,
 } from '@/lib/state/calculation-config';
+import { safeSubsidyHref } from '@/lib/subsidy-href';
 import type { SubsidyBenefit } from '@csi-foxbyte/regensburg_digitalerenergiezwilling_energycalculationcore';
 import { ChevronDown, ExternalLink } from 'lucide-react';
 import { useId, useState } from 'react';
@@ -50,6 +51,8 @@ export function SubsidyCard({
   // Die Förder-Config wird ungeprüft übernommen — fehlt `financing` noch,
   // bleibt die Bubble beim reinen Betrag statt "undefined:" anzuzeigen.
   const financingKey = FINANCING_LABEL_KEY[financing];
+  // Config links are only followed when they are absolute https URLs.
+  const safeHref = safeSubsidyHref(href);
 
   return (
     <Paper className="flex flex-col gap-3 p-4">
@@ -72,9 +75,9 @@ export function SubsidyCard({
           <div className="from-card pointer-events-none absolute right-0 bottom-0 left-0 h-8 bg-gradient-to-t to-transparent" />
         )}
       </div>
-      {isOpen && (
+      {isOpen && safeHref && (
         <a
-          href={href}
+          href={safeHref}
           target="_blank"
           rel="noopener noreferrer"
           className="text-primary flex w-fit items-center gap-1 text-sm underline-offset-4 hover:underline"
