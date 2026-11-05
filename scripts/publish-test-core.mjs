@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
-import { digest, json } from './compliance/common.mjs';
+import { digest, json } from './release/util.mjs';
 const selection = json('.local/core-package/selection.json');
 assert(/^\d+$/.test(process.env.GITHUB_RUN_ID || '') && /^\d+$/.test(process.env.GITHUB_RUN_ATTEMPT || ''));
 assert.equal(selection.package.name, '@csi-foxbyte/regensburg-web-energy-core-test');

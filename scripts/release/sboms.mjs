@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
-import { digest, json } from '../compliance/common.mjs';
+import { digest, json } from './util.mjs';
 import { manifestComponents } from './core.mjs';
 
 export function sbomSelection(manifest) {

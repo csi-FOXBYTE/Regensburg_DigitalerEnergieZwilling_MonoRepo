@@ -8,7 +8,7 @@ import { test } from 'node:test';
 import { config } from './io.mjs';
 import { sbomEvidence } from './evidence.mjs';
 import { fixtureBom } from './fixtures/sbom.mjs';
-import { digest, save } from '../compliance/common.mjs';
+import { digest, save } from './util.mjs';
 import { sbomSelection } from './sboms.mjs';
 
 function fixture(t, failAt) {
@@ -16,6 +16,8 @@ function fixture(t, failAt) {
   t.after(() => rmSync(dir, { recursive: true, force: true }));
   const bin = path.join(dir, 'bin');
   mkdirSync(bin);
+  writeFileSync(path.join(dir, 'NOTICE'), 'SPDX license identifier: LGPL-3.0-or-later\n');
+  writeFileSync(path.join(dir, 'package.json'), '{"name":"mock","license":"LGPL-3.0-or-later"}\n');
   for (const name of ['gh', 'git', 'docker']) {
     copyFileSync(new URL('./fixtures/remote.mjs', import.meta.url), path.join(bin, name));
     chmodSync(path.join(bin, name), 0o755);

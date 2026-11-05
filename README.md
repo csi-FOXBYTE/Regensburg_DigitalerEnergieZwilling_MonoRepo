@@ -136,7 +136,11 @@ publishes only a distinct test package, `@csi-foxbyte/regensburg-web-energy-core
 with a run-specific `-test.<run>.<attempt>` version. Publication under the core's
 existing package name needs a separate ownership and release decision.
 
-Release tags include CycloneDX source and runtime inventories. Before any openCode
-publication, run and review the [full local compliance audit](scripts/compliance/README.md);
-it covers the exact source, dependencies and selected images. Legal provenance and
-redistribution considerations are in [NOTICE](NOTICE).
+Release tags include CycloneDX source and runtime inventories. The tracked
+[`SPDX_source.spdx.json`](SPDX_source.spdx.json) describes this repository's
+source files. Refresh it after source changes with
+`python3 scripts/generate-source-spdx.py`. File level license conclusions remain
+unknown until reviewed. Before publishing images or packages to openCode, prepare a
+separate SPDX document for each selected artifact and review its licenses,
+copyrights and notices. Legal provenance and redistribution considerations
+are in [NOTICE](NOTICE).

@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
-import { digest, json, run, save } from '../compliance/common.mjs';
+import { digest, json, run, save } from './util.mjs';
 import { components, manifestComponents } from './core.mjs';
 import { sbomEvidence, sbomPath, verifyImage } from './evidence.mjs';
 import { sbomSelection, verifySboms } from './sboms.mjs';

@@ -58,7 +58,8 @@ if (tool === 'gh') {
     result();
   } else fail(`Unexpected docker command ${args}`);
 } else if (tool === 'git') {
-  if (args[0] === 'ls-remote') {
+  if (args[0] === 'ls-files') result('NOTICE\0package.json\0release/manifest.json\0');
+  else if (args[0] === 'ls-remote') {
     result(args.at(-1) === 'refs/heads/main' ? `${state.main}\trefs/heads/main`
       : state.tagged ? `${'f'.repeat(40)}\trefs/tags/${tag}` : '');
   } else if (args[0] === 'ls-tree') {

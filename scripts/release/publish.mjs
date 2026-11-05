@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { copyFileSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { assertTagDigest, components, journalBody, manifestComponents, manifestPath, readJournal,
   selectReleaseState, validateManifest } from './core.mjs';
 import { api, command, config, git, readManifest, registryDigest, releases, summary } from './io.mjs';
@@ -116,6 +117,9 @@ for (let attempt = 0; attempt < 3; attempt++) {
     copyFileSync(path.join(process.env.SBOM_DIR, filename), path.join('release/sboms', filename));
   }
   git('add', '--', manifestPath, 'release/sboms');
+  command('python3', [fileURLToPath(new URL('../generate-source-spdx.py', import.meta.url))],
+    { env: { ...process.env, SPDX_SOURCE_ROOT: process.cwd() } });
+  git('add', '--', 'SPDX_source.spdx.json');
   command('git', ['-c', 'user.name=github-actions[bot]', '-c',
     'user.email=41898282+github-actions[bot]@users.noreply.github.com',
     '-c', 'core.hooksPath=/dev/null', 'commit', '-m', `chore(release): ${tag}`]);

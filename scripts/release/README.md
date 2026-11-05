@@ -27,8 +27,9 @@ creates fresh CycloneDX snapshots of the selected source and application inputs,
 plus Syft runtime/OS inventories for all selected images. Their identity/hash receipt
 is stored in the publication journal and the inventories are committed under
 `release/sboms/` at the tag. This checks inventory integrity, not license eligibility.
-GitHub CI and releases run no ScanCode audit. The [full local audit](../compliance/README.md)
-is an explicit step before a later openCode publication.
+The tracked repository SPDX document covers source files only. For openCode
+publication of images or packages, prepare SPDX documents for those selected
+artifacts and review their licenses, copyrights and notices.
 
 ## Matomo image
 

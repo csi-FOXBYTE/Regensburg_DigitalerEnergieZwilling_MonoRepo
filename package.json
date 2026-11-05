@@ -23,7 +23,6 @@
     "check": "pnpm prepare:workspace && pnpm -r typecheck && pnpm -r test && pnpm test:release",
     "sbom": "pnpm -r run sbom",
     "gen:api": "pnpm --filter ./apps/adminfrontend gen:api",
-    "core:pack": "pnpm --filter ./packages/energy-core pack --pack-destination .local/packages",
-    "compliance:core": "node scripts/compliance/prepare-core.mjs"
+    "core:pack": "pnpm --filter ./packages/energy-core pack --pack-destination .local/packages"
   }
 }

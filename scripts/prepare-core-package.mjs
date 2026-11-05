@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
-import { digest, run, save } from './compliance/common.mjs';
+import { digest, run, save } from './release/util.mjs';
 
 const testPackage = process.argv[2] === '--test-package';
 assert.equal(process.argv.length, testPackage ? 3 : 2, 'Only --test-package is supported');
