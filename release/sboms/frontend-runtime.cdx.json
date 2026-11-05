@@ -2,10 +2,10 @@
   "$schema": "http://cyclonedx.org/schema/bom-1.7.schema.json",
   "bomFormat": "CycloneDX",
   "specVersion": "1.7",
-  "serialNumber": "urn:uuid:45d444c4-0d72-57d9-8264-9caf76a84bfd",
+  "serialNumber": "urn:uuid:711233cc-5460-56a4-937b-62b7d8570379",
   "version": 1,
   "metadata": {
-    "timestamp": "2026-11-03T07:23:13.000Z",
+    "timestamp": "2026-11-05T08:54:29.000Z",
     "tools": {
       "components": [
         {
@@ -17,10 +17,10 @@
       ]
     },
     "component": {
-      "bom-ref": "d1dafce425a07bf0",
+      "bom-ref": "ff13165ed65338c6",
       "type": "container",
       "name": "ghcr.io/csi-foxbyte/regensburg-web-frontend",
-      "version": "sha256:698947a39beeb1ca76362dcf78404554a857847354027452915b770e5d89caeb"
+      "version": "sha256:66dcd5be6fb5e1571bc4e0f0906c36a537607d433517651d2d6eb32c63764e92"
     },
     "properties": [
       {
@@ -41,7 +41,7 @@
       },
       {
         "name": "syft:image:labels:org.opencontainers.image.revision",
-        "value": "b23128215a16ebf114bd2501576baa7b3ef7aab2"
+        "value": "7802c9fedf993f87a1adc2e32cae28b40d45d9d3"
       },
       {
         "name": "syft:image:labels:org.opencontainers.image.source",
@@ -57,11 +57,11 @@
       },
       {
         "name": "syft:image:labels:org.opencontainers.image.version",
-        "value": "build-41596049665-1"
+        "value": "build-41998177831-1"
       },
       {
         "name": "regensburg:release-source",
-        "value": "b23128215a16ebf114bd2501576baa7b3ef7aab2"
+        "value": "7802c9fedf993f87a1adc2e32cae28b40d45d9d3"
       },
       {
         "name": "regensburg:release-inventory",
@@ -69,7 +69,7 @@
       },
       {
         "name": "regensburg:image-digest",
-        "value": "sha256:698947a39beeb1ca76362dcf78404554a857847354027452915b770e5d89caeb"
+        "value": "sha256:66dcd5be6fb5e1571bc4e0f0906c36a537607d433517651d2d6eb32c63764e92"
       }
     ]
   },
@@ -24847,22 +24847,22 @@
       ]
     },
     {
-      "bom-ref": "6afc23bfb65f20cf",
+      "bom-ref": "f21d7ed3ccc89efb",
       "type": "file",
       "name": "/etc/nginx/conf.d/default.conf",
       "hashes": [
         {
           "alg": "SHA-1",
-          "content": "ec7b90c36b8d72327e13e7a28eed93b134dc5bb1"
+          "content": "546e87f71c11b90f03ce46f4aca9daa536f4aa96"
         },
         {
           "alg": "SHA-256",
-          "content": "566a9b50c892c1f2a32f3741b78358956d233cc97db9ab210758e7ecf484c0ff"
+          "content": "90007927950db810bd3eb2faf81cbfcd148c55d7927464007f76bf6dc8fe21ab"
         }
       ]
     },
     {
-      "bom-ref": "9844da723fa46a22",
+      "bom-ref": "21106ac7074863b2",
       "type": "file",
       "name": "/usr/share/nginx/html/index.html",
       "hashes": [
