@@ -132,6 +132,8 @@ Optional, im Backend standardmaessig aus: Ablauffrist neuer oeffentlicher Loesch
 SUBMISSION_DELETION_TOKEN_TTL_DAYS=
 ```
 
+Ist die Frist gesetzt, erhalten beim Start des Backends alle Einreichungen ohne Ablaufzeitpunkt (Bestandsdaten von vor Einfuehrung der Frist oder aus einer Zeit ohne gesetzte Frist) den Ablauf Startzeitpunkt plus Frist, nicht Einreichungszeitpunkt plus Frist; Buerger mit einem aelteren PDF behalten so die volle Frist. Das geschieht mit einem einzelnen bedingten `UPDATE` (nur Zeilen mit `deletionTokenExpiresAt IS NULL`): idempotent, unschaedlich bei mehreren gleichzeitig startenden Replikas, bestehende Ablaufzeitpunkte werden nie veraendert, geloggt wird nur die Anzahl. Schlaegt es fehl, startet das Backend nicht. Ohne gesetzte Frist aendert der Start nichts.
+
 > **Achtung:** Die Frist laesst nur den Link ablaufen, nicht die Daten. Nach Ablauf ist nur noch der JSON-Download gesperrt; Statuspruefung und Loeschung bleiben moeglich, solange die Einreichung gespeichert ist. Die Frist ist keine Aufbewahrungsregel und loescht nichts. Gespeicherte Einreichungen bleiben bestehen, bis ein Loeschprozess fuer die Aufbewahrungsfrist sie entfernt; einen solchen Prozess gibt es noch nicht. Wie dabei mit bereits angenommenen Einreichungen umzugehen ist, entscheiden Stadt und Datenschutzbeauftragte. Die 30 Tage sind bewusst vor diesem Prozess gesetzt, um die Gueltigkeit weitergegebener oder abgeflossener Download-Links zu begrenzen; danach erhalten Buerger Auskunft ueber ihre gespeicherten Daten bei der Stadt. Sobald eine Aufbewahrungsfrist feststeht, ist die Frist daran anzugleichen.
 
 Geplantes Rollenmodell:

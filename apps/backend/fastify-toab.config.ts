@@ -1,6 +1,6 @@
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
-import { defineConfig, type FastifyToabConfigOptions } from "@csi-foxbyte/fastify-toab";
+import { defineConfig, type FastifyToabConfigOptions, type InferService } from "@csi-foxbyte/fastify-toab";
 import { Type } from "@sinclair/typebox";
 import { allowedCorsOrigins, createCorsOrigin } from "./src/lib/cors.js";
 import { requestErrorHandler } from "./src/errors/request-error-handler.js";
@@ -9,6 +9,11 @@ import { installRequestGuards } from "./src/lib/request-guards.js";
 import { installNotFoundHandler } from "./src/errors/not-found.js";
 import { installFrameworkErrorHandlers } from "./src/errors/framework-errors.js";
 import { getAltcha, installAltchaGuard } from "./src/altcha/altcha.js";
+import databaseService from "./src/database/database.service.js";
+import {
+  backfillDeletionTokenExpiry,
+  deletionTokenTtlDays,
+} from "./src/submissions/deletion-token-expiry.js";
 
 // fastify-toab 0.2.0-rc.4's CLI reads the module namespace, not its default export.
 // Also export this setting by name so Pino's transport workers stay in node_modules.
@@ -87,7 +92,14 @@ export default defineConfig({
     // Fail at startup instead of on the first cross-origin request.
     allowedCorsOrigins();
   },
-  onReady: async (fastify) => {
+  onReady: async (fastify, { serviceRegistry }) => {
+    // Before listen, so a failure stops startup instead of leaving old
+    // download links without expiry.
+    const db = await serviceRegistry
+      .resolve()
+      .get<InferService<typeof databaseService>>(databaseService.name);
+    await backfillDeletionTokenExpiry(db, deletionTokenTtlDays(), fastify.log);
+
     if (!fastify.hasDecorator("swagger")) return;
 
     // fastify-toab documents handlers without an output body as 204. Public

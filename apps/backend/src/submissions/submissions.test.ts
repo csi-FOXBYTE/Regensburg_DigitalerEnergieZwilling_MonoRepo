@@ -17,6 +17,7 @@ import submissionsPublicController, {
 } from "../submissionsPublic/submissionsPublic.controller.js";
 import { SubmissionNotFoundError } from "./submissions.errors.js";
 import { coreBaseInput } from "./submission-input.fixture.js";
+import { backfillDeletionTokenExpiry } from "./deletion-token-expiry.js";
 import {
   assertAvailableByToken,
   deleteByToken,
@@ -255,6 +256,109 @@ describe("public submission token service operations", () => {
     assert.equal(expiredReceipt.targetId, publicSubmission.id);
     assert.equal(expiredDb.submission.deleteMany.mock.calls.length, 1);
     await assertAvailableByToken(expiredDb as never, "expired-token");
+  });
+});
+
+describe("download expiry backfill for submissions without one", () => {
+  const now = new Date("2026-11-05T08:00:00.000Z");
+  const existing = new Date("2026-11-20T12:00:00.000Z");
+
+  // In-memory rows that apply the backfill's conditional update like the
+  // database: only rows matching `deletionTokenExpiresAt: null` change.
+  const fakeDb = () => {
+    const rows = [
+      { id: "legacy-1", deletionTokenExpiresAt: null as Date | null },
+      { id: "legacy-2", deletionTokenExpiresAt: null as Date | null },
+      { id: "current", deletionTokenExpiresAt: existing as Date | null },
+    ];
+    const updateMany = mock.fn(
+      async (args: { where: { deletionTokenExpiresAt: null }; data: { deletionTokenExpiresAt: Date } }) => {
+        const matching = rows.filter(
+          (row) => row.deletionTokenExpiresAt === args.where.deletionTokenExpiresAt,
+        );
+        for (const row of matching) row.deletionTokenExpiresAt = args.data.deletionTokenExpiresAt;
+        return { count: matching.length };
+      },
+    );
+    return { rows, db: { submission: { updateMany } } };
+  };
+  const logger = () => ({ info: mock.fn((_obj: { count: number }, _msg: string) => {}) });
+
+  it("gives rows without expiry now + TTL in one conditional update and keeps existing expiries", async () => {
+    const { rows, db } = fakeDb();
+    const log = logger();
+
+    assert.equal(await backfillDeletionTokenExpiry(db, 30, log, now), 2);
+
+    assert.equal(db.submission.updateMany.mock.calls.length, 1);
+    assert.deepEqual(db.submission.updateMany.mock.calls[0]?.arguments[0], {
+      where: { deletionTokenExpiresAt: null },
+      data: { deletionTokenExpiresAt: new Date("2026-12-05T08:00:00.000Z") },
+    });
+    assert.deepEqual(rows, [
+      { id: "legacy-1", deletionTokenExpiresAt: new Date("2026-12-05T08:00:00.000Z") },
+      { id: "legacy-2", deletionTokenExpiresAt: new Date("2026-12-05T08:00:00.000Z") },
+      { id: "current", deletionTokenExpiresAt: existing },
+    ]);
+    // Logs only the count, never ids.
+    assert.equal(log.info.mock.calls.length, 1);
+    assert.deepEqual(log.info.mock.calls[0]?.arguments[0], { count: 2 });
+    assert.equal(JSON.stringify(log.info.mock.calls[0]?.arguments).includes("legacy"), false);
+  });
+
+  it("changes nothing on a second run", async () => {
+    const { rows, db } = fakeDb();
+    await backfillDeletionTokenExpiry(db, 30, logger(), now);
+    const afterFirst = structuredClone(rows);
+    const log = logger();
+
+    const later = new Date("2026-11-06T08:00:00.000Z");
+    assert.equal(await backfillDeletionTokenExpiry(db, 30, log, later), 0);
+    assert.deepEqual(rows, afterFirst);
+    assert.equal(log.info.mock.calls.length, 0);
+  });
+
+  it("does nothing without a configured TTL", async () => {
+    const { rows, db } = fakeDb();
+    const log = logger();
+
+    assert.equal(await backfillDeletionTokenExpiry(db, null, log, now), 0);
+    assert.equal(db.submission.updateMany.mock.calls.length, 0);
+    assert.equal(rows[0]?.deletionTokenExpiresAt, null);
+    assert.equal(log.info.mock.calls.length, 0);
+  });
+
+  it("runs on startup with the configured TTL before the server listens", async (t) => {
+    const { default: config } = await import("../../fastify-toab.config.js");
+    const previous = process.env.SUBMISSION_DELETION_TOKEN_TTL_DAYS;
+    t.after(() => {
+      if (previous === undefined) delete process.env.SUBMISSION_DELETION_TOKEN_TTL_DAYS;
+      else process.env.SUBMISSION_DELETION_TOKEN_TTL_DAYS = previous;
+    });
+    const fastify = { hasDecorator: () => false, log: logger() };
+    const startup = (db: object) =>
+      config.onReady?.(fastify as never, {
+        serviceRegistry: {
+          resolve: () => ({
+            get: async (name: string) => {
+              assert.equal(name, "database");
+              return db;
+            },
+          }),
+        },
+      } as never);
+
+    process.env.SUBMISSION_DELETION_TOKEN_TTL_DAYS = "30";
+    const configured = fakeDb();
+    await startup(configured.db);
+    assert.equal(configured.db.submission.updateMany.mock.calls.length, 1);
+    assert.equal(configured.rows.every((row) => row.deletionTokenExpiresAt !== null), true);
+    assert.equal(configured.rows[2]?.deletionTokenExpiresAt, existing);
+
+    delete process.env.SUBMISSION_DELETION_TOKEN_TTL_DAYS;
+    const unset = fakeDb();
+    await startup(unset.db);
+    assert.equal(unset.db.submission.updateMany.mock.calls.length, 0);
   });
 });
 

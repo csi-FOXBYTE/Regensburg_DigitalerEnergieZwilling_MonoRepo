@@ -23,6 +23,9 @@ import {
   UserNotFoundError,
 } from "./submissions.errors.js";
 import type { DeletionReceiptInput } from "./submissions.dto.js";
+import { deletionTokenExpiry, deletionTokenTtlDays } from "./deletion-token-expiry.js";
+
+export { deletionTokenTtlDays };
 
 type Roles = string[];
 type DB = Awaited<ReturnType<typeof getDatabaseService>>;
@@ -48,28 +51,12 @@ const deletionActorRole = (roles: Roles) =>
 export const hashDeletionToken = (deletionToken: string) =>
   createHash("sha256").update(deletionToken, "utf8").digest("hex");
 
-const DAY_MS = 24 * 60 * 60 * 1000;
-
-// Validated by the env schema in fastify-toab.config.ts (1 to 9999 days), so
-// startup fails on a bad value. Unset (the default) means no expiry.
-//
-// CAUTION: the TTL expires only the link, never the data. It is not a
-// retention control: stored submissions stay until a retention-deletion
-// process removes them (none exists yet; its rules for accepted submissions
-// are a decision for the city and its data protection officer). The deployment
-// add-on enables it (30 days) before that process exists, to limit how long a
-// leaked download link works; align it with the retention period once defined.
-export const deletionTokenTtlDays = (
-  value = process.env.SUBMISSION_DELETION_TOKEN_TTL_DAYS,
-): number | null => (value ? Number(value) : null);
-
 // The plaintext token is handed to the client once and never persisted.
 // The expiry only limits downloading the data. Deleting stays possible while
 // the submission is stored: the link is the citizen's way to withdraw consent,
 // so it must not die before the data does.
 export const issueDeletionToken = (ttlDays: number | null, now = new Date()) => {
-  const deletionTokenExpiresAt =
-    ttlDays === null ? null : new Date(now.getTime() + ttlDays * DAY_MS);
+  const deletionTokenExpiresAt = deletionTokenExpiry(ttlDays, now);
 
   const deletionToken = randomBytes(32).toString("base64url");
   return {
