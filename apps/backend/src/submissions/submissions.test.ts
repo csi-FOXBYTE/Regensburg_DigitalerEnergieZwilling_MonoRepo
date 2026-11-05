@@ -9,8 +9,7 @@ import {
   fastifyToab,
   type ServiceContainer,
   type ServiceRegistry,
-  type WorkerRegistry,
-} from "@csi-foxbyte/fastify-toab";
+} from "../toab/index.js";
 import { routeErrorHandler } from "../errors/route-error-handler.js";
 import submissionsPublicController, {
   buildPublicDeletionLink,
@@ -402,21 +401,11 @@ describe("public submission routes", () => {
     } as unknown as ServiceRegistry;
     const controllerRegistry = new ControllerRegistry(serviceRegistry);
     controllerRegistry.register(submissionsPublicController);
-    const workerRegistry = {
-      getWorker: () => {
-        throw new Error("No workers in route tests");
-      },
-      getQueue: () => {
-        throw new Error("No queues in route tests");
-      },
-    } as unknown as WorkerRegistry;
-
     const app = Fastify();
     await app.register(fastifyToab, {
       getRegistries: async () => ({
         controllerRegistry,
         serviceRegistry,
-        workerRegistry,
       }),
       onRouteError: routeErrorHandler,
     });

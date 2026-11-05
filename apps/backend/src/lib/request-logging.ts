@@ -1,6 +1,5 @@
 import { randomUUID } from "node:crypto";
 import type { FastifyInstance, FastifyRequest } from "fastify";
-import { pino } from "pino";
 import { errorCategory, logEvent, type ErrorCategory, type PrivacyLogger } from "./pino.js";
 
 const requestErrors = new WeakMap<FastifyRequest, ErrorCategory>();
@@ -47,17 +46,10 @@ function adminAuditFields(request: FastifyRequest, route: string | undefined) {
   };
 }
 
+// The one record per request. Fastify's own request records are off and
+// fastify.log is privacy-filtered (createFastify() in src/toab/run.ts and
+// createLogger() in pino.ts).
 export function installRequestLogging(fastify: FastifyInstance, write: PrivacyLogger = logEvent) {
-  // fastify-toab creates its own Pino instance and logs raw exceptions before
-  // onRouteError. Silence it and its request loggers, including unmatched routes.
-  // A factory is necessary: route/plugin logLevel can override the root level.
-  fastify.log.level = "silent";
-  const silentLogger = pino({ enabled: false });
-  fastify.setChildLoggerFactory(() => silentLogger);
-  fastify.addHook("onRoute", (route) => {
-    route.childLoggerFactory = () => silentLogger;
-  });
-
   const requests = new WeakMap<FastifyRequest, { id: string; startedAt: number; logged: boolean }>();
   const context = (request: FastifyRequest) => {
     let value = requests.get(request);

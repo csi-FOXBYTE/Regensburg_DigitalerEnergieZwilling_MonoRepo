@@ -1,4 +1,4 @@
-import { createController } from "@csi-foxbyte/fastify-toab";
+import { createController } from "../toab/index.js";
 import { getAltchaService } from "../@internals/index.js";
 import { AltchaChallengeOutputDto } from "./altcha.dto.js";
 

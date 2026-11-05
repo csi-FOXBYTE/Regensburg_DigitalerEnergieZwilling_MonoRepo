@@ -5,8 +5,7 @@ import {
   fastifyToab,
   type ServiceContainer,
   type ServiceRegistry,
-  type WorkerRegistry,
-} from "@csi-foxbyte/fastify-toab";
+} from "../toab/index.js";
 import Fastify from "fastify";
 import configController from "./config.controller.js";
 import { analyticsConfigState } from "./matomo.js";
@@ -48,21 +47,11 @@ async function createTestApp() {
   } as unknown as ServiceRegistry;
   const controllerRegistry = new ControllerRegistry(serviceRegistry);
   controllerRegistry.register(configController);
-  const workerRegistry = {
-    getWorker: () => {
-      throw new Error("No workers used in map resources route tests");
-    },
-    getQueue: () => {
-      throw new Error("No queues used in map resources route tests");
-    },
-  } as unknown as WorkerRegistry;
-
   const app = Fastify();
   await app.register(fastifyToab, {
     getRegistries: async () => ({
       controllerRegistry,
       serviceRegistry,
-      workerRegistry,
     }),
   });
   await app.ready();

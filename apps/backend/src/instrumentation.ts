@@ -1,4 +1,4 @@
-import type { InstrumentationInput } from "@csi-foxbyte/fastify-toab";
+import type { InstrumentationInput } from "./toab/index.js";
 import { analyticsConfigState } from "./config/matomo.js";
 import { injectPinoLogger, logEvent } from "./lib/pino.js";
 import { installRequestLogging } from "./lib/request-logging.js";

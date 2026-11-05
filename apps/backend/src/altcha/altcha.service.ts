@@ -1,4 +1,4 @@
-import { createService } from "@csi-foxbyte/fastify-toab";
+import { createService } from "../toab/index.js";
 import { getAltcha } from "./altcha.js";
 
 // The same instance as the request guard installed in fastify-toab.config.ts.

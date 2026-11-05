@@ -3,8 +3,7 @@ import {
   ControllerRegistry,
   fastifyToab,
   type ServiceRegistry,
-  type WorkerRegistry,
-} from "@csi-foxbyte/fastify-toab";
+} from "../toab/index.js";
 import { installFrameworkErrorHandlers } from "../errors/framework-errors.js";
 import { requestErrorHandler } from "../errors/request-error-handler.js";
 import { routeErrorHandler } from "../errors/route-error-handler.js";
@@ -40,7 +39,6 @@ export async function createGuardedTestApp(
     getRegistries: async () => ({
       controllerRegistry,
       serviceRegistry,
-      workerRegistry: {} as WorkerRegistry,
     }),
     includeGenericErrorResponses: true,
     onRouteError: routeErrorHandler,

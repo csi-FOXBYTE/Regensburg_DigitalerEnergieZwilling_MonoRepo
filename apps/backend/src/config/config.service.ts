@@ -1,4 +1,4 @@
-import { createService } from "@csi-foxbyte/fastify-toab";
+import { createService } from "../toab/index.js";
 import { DEFAULT_CONFIG, validateAndMigrate, validateConfig } from "@csi-foxbyte/regensburg_digitalerenergiezwilling_energycalculationcore";
 import type { Subsidy } from "@csi-foxbyte/regensburg_digitalerenergiezwilling_energycalculationcore";
 import { getDatabaseService } from "../@internals/index.js";

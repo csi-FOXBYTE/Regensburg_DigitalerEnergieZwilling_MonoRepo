@@ -1,4 +1,4 @@
-import { pino, type DestinationStream, type LoggerOptions } from "pino";
+import { pino, type DestinationStream, type Level, type Logger, type LoggerOptions } from "pino";
 import { httpErrorStatus, type AppErrorStatus } from "../errors/app-error.js";
 
 export type ErrorCategory = AppErrorStatus | "DATABASE_ERROR" | "VALIDATION_ERROR";
@@ -23,7 +23,7 @@ export function errorCategory(error: unknown): ErrorCategory {
 
 type ConsoleLevel = "info" | "warn" | "error" | "debug";
 
-type LogEvent =
+export type LogEvent =
   | {
       event: "request_completed" | "request_failed" | "request_aborted" | "request_timeout";
       requestId: string;
@@ -44,34 +44,44 @@ type LogEvent =
   | { event: "auth_key_set_unavailable" }
   | { event: "analytics_config"; state: "active" | "inactive" | "invalid" }
   | { event: "deletion_expiry_backfill"; count: number }
+  // Only the names of missing or invalid variables (src/toab/run.ts).
+  | { event: "env_invalid"; variables: string[] }
   | { event: "server_listening" | "server_closed" };
 
 export type PrivacyLogger = (event: LogEvent) => void;
 
-export const loggerOptions: LoggerOptions = {
-  base: undefined,
-  ...(process.env.NODE_ENV === "development" ? {
-    transport: {
-      target: "pino-pretty",
-      options: { translateTime: "HH:MM:ss Z", ignore: "pid,hostname" },
-    },
-  } : {}),
-};
+const events = new Set<string>([
+  "request_completed", "request_failed", "request_aborted", "request_timeout", "console_output",
+  "feedback_notification_failed", "auth_key_set_unavailable", "analytics_config",
+  "deletion_expiry_backfill", "env_invalid", "server_listening", "server_closed",
+] satisfies LogEvent["event"][]);
 
-export function createPrivacyLogger(
-  options: LoggerOptions = loggerOptions,
-  destination?: DestinationStream,
-): PrivacyLogger {
-  const output = destination ? pino(options, destination) : pino(options);
-  return (event) => {
-    // Construct a fresh allowlisted record, even if the caller supplies extra fields.
-    if (event.event === "console_output") {
-      output[event.level]({ event: event.event, errorCode: event.errorCode });
-    } else if ("requestId" in event) {
-      const level = event.event === "request_failed"
-        ? ((event.statusCode ?? 500) >= 500 ? "error" : "warn")
-        : "info";
-      output[level]({
+const isLogEvent = (value: unknown): value is LogEvent =>
+  typeof value === "object" && value !== null && !(value instanceof Error) &&
+  "event" in value && typeof value.event === "string" && events.has(value.event);
+
+function levelOf(event: LogEvent): Level {
+  switch (event.event) {
+    case "console_output": return event.level;
+    case "request_failed": return (event.statusCode ?? 500) >= 500 ? "error" : "warn";
+    case "feedback_notification_failed":
+    case "auth_key_set_unavailable": return "error";
+    case "analytics_config": return event.state === "invalid" ? "warn" : "info";
+    case "env_invalid": return "fatal";
+    default: return "info";
+  }
+}
+
+// Construct a fresh allowlisted record, even if the caller supplies extra fields.
+function eventRecord(event: LogEvent): Record<string, unknown> {
+  switch (event.event) {
+    case "console_output":
+      return { event: event.event, errorCode: event.errorCode };
+    case "request_completed":
+    case "request_failed":
+    case "request_aborted":
+    case "request_timeout":
+      return {
         event: event.event,
         requestId: event.requestId,
         route: event.route,
@@ -84,22 +94,91 @@ export function createPrivacyLogger(
         actorRoles: event.actorRoles,
         targetType: event.targetType,
         targetId: event.targetId,
-      });
-    } else if (event.event === "feedback_notification_failed" || event.event === "auth_key_set_unavailable") {
-      output.error({ event: event.event });
-    } else if (event.event === "analytics_config") {
+      };
+    case "analytics_config":
       // Only whether web analytics is on, never the tracker URL or site ID.
-      output[event.state === "invalid" ? "warn" : "info"]({ event: event.event, state: event.state });
-    } else if (event.event === "deletion_expiry_backfill") {
+      return { event: event.event, state: event.state };
+    case "deletion_expiry_backfill":
       // Only the count: no ids or token hashes in the log.
-      output.info({ event: event.event, count: event.count });
-    } else {
-      output.info({ event: event.event });
-    }
-  };
+      return { event: event.event, count: event.count };
+    case "env_invalid":
+      return {
+        event: event.event,
+        variables: event.variables.filter((name) => /^[A-Z][A-Z0-9_]{0,63}$/.test(name)),
+      };
+    default:
+      return { event: event.event };
+  }
 }
 
-export const logEvent = createPrivacyLogger();
+function errorIn(args: readonly unknown[]): unknown {
+  for (const arg of args) {
+    if (arg instanceof Error) return arg;
+    if (typeof arg === "object" && arg !== null) {
+      if ("err" in arg && arg.err instanceof Error) return arg.err;
+      if ("error" in arg && arg.error instanceof Error) return arg.error;
+    }
+  }
+  return undefined;
+}
+
+// Every log call goes through here: logEvent, fastify.log, request.log and the
+// loggers Fastify plugins derive from them. A LogEvent becomes its allowlisted
+// record. Anything else (free text, objects, errors) keeps only its level and,
+// for errors, the category: messages, request data and stacks may all contain
+// submitted data or tokens.
+function sanitize(args: readonly unknown[]): Record<string, unknown> {
+  if (isLogEvent(args[0])) return eventRecord(args[0]);
+  const error = errorIn(args);
+  return { event: "logger_output", ...(error === undefined ? {} : { errorCode: errorCategory(error) }) };
+}
+
+export const loggerOptions: LoggerOptions = process.env.NODE_ENV === "development" ? {
+  transport: {
+    target: "pino-pretty",
+    options: { translateTime: "HH:MM:ss Z", ignore: "pid,hostname" },
+  },
+} : {};
+
+/**
+ * Pino logger whose records only ever contain level, time and the allowlisted
+ * fields of sanitize(). It is also Fastify's logger (fastify-toab.config.ts).
+ */
+export function createLogger(options: LoggerOptions = loggerOptions, destination?: DestinationStream): Logger {
+  const settings: LoggerOptions = {
+    ...options,
+    base: undefined,
+    hooks: {
+      logMethod(args, method) {
+        method.call(this, sanitize(args));
+      },
+    },
+  };
+  const logger = destination ? pino(settings, destination) : pino(settings);
+  // Child loggers inherit this override, so no binding (Fastify's reqId, a
+  // plugin's context) is ever added to a record; options such as the level
+  // still apply.
+  const child = logger.child;
+  logger.child = function (this: Logger, _bindings, childOptions) {
+    return child.call(this, {}, childOptions);
+  } as Logger["child"];
+  return logger;
+}
+
+export function eventWriter(logger: Logger): PrivacyLogger {
+  return (event) => logger[levelOf(event)](event);
+}
+
+export function createPrivacyLogger(
+  options: LoggerOptions = loggerOptions,
+  destination?: DestinationStream,
+): PrivacyLogger {
+  return eventWriter(createLogger(options, destination));
+}
+
+export const logger = createLogger();
+
+export const logEvent = eventWriter(logger);
 
 export function injectPinoLogger(write: PrivacyLogger = logEvent) {
   const forward = (level: ConsoleLevel, args: unknown[]) => {

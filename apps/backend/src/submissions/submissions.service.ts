@@ -1,4 +1,4 @@
-import { createService } from "@csi-foxbyte/fastify-toab";
+import { createService } from "../toab/index.js";
 import { createHash, randomBytes, randomUUID, timingSafeEqual } from "node:crypto";
 import {
   calculate,

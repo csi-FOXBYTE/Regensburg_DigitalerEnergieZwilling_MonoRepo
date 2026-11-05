@@ -1,4 +1,4 @@
-import { createController } from "@csi-foxbyte/fastify-toab";
+import { createController } from "../toab/index.js";
 import { authMiddleware } from "./auth.middleware.js";
 import { VerifyAuthOutputDto } from "./auth.dto.js";
 

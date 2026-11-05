@@ -1,4 +1,4 @@
-import { createMiddleware, ServiceContainer } from "@csi-foxbyte/fastify-toab";
+import { createMiddleware, ServiceContainer } from "../toab/index.js";
 import { getAuthService, getDatabaseService } from "../@internals/index.js";
 import { recordTokenActor } from "../config/config.middleware.js";
 import { AppError } from "../errors/app-error.js";

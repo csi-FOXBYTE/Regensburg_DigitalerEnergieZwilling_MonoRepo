@@ -1,4 +1,4 @@
-import { createService } from "@csi-foxbyte/fastify-toab";
+import { createService } from "../toab/index.js";
 import { z } from "zod";
 import { getDatabaseService, getMailService } from "../@internals/index.js";
 import { logEvent } from "../lib/pino.js";

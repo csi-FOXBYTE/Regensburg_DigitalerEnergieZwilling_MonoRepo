@@ -7,8 +7,7 @@ import {
   fastifyToab,
   type ServiceContainer,
   type ServiceRegistry,
-  type WorkerRegistry,
-} from "@csi-foxbyte/fastify-toab";
+} from "../toab/index.js";
 import configController from "../config/config.controller.js";
 import configService from "../config/config.service.js";
 import { createPrivacyLogger } from "../lib/pino.js";
@@ -58,7 +57,7 @@ it("answers every 409 with status CONFLICT and logs it as CONFLICT", async (t) =
   installRequestLogging(app, createPrivacyLogger({ base: undefined }, stream));
   app.setErrorHandler(requestErrorHandler);
   await app.register(fastifyToab, {
-    getRegistries: async () => ({ controllerRegistry, serviceRegistry, workerRegistry: {} as WorkerRegistry }),
+    getRegistries: async () => ({ controllerRegistry, serviceRegistry }),
     includeGenericErrorResponses: true,
     onRouteError: routeErrorHandler,
   });

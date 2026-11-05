@@ -1,6 +1,6 @@
 import type {
   FastifyToabRouteErrorContext,
-} from "@csi-foxbyte/fastify-toab";
+} from "../toab/index.js";
 import { AppError, sendAppError } from "./app-error.js";
 import { toDatabaseAppError } from "./database-error.js";
 import { recordRequestError } from "../lib/request-logging.js";
