@@ -1,6 +1,6 @@
 # Datenschutzhinweise für das öffentliche Sanierungstool
 
-> **Status:** Entwurf, Stand 28. Oktober 2026  
+> **Status:** Entwurf, Stand 5. November 2026  
 > **Geltungsbereich:** Öffentlicher/bürgerseitiger Teil des Digitalen Energie Zwillings (DEZ)  
 > **Freigabe:** Vor Veröffentlichung durch Betreiber, zuständige Dienststelle und behördlichen Datenschutzbeauftragten zu prüfen. Eckige Klammern kennzeichnen noch zu ergänzende oder verbindlich festzulegende Angaben.
 
@@ -245,7 +245,7 @@ Der PDF-Bericht kann folgende vertrauliche Verknüpfungen enthalten:
 - bei freiwilliger Einreichung einen Löschlink,
 - bei freiwilliger Einreichung einen Link zum JSON-Export.
 
-Lösch- und JSON-Download-Link enthalten denselben zufälligen, nicht erratbaren Capability-Token. Wer einen solchen Link erhält, kann die gespeicherten öffentlichen Einreichungsdaten herunterladen beziehungsweise nach ausdrücklicher Bestätigung löschen. Der JSON-Export enthält deshalb zusätzlich einen neutralen Löschlink ohne Sprachparameter. Der Download der Einreichungsdaten über den Link ist 30 Tage ab der Einreichung möglich; die Löschung über den Löschlink bleibt möglich, solange die Einreichung gespeichert ist.
+Lösch- und JSON-Download-Link enthalten denselben zufälligen, nicht erratbaren Capability-Token. Wer einen solchen Link erhält, kann die gespeicherten öffentlichen Einreichungsdaten herunterladen beziehungsweise nach ausdrücklicher Bestätigung löschen. Der JSON-Export enthält deshalb zusätzlich einen neutralen Löschlink ohne Sprachparameter. Der Download der Einreichungsdaten über den Link ist 30 Tage ab der Einreichung möglich; für Einreichungen, die vor Einführung dieser Frist erfolgt sind, laufen die 30 Tage ab ihrer Einführung. Die Löschung über den Löschlink bleibt möglich, solange die Einreichung gespeichert ist.
 
 Portable Wiederherstellungslinks arbeiten davon unabhängig: Sie enthalten den serialisierten Bearbeitungsstand im URL-Fragment. Dieses Fragment wird ausschließlich im Browser ausgewertet und bei einem normalen HTTP-Aufruf nicht an das Backend übertragen. Für die Wiederherstellung wird kein serverseitiger Sitzungsdatensatz und kein Backend-Token angelegt.
 
