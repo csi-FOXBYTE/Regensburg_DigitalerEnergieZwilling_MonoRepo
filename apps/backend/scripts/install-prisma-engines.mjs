@@ -9,15 +9,15 @@ import { readFileSync, realpathSync, rmSync } from "node:fs";
 import { createRequire } from "node:module";
 import { join } from "node:path";
 
-// The runtime image is Debian bookworm with OpenSSL 3.
-const binaryTarget = "debian-openssl-3.0.x";
+// The runtime image is Alpine (musl) with OpenSSL 3.
+const binaryTarget = "linux-musl-openssl-3.0.x";
 // sha256 of each unpacked engine for that target, per Prisma engines commit
 // (@prisma/engines-version). A Prisma update fails the build until its digests
 // are added here.
 const pinnedDigests = {
   c2990dca591cba766e3b7ef5d9e8a84796e47ab7: {
-    "schema-engine": "5d42b181631fd20bb0ecc5abcdba72575e7f467a0d52f4d5ef1ff28f0c74e6e9",
-    "libquery-engine": "a2924eab1c78a0a7bb67edac5738939fa10589ef073af5542f53812a22e4a7d8",
+    "schema-engine": "955e3bff1be23248a0922a219f7c4e200acc8fdd1fc72479557c0a9d782bd64a",
+    "libquery-engine": "28abc36457335e1a45fe2fe79a4c781b55347e696d6f4410c83bf232d92a726c",
   },
 };
 

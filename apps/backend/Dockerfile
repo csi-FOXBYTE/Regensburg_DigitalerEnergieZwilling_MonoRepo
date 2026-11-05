@@ -1,9 +1,11 @@
 # syntax=docker/dockerfile:1
-ARG NODE_BASE_IMAGE=node:24.22.2-bookworm-slim
-ARG RUNTIME_BASE_IMAGE=debian:bookworm-slim
+ARG NODE_BASE_IMAGE=node:24.22.2-alpine3.24
+ARG RUNTIME_BASE_IMAGE=alpine:3.24
+# Both stages are Alpine of the same release: pnpm installs the musl builds of
+# native modules, and the node binary links against the runtime's libstdc++.
 FROM ${NODE_BASE_IMAGE} AS build
 ARG RELEASE_REFRESH=0
-RUN echo "External dependency refresh: ${RELEASE_REFRESH}" && apt-get update && apt-get install -y --no-install-recommends git ca-certificates openssl python3 make g++ && rm -rf /var/lib/apt/lists/*
+RUN echo "External dependency refresh: ${RELEASE_REFRESH}" && apk add --no-cache git ca-certificates openssl python3 make g++
 RUN npm install --global pnpm@11.22.0
 WORKDIR /workspace
 RUN chown node:node /workspace
@@ -25,12 +27,16 @@ RUN pnpm --filter ./apps/backend deploy --prod --legacy /workspace/.deploy/backe
 RUN node apps/backend/scripts/install-prisma-engines.mjs /workspace/.deploy/backend
 FROM ${RUNTIME_BASE_IMAGE} AS production
 ARG RELEASE_REFRESH=0
-# A plain Debian base: npm and corepack never enter a layer, only the node binary
-# of the build stage does. Debian fixes published after the base image apply on
-# each refresh epoch, like the Alpine upgrade of the client images.
-RUN echo "External dependency refresh: ${RELEASE_REFRESH}" && apt-get update && apt-get upgrade -y \
-  && apt-get install -y --no-install-recommends ca-certificates openssl && rm -rf /var/lib/apt/lists/* \
-  && groupadd --gid 1000 node && useradd --uid 1000 --gid node --shell /bin/bash --create-home node
+# A plain Alpine base: npm and corepack never enter a layer, only the node binary
+# of the build stage does. Alpine fixes published after the base image apply on
+# each refresh epoch, like in the client images. node needs libstdc++ and
+# libgcc, the Prisma engines libgcc and libssl3. apk itself is removed
+# afterwards, so the runtime has no package manager; its database stays for
+# scanners.
+RUN echo "External dependency refresh: ${RELEASE_REFRESH}" && apk upgrade --no-cache \
+  && apk add --no-cache ca-certificates-bundle libcrypto3 libgcc libssl3 libstdc++ \
+  && apk del --no-cache apk-tools \
+  && addgroup -g 1000 node && adduser -u 1000 -G node -s /bin/sh -D node
 COPY --from=build /usr/local/bin/node /usr/local/bin/node
 ENV NODE_ENV=production HOSTNAME=0.0.0.0 PORT=5000
 WORKDIR /app
@@ -40,14 +46,20 @@ COPY --from=build --chown=node:node /workspace/apps/backend/SBOM.cdx.json /usr/s
 USER 1000:1000
 # The add-on's migration init container runs node_modules/.bin/zenstack migrate
 # deploy. Fail the build if zenstack cannot load prisma itself (its fallback,
-# npx, is not in this image), if the schema or query engine is missing or does
-# not load on this base (prisma would download one at runtime), or if the "files"
+# npx, is not in this image), if prisma detects another binary target on this
+# base than the installed engines, if the schema or query engine is missing or
+# does not load (prisma would download one at runtime), or if the "files"
 # allowlist of package.json dropped the schema or the migrations.
 RUN node -e "const { createRequire } = require('node:module'); \
 const prisma = createRequire(require('node:fs').realpathSync('node_modules/@zenstackhq/cli/dist/index.js')).resolve('prisma/build/index.js'); \
-const engines = require(createRequire(prisma).resolve('@prisma/engines')); \
-require('node:child_process').execFileSync(require('node:path').join(engines.getEnginesPath(), 'schema-engine-debian-openssl-3.0.x'), ['--version'], { stdio: 'inherit' }); \
-require(require('node:path').join(engines.getEnginesPath(), 'libquery_engine-debian-openssl-3.0.x.so.node'));" \
+const enginesEntry = createRequire(prisma).resolve('@prisma/engines'); \
+const engines = require(enginesEntry); \
+const target = 'linux-musl-openssl-3.0.x'; \
+createRequire(enginesEntry)('@prisma/get-platform').getBinaryTargetForCurrentPlatform().then((detected) => { \
+  if (detected !== target) throw new Error('prisma detects ' + detected + ', the image has engines for ' + target); \
+  require('node:child_process').execFileSync(require('node:path').join(engines.getEnginesPath(), 'schema-engine-' + target), ['--version'], { stdio: 'inherit' }); \
+  require(require('node:path').join(engines.getEnginesPath(), 'libquery_engine-' + target + '.so.node')); \
+});" \
   && test -f src/zenstack/schema.zmodel && test -d src/zenstack/migrations
 EXPOSE 5000
 CMD ["node", "--expose-gc", ".build/@internals/run.js"]

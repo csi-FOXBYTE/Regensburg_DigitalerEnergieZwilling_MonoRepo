@@ -4,14 +4,14 @@
   "additionalComponents": [
     {
       "type": "library",
-      "bom-ref": "component:debian:ca-certificates@not-pinned",
+      "bom-ref": "component:alpine:ca-certificates@not-pinned",
       "name": "ca-certificates",
       "version": "not pinned",
       "scope": "required",
-      "ecosystem": "Debian package",
-      "relationship": "referenced build and runtime software",
+      "ecosystem": "Alpine package",
+      "relationship": "referenced build software",
       "metadataSource": "Dockerfile",
-      "notes": "Explicitly installed in both image stages; transitive Debian packages are not expanded.",
+      "notes": "Installed only in the build image; transitive Alpine packages are not expanded.",
       "licenses": [
         {
           "license": {
@@ -22,14 +22,14 @@
     },
     {
       "type": "library",
-      "bom-ref": "component:debian:openssl@not-pinned",
+      "bom-ref": "component:alpine:openssl@not-pinned",
       "name": "openssl",
       "version": "not pinned",
       "scope": "required",
-      "ecosystem": "Debian package",
-      "relationship": "referenced build and runtime software",
+      "ecosystem": "Alpine package",
+      "relationship": "referenced build software",
       "metadataSource": "Dockerfile",
-      "notes": "Explicitly installed in both image stages; transitive Debian packages are not expanded.",
+      "notes": "Installed only in the build image; transitive Alpine packages are not expanded.",
       "licenses": [
         {
           "license": {
@@ -40,14 +40,14 @@
     },
     {
       "type": "library",
-      "bom-ref": "component:debian:python3@not-pinned",
+      "bom-ref": "component:alpine:python3@not-pinned",
       "name": "python3",
       "version": "not pinned",
       "scope": "required",
-      "ecosystem": "Debian package",
+      "ecosystem": "Alpine package",
       "relationship": "referenced build software",
       "metadataSource": "Dockerfile",
-      "notes": "Native-module build prerequisite installed only in the build image; transitive Debian packages are not expanded.",
+      "notes": "Native-module build prerequisite installed only in the build image; transitive Alpine packages are not expanded.",
       "licenses": [
         {
           "license": {
@@ -58,14 +58,14 @@
     },
     {
       "type": "library",
-      "bom-ref": "component:debian:make@not-pinned",
+      "bom-ref": "component:alpine:make@not-pinned",
       "name": "make",
       "version": "not pinned",
       "scope": "required",
-      "ecosystem": "Debian package",
+      "ecosystem": "Alpine package",
       "relationship": "referenced build software",
       "metadataSource": "Dockerfile",
-      "notes": "Native-module build prerequisite installed only in the build image; transitive Debian packages are not expanded.",
+      "notes": "Native-module build prerequisite installed only in the build image; transitive Alpine packages are not expanded.",
       "licenses": [
         {
           "license": {
@@ -76,14 +76,104 @@
     },
     {
       "type": "library",
-      "bom-ref": "component:debian:g++@not-pinned",
+      "bom-ref": "component:alpine:g++@not-pinned",
       "name": "g++",
       "version": "not pinned",
       "scope": "required",
-      "ecosystem": "Debian package",
+      "ecosystem": "Alpine package",
       "relationship": "referenced build software",
       "metadataSource": "Dockerfile",
-      "notes": "Native-module build prerequisite installed only in the build image; transitive Debian packages are not expanded.",
+      "notes": "Native-module build prerequisite installed only in the build image; transitive Alpine packages are not expanded.",
+      "licenses": [
+        {
+          "license": {
+            "name": "GPL-3.0-or-later WITH GCC-exception-3.1"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "component:alpine:ca-certificates-bundle@not-pinned",
+      "name": "ca-certificates-bundle",
+      "version": "not pinned",
+      "scope": "required",
+      "ecosystem": "Alpine package",
+      "relationship": "referenced runtime software",
+      "metadataSource": "Dockerfile",
+      "notes": "Explicitly installed in the runtime image; transitive Alpine packages are not expanded.",
+      "licenses": [
+        {
+          "license": {
+            "name": "MPL-2.0 AND MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "component:alpine:libcrypto3@not-pinned",
+      "name": "libcrypto3",
+      "version": "not pinned",
+      "scope": "required",
+      "ecosystem": "Alpine package",
+      "relationship": "referenced runtime software",
+      "metadataSource": "Dockerfile",
+      "notes": "Explicitly installed in the runtime image; transitive Alpine packages are not expanded.",
+      "licenses": [
+        {
+          "license": {
+            "name": "Apache-2.0"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "component:alpine:libssl3@not-pinned",
+      "name": "libssl3",
+      "version": "not pinned",
+      "scope": "required",
+      "ecosystem": "Alpine package",
+      "relationship": "referenced runtime software",
+      "metadataSource": "Dockerfile",
+      "notes": "Explicitly installed in the runtime image; transitive Alpine packages are not expanded.",
+      "licenses": [
+        {
+          "license": {
+            "name": "Apache-2.0"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "component:alpine:libgcc@not-pinned",
+      "name": "libgcc",
+      "version": "not pinned",
+      "scope": "required",
+      "ecosystem": "Alpine package",
+      "relationship": "referenced runtime software",
+      "metadataSource": "Dockerfile",
+      "notes": "Explicitly installed in the runtime image; transitive Alpine packages are not expanded.",
+      "licenses": [
+        {
+          "license": {
+            "name": "GPL-3.0-or-later WITH GCC-exception-3.1"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "component:alpine:libstdc++@not-pinned",
+      "name": "libstdc++",
+      "version": "not pinned",
+      "scope": "required",
+      "ecosystem": "Alpine package",
+      "relationship": "referenced runtime software",
+      "metadataSource": "Dockerfile",
+      "notes": "Explicitly installed in the runtime image; transitive Alpine packages are not expanded.",
       "licenses": [
         {
           "license": {
@@ -94,9 +184,9 @@
     },
     {
       "name": "node",
-      "version": "24.22.2-bookworm-slim",
+      "version": "24.22.2-alpine3.24",
       "type": "container",
-      "bom-ref": "node:24.22.2-bookworm-slim",
+      "bom-ref": "node:24.22.2-alpine3.24",
       "scope": "required",
       "ecosystem": "build toolchain",
       "relationship": "referenced build/runtime software",
@@ -111,15 +201,15 @@
       ]
     },
     {
-      "name": "debian",
-      "version": "bookworm-slim",
+      "name": "alpine",
+      "version": "3.24",
       "type": "container",
-      "bom-ref": "debian:bookworm-slim",
+      "bom-ref": "alpine:3.24",
       "scope": "required",
       "ecosystem": "build toolchain",
       "relationship": "referenced build/runtime software",
       "metadataSource": "Dockerfile / root package.json",
-      "notes": "Runtime base of the backend image, which adds only the node binary of the build image. Release image SBOM attestations additionally inventory final OS packages.",
+      "notes": "Runtime base of the backend image, which adds only the node binary of the build image and removes apk. Release image SBOM attestations additionally inventory final OS packages.",
       "licenses": [
         {
           "license": {
