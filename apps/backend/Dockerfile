@@ -22,7 +22,7 @@ ARG BUILD_ID=local
 ARG SOURCE_COMMIT=local
 RUN node scripts/artifact-sbom.mjs backend
 RUN pnpm --filter ./apps/backend deploy --prod --legacy /workspace/.deploy/backend
-RUN node apps/backend/scripts/install-schema-engine.mjs /workspace/.deploy/backend
+RUN node apps/backend/scripts/install-prisma-engines.mjs /workspace/.deploy/backend
 FROM ${RUNTIME_BASE_IMAGE} AS production
 ARG RELEASE_REFRESH=0
 # A plain Debian base: npm and corepack never enter a layer, only the node binary
@@ -40,13 +40,14 @@ COPY --from=build --chown=node:node /workspace/apps/backend/SBOM.cdx.json /usr/s
 USER 1000:1000
 # The add-on's migration init container runs node_modules/.bin/zenstack migrate
 # deploy. Fail the build if zenstack cannot load prisma itself (its fallback,
-# npx, is not in this image), if the schema engine is missing or does not run
-# on this base (prisma would download one at runtime), or if the "files"
+# npx, is not in this image), if the schema or query engine is missing or does
+# not load on this base (prisma would download one at runtime), or if the "files"
 # allowlist of package.json dropped the schema or the migrations.
 RUN node -e "const { createRequire } = require('node:module'); \
 const prisma = createRequire(require('node:fs').realpathSync('node_modules/@zenstackhq/cli/dist/index.js')).resolve('prisma/build/index.js'); \
 const engines = require(createRequire(prisma).resolve('@prisma/engines')); \
-require('node:child_process').execFileSync(require('node:path').join(engines.getEnginesPath(), 'schema-engine-debian-openssl-3.0.x'), ['--version'], { stdio: 'inherit' })" \
+require('node:child_process').execFileSync(require('node:path').join(engines.getEnginesPath(), 'schema-engine-debian-openssl-3.0.x'), ['--version'], { stdio: 'inherit' }); \
+require(require('node:path').join(engines.getEnginesPath(), 'libquery_engine-debian-openssl-3.0.x.so.node'));" \
   && test -f src/zenstack/schema.zmodel && test -d src/zenstack/migrations
 EXPOSE 5000
 CMD ["node", "--expose-gc", ".build/@internals/run.js"]
