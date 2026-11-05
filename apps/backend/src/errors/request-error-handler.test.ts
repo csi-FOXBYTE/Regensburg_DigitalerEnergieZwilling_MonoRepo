@@ -7,8 +7,7 @@ import {
   fastifyToab,
   type ServiceContainer,
   type ServiceRegistry,
-  type WorkerRegistry,
-} from "@csi-foxbyte/fastify-toab";
+} from "../toab/index.js";
 import submissionsPublicController from "../submissionsPublic/submissionsPublic.controller.js";
 import { createGuardedTestApp } from "../lib/guarded-test-app.js";
 import { requestErrorHandler, toRequestAppError } from "./request-error-handler.js";
@@ -29,7 +28,6 @@ const createTestApp = async (withErrorHandler = true) => {
   } as unknown as ServiceRegistry;
   const controllerRegistry = new ControllerRegistry(serviceRegistry);
   controllerRegistry.register(submissionsPublicController);
-  const workerRegistry = {} as WorkerRegistry;
 
   const app = Fastify();
   // Same order as startServer(): instrumentation, then the fastify-toab routes
@@ -39,7 +37,6 @@ const createTestApp = async (withErrorHandler = true) => {
     getRegistries: async () => ({
       controllerRegistry,
       serviceRegistry,
-      workerRegistry,
     }),
     includeGenericErrorResponses: true,
     onRouteError: routeErrorHandler,

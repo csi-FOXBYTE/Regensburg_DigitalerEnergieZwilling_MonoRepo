@@ -6,8 +6,7 @@ import {
   fastifyToab,
   type ServiceContainer,
   type ServiceRegistry,
-  type WorkerRegistry,
-} from "@csi-foxbyte/fastify-toab";
+} from "../toab/index.js";
 import Fastify from "fastify";
 import pino from "pino";
 import feedbackAdminController from "../feedbackAdmin/feedbackAdmin.controller.js";
@@ -71,15 +70,6 @@ const createTestApp = async (
   const controllerRegistry = new ControllerRegistry(serviceRegistry);
   controllerRegistry.register(feedbackPublicController);
   controllerRegistry.register(feedbackAdminController);
-  const workerRegistry = {
-    getWorker: () => {
-      throw new Error("No workers in feedback route tests");
-    },
-    getQueue: () => {
-      throw new Error("No queues in feedback route tests");
-    },
-  } as unknown as WorkerRegistry;
-
   const loggerInstance = logOutput
     ? pino(
         { level: "warn" },
@@ -96,7 +86,6 @@ const createTestApp = async (
     getRegistries: async () => ({
       controllerRegistry,
       serviceRegistry,
-      workerRegistry,
     }),
     onRouteError: routeErrorHandler,
   });

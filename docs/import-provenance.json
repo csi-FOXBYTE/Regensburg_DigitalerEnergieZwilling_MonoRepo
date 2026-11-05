@@ -80,5 +80,33 @@
       "SBOM.csv",
       "pnpm-lock.yaml"
     ]
+  },
+  {
+    "repository": "fastify-toab",
+    "commit": "c34d141c62de1494108ce817c208f16aa4ea6f6e",
+    "package": "@csi-foxbyte/fastify-toab@0.2.0-rc.4",
+    "license": "LGPL-3.0-or-later",
+    "target": "apps/backend/src/toab, apps/backend/scripts/toab.ts",
+    "sourceStatus": "",
+    "importedFiles": 17,
+    "notes": "Vendored on 2026-11-05 and modified; see apps/backend/NOTICE. Imported (some merged into scripts/toab.ts): src/{build,cli,config,context,controller,errors,helpers,index,instrumentation,middleware,route,routeError,run,service}.ts, src/cli/rebuild.ts, src/generate/{index,templates}.ts. The upstream LICENSE file carries the GPLv3 text only; package.json and README declare LGPL-3.0, whose texts are in apps/backend/COPYING and COPYING.LESSER.",
+    "excludedFiles": [
+      ".gitignore",
+      ".npmignore",
+      "LICENSE",
+      "README.md",
+      "docker-compose.yaml",
+      "fastify-toab.config.ts",
+      "package.json",
+      "pnpm-lock.yaml",
+      "src/cli/addComponent.ts",
+      "src/cli/common.ts",
+      "src/cli/lint.ts",
+      "src/projectTemplate/",
+      "src/worker.ts",
+      "tests/",
+      "tsconfig.json",
+      "tsdown.config.ts"
+    ]
   }
 ]

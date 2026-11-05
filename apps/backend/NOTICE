@@ -13,3 +13,17 @@ This application uses
 @csi-foxbyte/regensburg_digitalerenergiezwilling_energycalculationcore,
 which is licensed under LGPL-3.0-or-later. Its source code is available at:
 https://github.com/csi-FOXBYTE/Regensburg_DigitalerEnergieZwilling_EnergyCalculationCore
+
+src/toab/ and scripts/toab.ts are derived from @csi-foxbyte/fastify-toab
+0.2.0-rc.4 (npm), Copyright (c) 2026 csi FOXBYTE (Tobias Ganzhorn), licensed
+under LGPL-3.0-or-later. Source: https://github.com/csi-FOXBYTE/fastify-toab,
+commit c34d141c62de1494108ce817c208f16aa4ea6f6e. Modified on 2026-11-05 for
+this backend:
+- Fastify uses the configured privacy-filtered logger; its own request and
+  error records are off, and route errors are no longer logged raw.
+- Invalid environment variables are reported by name only.
+- Removed: BullMQ workers and Bull Board, server-sent events, the rate-limit
+  integration, GenericRouteError (sent stack traces), the project and
+  component generators of the CLI and the jiti config loader.
+- The CLI (code generation, Rolldown build and dev server) is scripts/toab.ts,
+  run with tsx; route registration errors now stop startup.

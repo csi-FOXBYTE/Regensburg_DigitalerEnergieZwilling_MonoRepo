@@ -1,4 +1,4 @@
-import { createController } from "@csi-foxbyte/fastify-toab";
+import { createController } from "../toab/index.js";
 import { Type } from "@sinclair/typebox";
 
 const terrainController = createController().rootPath("/api/public/terrain");

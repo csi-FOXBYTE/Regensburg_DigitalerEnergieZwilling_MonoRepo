@@ -12,7 +12,8 @@ root NOTICE; no Azure, customer-source export, deployment, or business code was 
 - One Node 24.21.0 / pnpm 11.22.0 toolchain, one reconciled root lockfile, explicit
   native build approvals, and three workspace links to the existing core API.
 - Source lockfile resolutions were merged, with an npm-registry integrity hash
-  added for the existing fastify-toab 0.2.0-rc.4 tarball. React type packages are
+  added for the existing fastify-toab 0.2.0-rc.4 tarball (vendored into
+  `apps/backend/src/toab` on 2026-11-05, see `import-provenance.json`). React type packages are
   unified at 19.2.17/19.2.3 to avoid incompatible duplicate JSX types. Existing
   application runtime ranges and core peer contract remain unchanged.
 - Admin route generation is explicit. Its two pre-existing type errors were fixed:

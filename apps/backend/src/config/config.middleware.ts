@@ -1,4 +1,4 @@
-import { createMiddleware } from "@csi-foxbyte/fastify-toab";
+import { createMiddleware } from "../toab/index.js";
 import type { FastifyRequest } from "fastify";
 import { getAuthService } from "../@internals/index.js";
 import type { AccessToken } from "../auth/auth.dto.js";

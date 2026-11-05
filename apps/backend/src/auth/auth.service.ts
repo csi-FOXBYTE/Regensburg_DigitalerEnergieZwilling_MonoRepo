@@ -1,4 +1,4 @@
-import { createService } from "@csi-foxbyte/fastify-toab";
+import { createService } from "../toab/index.js";
 import { Value } from "@sinclair/typebox/value";
 import type { FastifyRequest } from "fastify";
 import {

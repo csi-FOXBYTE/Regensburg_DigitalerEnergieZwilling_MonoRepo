@@ -1,6 +1,6 @@
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
-import { defineConfig, type FastifyToabConfigOptions, type InferService } from "@csi-foxbyte/fastify-toab";
+import { defineConfig, type InferService } from "./src/toab/index.js";
 import { Type } from "@sinclair/typebox";
 import { allowedCorsOrigins, createCorsOrigin } from "./src/lib/cors.js";
 import { requestErrorHandler } from "./src/errors/request-error-handler.js";
@@ -10,32 +10,30 @@ import { installNotFoundHandler } from "./src/errors/not-found.js";
 import { installFrameworkErrorHandlers } from "./src/errors/framework-errors.js";
 import { getAltcha, installAltchaGuard } from "./src/altcha/altcha.js";
 import databaseService from "./src/database/database.service.js";
-import { logEvent } from "./src/lib/pino.js";
+import { logEvent, logger } from "./src/lib/pino.js";
 import {
   backfillDeletionTokenExpiry,
   deletionTokenTtlDays,
 } from "./src/submissions/deletion-token-expiry.js";
 
-// fastify-toab 0.2.0-rc.4's CLI reads the module namespace, not its default export.
-// Also export this setting by name so Pino's transport workers stay in node_modules.
-export const rolldown = {
-  external: ["pino"],
-  plugins: [{
-    name: "feedback-mail-template",
-    async buildStart() {
-      const path = resolve("src/templates/feedback_submitted.hbs");
-      this.addWatchFile(path);
-      this.emitFile({
-        type: "asset",
-        fileName: "templates/feedback_submitted.hbs",
-        source: await readFile(path, "utf8"),
-      });
-    },
-  }],
-} satisfies NonNullable<FastifyToabConfigOptions["rolldown"]>;
-
 export default defineConfig({
-  rolldown,
+  // Build only (scripts/toab.ts): ships the mail template next to the bundle.
+  rolldown: {
+    plugins: [{
+      name: "feedback-mail-template",
+      async buildStart() {
+        const path = resolve("src/templates/feedback_submitted.hbs");
+        this.addWatchFile(path);
+        this.emitFile({
+          type: "asset",
+          fileName: "templates/feedback_submitted.hbs",
+          source: await readFile(path, "utf8"),
+        });
+      },
+    }],
+  },
+  // fastify.log and request.log write through the privacy filter of pino.ts.
+  logger,
   env: Type.Object({
     AUTH_RESOURCE_ACCESS_CLIENT_ID: Type.Optional(Type.String()),
     DATABASE_URL: Type.String(),
@@ -117,6 +115,9 @@ export default defineConfig({
     delete responses["204"];
     responses["201"] = { description: "Feedback created" };
   },
+  // No in-process rate limit (F-DYN-007): behind APISIX every client shares the
+  // gateway's address, so one counter would let a single client exhaust it for
+  // everyone. The gateway rate-limits per client.
   fastify: () => ({
     // Disabled in development by fastify-toab; elsewhere never reflect Origin.
     cors: {
@@ -124,12 +125,6 @@ export default defineConfig({
       // fastify-toab's default list lacks X-Access-Token, which auth.service.ts
       // accepts, and X-Altcha, which carries the public writes' Altcha solution.
       allowedHeaders: ["Content-Type", "Authorization", "X-Access-Token", "X-Requested-With", "X-Altcha"],
-    },
-    // Off: behind APISIX every client shares the gateway's address, so one
-    // in-process counter would let a single client exhaust it for everyone.
-    // The gateway rate-limits per client (F-DYN-007).
-    rateLimit: {
-      enabled: false,
     },
     underPressure: {
       exposeStatusRoute: "/health",

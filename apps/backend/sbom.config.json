@@ -1,6 +1,8 @@
 {
   "description": "Fastify API backend for the Regensburg digital energy twin.",
-  "buildDependencies": [],
+  "buildDependencies": [
+    "rolldown"
+  ],
   "additionalComponents": [
     {
       "type": "library",

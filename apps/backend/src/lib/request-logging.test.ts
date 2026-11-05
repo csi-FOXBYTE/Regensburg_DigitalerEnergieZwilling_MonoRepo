@@ -1,14 +1,12 @@
 import assert from "node:assert/strict";
 import { Writable } from "node:stream";
 import { describe, it } from "node:test";
-import Fastify, { type FastifyBaseLogger } from "fastify";
-import pino from "pino";
 import {
   ControllerRegistry,
+  createFastify,
   fastifyToab,
   type ServiceRegistry,
-  type WorkerRegistry,
-} from "@csi-foxbyte/fastify-toab";
+} from "../toab/index.js";
 import { ZenStackClient } from "@zenstackhq/orm";
 import { PostgresDialect } from "@zenstackhq/orm/dialects/postgres";
 import configController from "../config/config.controller.js";
@@ -22,7 +20,7 @@ import { ConfigNotFoundError } from "../submissions/submissions.errors.js";
 import { coreBaseInput } from "../submissions/submission-input.fixture.js";
 import { routeErrorHandler } from "../errors/route-error-handler.js";
 import { schema } from "../zenstack/schema.js";
-import { createPrivacyLogger, errorCategory, injectPinoLogger } from "./pino.js";
+import { createLogger, createPrivacyLogger, errorCategory, eventWriter, injectPinoLogger } from "./pino.js";
 import { installRequestLogging } from "./request-logging.js";
 
 const secret = "PRIVATE_USER_DATA_MARKER";
@@ -140,10 +138,12 @@ async function testApp(failure?: unknown) {
   controllerRegistry.register(feedbackAdminController);
   controllerRegistry.register(submissionsAdminController);
   controllerRegistry.register(configController);
-  const app = Fastify({ loggerInstance: pino({ level: "trace" }, output.stream) as FastifyBaseLogger, requestIdHeader: "x-request-id" });
-  installRequestLogging(app, createPrivacyLogger({ base: undefined, level: "trace" }, output.stream));
+  // Wired like startServer(), which passes the logger of fastify-toab.config.ts.
+  const logger = createLogger({ level: "trace" }, output.stream);
+  const app = createFastify(logger, { requestIdHeader: "x-request-id" });
+  installRequestLogging(app, eventWriter(logger));
   await app.register(fastifyToab, {
-    getRegistries: async () => ({ controllerRegistry, serviceRegistry, workerRegistry: {} as WorkerRegistry }),
+    getRegistries: async () => ({ controllerRegistry, serviceRegistry }),
     onRouteError: routeErrorHandler,
     logLevel: "trace",
   });
@@ -256,13 +256,35 @@ describe("request log privacy", () => {
     }
   });
 
-  it("does not let route log levels re-enable raw request or framework logging", async (t) => {
+  it("keeps only level and error category of request.log and fastify.log records, at any route log level", async (t) => {
     const { app, output } = await testApp();
     t.after(() => app.close());
-    assert.equal((await app.inject(`/request-log/${secret}`)).statusCode, 200);
+    assert.equal((await app.inject(`/request-log/${secret}?email=${email}`)).statusCode, 200);
     assertSafe(output);
-    assert.equal(output.records().length, 1);
-    assert.equal(output.records()[0].route, "/request-log/:id");
+    assert.deepEqual(output.records().map(({ level, event, errorCode }) => ({ level, event, errorCode })), [
+      { level: 50, event: "logger_output", errorCode: "INTERNAL_ERROR" },
+      { level: 50, event: "logger_output", errorCode: "INTERNAL_ERROR" },
+      { level: 30, event: "request_completed", errorCode: undefined },
+    ]);
+    assert.equal(output.records()[2].route, "/request-log/:id");
+  });
+
+  it("writes allowlisted events through fastify.log and drops messages, objects and bindings", async (t) => {
+    const { app, output } = await testApp();
+    t.after(() => app.close());
+    app.log.info("Backend started");
+    app.log.info({ event: "deletion_expiry_backfill", count: 2, ids: [secret] }, secret);
+    app.log.child({ secret, email }).warn({ body: feedback }, `%s ${email}`, secret);
+    app.log.child({ reqId: secret }, { level: "trace" }).trace(new Error(secret));
+    app.log.error({ event: "request_completed", requestId: "r", route: "/x", method: "GET", durationMs: 1, url: secret });
+    assert.doesNotMatch(output.lines.join(""), new RegExp(`${secret}|${email}|stack`));
+    assert.deepEqual(output.records().map(({ time, ...record }) => (assert.equal(typeof time, "number"), record)), [
+      { level: 30, event: "logger_output" },
+      { level: 30, event: "deletion_expiry_backfill", count: 2 },
+      { level: 40, event: "logger_output" },
+      { level: 10, event: "logger_output", errorCode: "INTERNAL_ERROR" },
+      { level: 50, event: "request_completed", requestId: "r", route: "/x", method: "GET", durationMs: 1 },
+    ]);
   });
 });
 

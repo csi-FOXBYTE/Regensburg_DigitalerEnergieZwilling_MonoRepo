@@ -1,6 +1,6 @@
 # Backend API
 
-Node.js/TypeScript-Backend auf Fastify v5 mit `@csi-foxbyte/fastify-toab`, eigener JWT-Pruefung (zusaetzlich zu APISIX), Rollenpruefung und BullMQ-UI.
+Node.js/TypeScript-Backend auf Fastify v5 mit fastify-toab (in `src/toab` eingebunden), eigener JWT-Pruefung (zusaetzlich zu APISIX) und Rollenpruefung.
 
 ## Basis-URL
 
@@ -18,9 +18,8 @@ Dieses Repo startet einen HTTP-Server mit:
 
 - eigener Pruefung der Access Tokens (Signatur und Claims) und Auswertung der Rollen
 - TOAB-Controller/Service-Registrierung
-- Swagger UI unter `/docs`
-- BullMQ-Board unter `/bullMQ`
-- zentralem Pino-Logging (inkl. `console.*`-Injection)
+- Swagger UI unter `/docs` (nur Entwicklung)
+- zentralem, datenschutzgefiltertem Pino-Logging (`fastify.log`, Request-Log, `console.*`-Weiterleitung)
 
 ## Tech Stack
 
@@ -28,18 +27,19 @@ Dieses Repo startet einen HTTP-Server mit:
 - TypeScript
 - Fastify 5
 - Pino + pino-pretty
-- `@csi-foxbyte/fastify-toab`
-- BullMQ + Bull Board
+- fastify-toab 0.2.0-rc.4, eingebunden und angepasst in `src/toab` und `scripts/toab.ts` (siehe `NOTICE`)
+- Rolldown (Build)
 
 ## Projektstruktur (relevant)
 
-- `src/index.ts`: App-Bootstrap, Fastify-Setup, Plugins, Listen
-- `src/lib/pino.ts`: Logger-Setup + `injectPinoLogger`
+- `fastify-toab.config.ts`: Umgebungsvariablen, Plugins, Start-Hooks, Logger
+- `src/toab/*`: Controller/Service-Registry, Fastify-Start (`startServer`)
+- `src/@internals/*`: von `pnpm generate` erzeugte Registries und Einstiegspunkt
+- `src/lib/pino.ts`: datenschutzgefilterter Logger + `injectPinoLogger`
+- `src/lib/request-logging.ts`: ein Log-Eintrag je Request
 - `src/auth/*`: Auth DTOs, Service, Controller, Middleware
-- `src/registries.ts`: autogenerierte TOAB Registries
+- `scripts/toab.ts`: Code-Generierung (`rebuild`), Build und Dev-Runner
 - `scripts/create-dev-jwt.mjs`: Dev-JWT Generator
-- `dev.ts`: lokaler Dev-Runner mit Watch + Restart
-- `esbuild.ts`: Build/Dev-Build Funktionen
 
 ## Voraussetzungen
 
@@ -60,8 +60,8 @@ pnpm dev
 
 Der Dev-Runner:
 
-- baut TypeScript nach `.dev/`
-- watched `src/**`
+- baut mit Rolldown nach `.dev/`
+- watched die importierten Dateien, `.env` und `fastify-toab.config.ts`
 - startet Node mit `NODE_ENV=development`
 - startet bei Aenderungen neu
 
@@ -69,8 +69,7 @@ Interner App-Port ist `5000` (falls `PORT` nicht gesetzt ist). Externe Requests 
 
 ## Wichtige Endpunkte
 
-- `GET /docs` -> Swagger UI
-- `GET /bullMQ` -> Bull Board UI
+- `GET /docs` -> Swagger UI (nur Entwicklung)
 - `GET /api/admin/auth/verify` -> gibt den vom Gateway geprueften Token-Payload zurueck
 
 ## Umgebungsvariablen (.env)
@@ -192,10 +191,10 @@ curl -i http://localhost:5000/api/admin/auth/verify \
 
 ## Logging
 
-- `src/instrumentation.ts` installiert `injectPinoLogger()` beim Laden des Moduls, vor dem Aufruf von `startServer()`. Dadurch werden auch Fehler bei der Umgebungsvalidierung und beim Serverstart ueber Pino ausgegeben.
+- `src/instrumentation.ts` installiert `injectPinoLogger()` beim Laden des Moduls, vor dem Aufruf von `startServer()`. Dadurch werden auch Fehler beim Serverstart ueber Pino ausgegeben. Fehlende oder ungueltige Umgebungsvariablen meldet `startServer()` als `env_invalid` mit den Variablennamen, nie mit Werten.
 - `console.log/info/warn/error/debug` erzeugen nur ein festes `console_output`-Ereignis mit Log-Level und ggf. einer festen Fehlerkategorie. Freitext, Objekte, Fehlermeldungen, Ursachen und Stacks werden nicht uebernommen, da sie Nutzereingaben enthalten koennen.
-- Der Instrumentation-Hook deaktiviert die ungefilterten Framework- und Request-Logger. Eigene Hooks protokollieren pro Request einmal das Ergebnis: serverseitig erzeugte Log-Request-ID, HTTP-Methode, registriertes Routenmuster, Statuscode, Dauer und ggf. Fehlerkategorie. Bei `/api/admin/*`-Routen kommen Akteur (`actor`: `user` mit interner Benutzerkennung `actorId` und bekannten Rollen `actorRoles`, sonst `anonymous`) und, falls die Route ein Objekt adressiert, `targetType`/`targetId` hinzu. Die Request-ID steht in jeder Antwort im Header `X-Request-Id`; ein eingehender `X-Request-Id` wird ignoriert. Unbekannte Routen erhalten `unmatched_route`; URLs, Query-Parameter, Tokens, Header, IP-Adressen und Request-/Response-Inhalte werden nicht geloggt. Diese Regeln gelten auch in Entwicklung.
-- Datenbankfehler werden als `DATABASE_ERROR` klassifiziert. SQL, SQL-Parameter und Datenbank-Fehlerdetails bleiben aus den Logs. Neue Diagnosen sollen feste Ereignisse ueber `src/lib/pino.ts` verwenden; `fastify.log` und `request.log` sind absichtlich stumm.
+- `fastify.log` und `request.log` sind der Logger aus `src/lib/pino.ts` (`logger` in `fastify-toab.config.ts`). Jeder Aufruf wird gefiltert: Ein bekanntes Ereignis (z. B. `{ event: "deletion_expiry_backfill", count }`) wird mit seinen erlaubten Feldern geschrieben, alles andere nur als `logger_output` mit Log-Level und ggf. Fehlerkategorie; Meldungstexte, Objekte, Fehler und Child-Logger-Bindings (z. B. Fastifys `reqId`) werden verworfen. Fastifys eigene Request- und Fehler-Logs sind abgeschaltet. Eigene Hooks protokollieren pro Request einmal das Ergebnis: serverseitig erzeugte Log-Request-ID, HTTP-Methode, registriertes Routenmuster, Statuscode, Dauer und ggf. Fehlerkategorie. Bei `/api/admin/*`-Routen kommen Akteur (`actor`: `user` mit interner Benutzerkennung `actorId` und bekannten Rollen `actorRoles`, sonst `anonymous`) und, falls die Route ein Objekt adressiert, `targetType`/`targetId` hinzu. Die Request-ID steht in jeder Antwort im Header `X-Request-Id`; ein eingehender `X-Request-Id` wird ignoriert. Unbekannte Routen erhalten `unmatched_route`; URLs, Query-Parameter, Tokens, Header, IP-Adressen und Request-/Response-Inhalte werden nicht geloggt. Diese Regeln gelten auch in Entwicklung.
+- Datenbankfehler werden als `DATABASE_ERROR` klassifiziert. SQL, SQL-Parameter und Datenbank-Fehlerdetails bleiben aus den Logs. Neue Diagnosen sollen feste Ereignisse (`LogEvent` in `src/lib/pino.ts`) ueber `logEvent` oder `fastify.log` verwenden; Freitext erscheint nur als `logger_output`.
 - In Produktion werden JSON-Zeilen ausgegeben; nur bei `NODE_ENV=development` wird `pino-pretty` verwendet.
 - Das Backend schreibt seine Logs ausschliesslich auf `stdout`/`stderr`; das passt zum Container-Betrieb unter Kubernetes.
 - Container-Logs können dadurch direkt von Promtail oder Grafana Alloy eingesammelt werden.

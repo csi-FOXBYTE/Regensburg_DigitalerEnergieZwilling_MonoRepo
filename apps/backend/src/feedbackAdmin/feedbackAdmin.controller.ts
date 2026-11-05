@@ -1,4 +1,4 @@
-import { createController } from "@csi-foxbyte/fastify-toab";
+import { createController } from "../toab/index.js";
 import { getFeedbackService } from "../@internals/index.js";
 import { requirePermission } from "../config/config.middleware.js";
 import { AppError } from "../errors/app-error.js";
@@ -93,7 +93,7 @@ feedbackAdminController
     try {
       await feedbackService.deleteById(params.feedbackId);
       reply.code(204);
-      // fastify-toab@0.2.0-rc.4 returns reply.raw.end() when a handler
+      // fastify-toab (src/toab/helpers.ts) returns reply.raw.end() when a handler
       // resolves to undefined, causing Fastify to attempt a second send.
       return "" as never;
     } catch (error) {

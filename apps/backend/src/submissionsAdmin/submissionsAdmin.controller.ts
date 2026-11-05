@@ -1,4 +1,4 @@
-import { createController } from "@csi-foxbyte/fastify-toab";
+import { createController } from "../toab/index.js";
 import { Type } from "@sinclair/typebox";
 import { getSubmissionsService } from "../@internals/index.js";
 import type { AccessToken } from "../auth/auth.dto.js";

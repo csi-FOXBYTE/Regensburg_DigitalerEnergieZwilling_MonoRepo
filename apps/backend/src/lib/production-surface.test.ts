@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { resolve } from "node:path";
 import { it } from "node:test";
-import { resolveConfig } from "@csi-foxbyte/fastify-toab";
+import { resolveConfig } from "../toab/index.js";
 import config from "../../fastify-toab.config.js";
 
 type OriginCheck = (origin: string | undefined, callback: (error: Error | null, allow: boolean) => void) => void;
@@ -17,8 +17,10 @@ const allowsOrigin = (origin: unknown, requestOrigin: string) => {
   return allowed;
 };
 
-// HARD-03: Swagger UI (/docs), the OpenAPI document and Bull Board (/bullMQ)
-// are development tools; fastify-toab enables them only for NODE_ENV=development.
+// HARD-03: Swagger UI (/docs) and the OpenAPI document are development tools;
+// fastify-toab enables them only for NODE_ENV=development. Bull Board (/bullMQ)
+// and the in-process rate limit (F-DYN-007: APISIX rate-limits per client) were
+// removed with the vendored fastify-toab and cannot be enabled.
 it("keeps development tools off and CORS restricted outside development", async (t) => {
   const keys = ["NODE_ENV", "PUBLIC_CLIENT_BASE_URL", "ADMIN_CLIENT_BASE_URL", "AUTH_CORS_ADDITIONAL_ORIGINS"];
   const previous = Object.fromEntries(keys.map((key) => [key, process.env[key]]));
@@ -39,9 +41,7 @@ it("keeps development tools off and CORS restricted outside development", async 
     const { fastify } = await resolveConfig(config, root);
     assert.equal(fastify.swagger.enabled, false, `swagger (${nodeEnv})`);
     assert.equal(fastify.swaggerUi.enabled, false, `swaggerUi (${nodeEnv})`);
-    assert.equal(fastify.bullBoard.enabled, false, `bullBoard (${nodeEnv})`);
-    // F-DYN-007: APISIX rate-limits per client; a backend counter would be shared by all clients.
-    assert.equal(fastify.rateLimit.enabled, false, `rateLimit (${nodeEnv})`);
+    assert.deepEqual(Object.keys(fastify).sort(), ["cors", "helmet", "multipart", "swagger", "swaggerUi", "underPressure"]);
     assert.equal(fastify.cors.enabled, true, `cors (${nodeEnv})`);
     // A non-function origin ("*", true, a RegExp or a list) is never accepted here.
     assert.equal(typeof fastify.cors.origin, "function", `cors origin (${nodeEnv})`);
@@ -52,5 +52,4 @@ it("keeps development tools off and CORS restricted outside development", async 
   process.env.NODE_ENV = "development";
   const { fastify } = await resolveConfig(config, root);
   assert.equal(fastify.swaggerUi.enabled, true);
-  assert.equal(fastify.bullBoard.enabled, true);
 });
