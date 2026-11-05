@@ -48,7 +48,8 @@ const inventory = [bom.metadata.component, ...(bom.components ?? [])].map(c => {
   const firstParty = c === bom.metadata.component || npmName(c) === '@csi-foxbyte/regensburg_digitalerenergiezwilling_energycalculationcore';
   let from = c === bom.metadata.component ? path.resolve(packageDir) : installed.get(`${npmName(c)}@${c.version}`);
   const toolchain = c.properties?.some(p => p.name === 'sbom:relationship' && p.value.startsWith('referenced build'));
-  const debian = c.properties?.some(p => p.name === 'sbom:ecosystem' && p.value === 'Debian package');
+  const alpine = c.properties?.some(p => p.name === 'sbom:ecosystem' && p.value === 'Alpine package');
+  const shipped = c.properties?.some(p => p.name === 'sbom:relationship' && p.value.includes('runtime'));
   let version = own ? json(`${packageDir}/package.json`).version : c.version;
   let runtimeReference;
   if (toolchain && c.name === 'node') {
@@ -65,14 +66,10 @@ const inventory = [bom.metadata.component, ...(bom.components ?? [])].map(c => {
       assert.equal(json(path.join(from, 'package.json')).name, 'pnpm');
     }
     if (toolchain && c.name === 'nginx') runtimeReference = { name: 'nginx', version: c.version.split('-')[0] };
-    if (toolchain && debian) {
-      version = run('dpkg-query', ['--show', '--showformat=${Version}', c.name]);
-      if (['ca-certificates', 'openssl'].includes(c.name)) runtimeReference = { name: c.name };
-      else {
-        from = realpathSync(`/usr/share/doc/${c.name}`);
-        assert(existsSync(path.join(from, 'copyright')), `Missing Debian copyright evidence: ${c.name}`);
-      }
-    }
+    // Alpine packages of the runtime image are evidenced by the final-image
+    // inventory. Build-only ones never ship and stay without local evidence: this
+    // tools container is not Alpine.
+    if (alpine && shipped) runtimeReference = { name: c.name };
     if (from) copyPackage(from, path.join(input, prefix), firstParty, toolchain);
   }
   return { key, prefix, name: npmName(c), version, purl: c.purl, firstParty,
