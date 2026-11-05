@@ -6,25 +6,51 @@ export type AppErrorStatus =
   | "FORBIDDEN"
   | "NOT_FOUND"
   | "METHOD_NOT_ALLOWED"
+  | "REQUEST_TIMEOUT"
+  | "CONFLICT"
   | "PAYLOAD_TOO_LARGE"
+  | "URI_TOO_LONG"
   | "UNSUPPORTED_MEDIA_TYPE"
   | "TOO_MANY_REQUESTS"
+  | "REQUEST_HEADER_FIELDS_TOO_LARGE"
   | "INTERNAL_ERROR"
   | "SERVICE_UNAVAILABLE";
 
-// HTTP status codes that framework and plugin errors (rate limit, body limit,
-// under-pressure) carry, mapped to the status clients branch on.
+// HTTP status codes that framework and plugin errors (body limit, media type,
+// router and HTTP parser limits, under-pressure) carry, mapped to the status
+// clients branch on. Application errors use the same label for the same code.
 export const httpErrorStatus: Readonly<Record<number, AppErrorStatus>> = {
   400: "BAD_REQUEST",
   401: "UNAUTHORIZED",
   403: "FORBIDDEN",
   404: "NOT_FOUND",
   405: "METHOD_NOT_ALLOWED",
+  408: "REQUEST_TIMEOUT",
+  409: "CONFLICT",
   413: "PAYLOAD_TOO_LARGE",
+  414: "URI_TOO_LONG",
   415: "UNSUPPORTED_MEDIA_TYPE",
   429: "TOO_MANY_REQUESTS",
+  431: "REQUEST_HEADER_FIELDS_TOO_LARGE",
   500: "INTERNAL_ERROR",
   503: "SERVICE_UNAVAILABLE",
+};
+
+// Fixed client messages for framework and plugin errors, whose own messages
+// may carry request values (path, headers, parser input).
+export const httpErrorMessage: Readonly<Record<number, string>> = {
+  400: "Bad request",
+  401: "Unauthorized",
+  403: "Forbidden",
+  404: "Not found",
+  405: "Method not allowed",
+  408: "Request timeout",
+  409: "Conflict",
+  413: "Request body is too large",
+  414: "URI too long",
+  415: "Unsupported media type",
+  429: "Too many requests",
+  431: "Request header fields too large",
 };
 
 type AppErrorInput = {

@@ -2,6 +2,7 @@ import { createController } from "@csi-foxbyte/fastify-toab";
 import { Type, type Static } from "@sinclair/typebox";
 import type { FastifyReply } from "fastify";
 import { getSubmissionsService } from "../@internals/index.js";
+import { AltchaHeadersDto } from "../altcha/altcha.dto.js";
 import { AppError } from "../errors/app-error.js";
 import {
   DeletionReceiptDto,
@@ -26,13 +27,7 @@ const submissionsPublicController = createController().rootPath(
 // up in gateway or ingress access logs.
 const DeletionTokenBody = Type.Object({
   deletionToken: Type.String({ minLength: 1, maxLength: 256 }),
-});
-// Only for JSON links in PDFs issued before the token left the URL. Kept
-// separate from the body schema so tightening that one for new tokens cannot
-// break the legacy nanoid links.
-const LegacyDeletionTokenParams = Type.Object({
-  deletionToken: Type.String({ minLength: 1, maxLength: 256 }),
-});
+}, { additionalProperties: false });
 
 const catchSubmissionNotFound = (err: unknown) => {
   if (err instanceof SubmissionNotFoundError)
@@ -69,6 +64,7 @@ const safeDownloadFilename = (submissionId: string) =>
 
 submissionsPublicController
   .addRoute("POST", "/")
+  .headers(AltchaHeadersDto)
   .body(SubmitInputDto)
   .output(SubmitOutputDto)
   .handler(async ({ services, body }) => {
@@ -172,20 +168,6 @@ submissionsPublicController
     async ({ services, body, reply }) => {
       reply.header("Cache-Control", "no-store");
       return publicDownload(await getSubmissionsService(services), body.deletionToken, reply);
-    },
-    { logLevel: "silent" },
-  );
-
-// Deprecated: keeps the JSON links in already distributed PDFs working. New
-// PDFs link to the client download page with the token in the fragment.
-submissionsPublicController
-  .addRoute("GET", "/:deletionToken/download")
-  .params(LegacyDeletionTokenParams)
-  .output(PublicSubmissionDownloadOutputDto)
-  .handler(
-    async ({ services, params, reply }) => {
-      reply.header("Cache-Control", "no-store");
-      return publicDownload(await getSubmissionsService(services), params.deletionToken, reply);
     },
     { logLevel: "silent" },
   );

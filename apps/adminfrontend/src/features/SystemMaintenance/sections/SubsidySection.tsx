@@ -42,6 +42,7 @@ import { useStore } from "@nanostores/react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { ConfirmDeleteDialog } from "../../../components/ConfirmDeleteDialog";
+import { isAllowedSubsidyHref } from "../../../lib/subsidies";
 import {
   addFoerderprogramm,
   deleteFoerderprogramm,
@@ -110,7 +111,7 @@ function toWrapper(form: FormState): SubsidyWrapper {
       title: form.title,
       ...financing,
       content: form.content,
-      href: form.href,
+      href: form.href.trim(),
       benefits,
     },
     isActive: form.isActive,
@@ -166,6 +167,9 @@ function FoerderprogrammDialog({
   const handleSave = () => {
     const newErrors: Record<string, string> = {};
     if (!form.title.trim()) newErrors.title = "Name ist erforderlich";
+    const href = form.href.trim();
+    if (href && !isAllowedSubsidyHref(href))
+      newErrors.href = "Nur vollständige https://-Links sind erlaubt";
     const isPercent = form.foerderart === "percent";
     if (!isPercent) {
       if (form.betrag === "" || Number(form.betrag) < 0)
@@ -218,6 +222,8 @@ function FoerderprogrammDialog({
             onChange={(e) => set("href", e.target.value)}
             fullWidth
             placeholder="https://..."
+            error={!!errors.href}
+            helperText={errors.href}
           />
 
           {/* Förderart + Beträge */}
@@ -528,7 +534,7 @@ export default function FoerderprogrammeSection({
                         }}
                       >
                         {w.subsidy.title}
-                        {w.subsidy.href && (
+                        {isAllowedSubsidyHref(w.subsidy.href) && (
                           <IconButton
                             size="small"
                             component="a"

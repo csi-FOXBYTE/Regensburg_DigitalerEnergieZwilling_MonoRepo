@@ -32,11 +32,18 @@ type LogEvent =
       statusCode?: number;
       durationMs: number;
       errorCode?: ErrorCategory;
+      // Admin routes only: who acted on which object (see request-logging.ts).
+      actor?: "user" | "anonymous";
+      actorId?: string;
+      actorRoles?: string[];
+      targetType?: string;
+      targetId?: string;
     }
   | { event: "console_output"; level: ConsoleLevel; errorCode?: ErrorCategory }
   | { event: "feedback_notification_failed" }
   | { event: "auth_key_set_unavailable" }
   | { event: "analytics_config"; state: "active" | "inactive" | "invalid" }
+  | { event: "deletion_expiry_backfill"; count: number }
   | { event: "server_listening" | "server_closed" };
 
 export type PrivacyLogger = (event: LogEvent) => void;
@@ -72,12 +79,20 @@ export function createPrivacyLogger(
         statusCode: event.statusCode,
         durationMs: event.durationMs,
         errorCode: event.errorCode,
+        actor: event.actor,
+        actorId: event.actorId,
+        actorRoles: event.actorRoles,
+        targetType: event.targetType,
+        targetId: event.targetId,
       });
     } else if (event.event === "feedback_notification_failed" || event.event === "auth_key_set_unavailable") {
       output.error({ event: event.event });
     } else if (event.event === "analytics_config") {
       // Only whether web analytics is on, never the tracker URL or site ID.
       output[event.state === "invalid" ? "warn" : "info"]({ event: event.event, state: event.state });
+    } else if (event.event === "deletion_expiry_backfill") {
+      // Only the count: no ids or token hashes in the log.
+      output.info({ event: event.event, count: event.count });
     } else {
       output.info({ event: event.event });
     }

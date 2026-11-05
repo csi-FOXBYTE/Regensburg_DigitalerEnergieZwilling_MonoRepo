@@ -2,7 +2,7 @@
 skinparam sequenceMessageAlign center
 skinparam responseMessageBelowArrow true
 
-title Öffentlicher Schreibvorgang - APISIX Altcha + Neuberechnung auf dem Server
+title Öffentlicher Schreibvorgang - Altcha im Backend + Neuberechnung auf dem Server
 
 actor "Bürger/Eigentümer/Vermieter" as user
 participant "Öffentlicher Client" as client
@@ -13,14 +13,17 @@ participant "Berechnungskern (Server)" as calc
 database "Datenbank" as db
 
 user -> client: Eingaben erfassen
-client -> altcha: Aufgabe anfordern
-altcha --> client: Aufgabendaten
 client -> altcha: Aufgabe lösen
-altcha --> client: Altcha-Token
+altcha -> gateway: GET /api/public/altcha/challenge
+gateway -> api: Weiterleiten
+api --> altcha: HMAC-signierte Aufgabe (5 min gültig)
+altcha -> altcha: Proof of Work (Web Worker)
+altcha --> client: Lösung
 
-client -> gateway: Eingaben + Ergebnisse + config_version + Altcha-Token senden
-gateway -> gateway: Altcha-Token, Ratenbegrenzung und API-Regeln prüfen
-gateway -> api: Geprüfte Anfrage weiterleiten
+client -> gateway: Eingaben + Ergebnisse + config_version, Header X-Altcha: Lösung
+gateway -> gateway: Ratenbegrenzung und API-Regeln prüfen
+gateway -> api: Anfrage weiterleiten
+api -> api: Altcha-Lösung prüfen (Signatur, Ablauf, einmalig), sonst 403
 api -> api: Eingabebereiche prüfen (Konfiguration)
 api -> calc: Mit demselben Kern und derselben Konfiguration neu berechnen
 calc --> api: Serverergebnisse

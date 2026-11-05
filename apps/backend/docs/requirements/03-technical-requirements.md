@@ -447,7 +447,7 @@ Nur verifizierte und triagierte Ergebnisse dürfen für die Gebäude-Indexierung
 **TA-51**  
 *Release-Zuordnung:* [Release 3](../roadmap/mvp-definition.md#release-3)  
 Öffentliche Schreibzugriffe müssen durch Altcha-Challenges und Rate Limiting geschützt werden.
-Altcha ist eine selbsthostbare, datenschutzfreundliche Challenge; Prüfung des übermittelten Tokens und Rate Limiting erfolgen über eine globale APISIX-Gateway-Policy. Bereitstellung, Konfiguration, Betrieb und Nachweis dieser Policy liegen in der Verantwortung der externen Deployment-Plattform und nicht in den Repositories des DEZ-Add-ons. Das Backend übernimmt nachgelagert weiterhin Schema- und Fachvalidierung sowie Recompute-Verifikation.
+Altcha ist eine selbsthostbare, datenschutzfreundliche Proof-of-Work-Challenge. Das Backend stellt die Challenges aus (`GET /api/public/altcha/challenge`, HMAC-signiert, fünf Minuten gültig) und prüft die Lösung im Header `X-Altcha` von `POST /api/public/submissions` und `POST /api/public/feedback`, bevor der Request-Body verarbeitet wird. Fehlende, ungültige, abgelaufene und bereits verwendete Lösungen werden mit `403` abgewiesen; jede Lösung gilt nur einmal. Der öffentliche Client löst die Challenge mit dem selbst gehosteten Altcha-Widget. Der HMAC-Schlüssel (`ALTCHA_HMAC_KEY`) wird vom Add-on als Kubernetes-Secret erzeugt. Rate Limiting erfolgt am APISIX-Gateway. Das Backend übernimmt zusätzlich Schema- und Fachvalidierung sowie Recompute-Verifikation.
 
 ---
 

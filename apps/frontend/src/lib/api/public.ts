@@ -1,3 +1,5 @@
+import { ALTCHA_HEADER, solveAltcha, type SolveAltcha } from './altcha';
+
 export type SubmissionResult = {
   deletionToken: string;
 };
@@ -187,19 +189,33 @@ export async function verifyDeletionReceipt(
   return result.valid;
 }
 
-export async function submitEnergyData(params: {
-  input: unknown;
-  configName?: string;
-  buildingId: string;
-  address: string;
-  longitude: number;
-  latitude: number;
-}): Promise<SubmissionResult> {
-  const res = await fetch('/api/public/submissions', {
+async function postPublicWrite(
+  url: string,
+  body: unknown,
+  solve: SolveAltcha,
+): Promise<Response> {
+  return fetch(url, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(params),
+    headers: {
+      'Content-Type': 'application/json',
+      [ALTCHA_HEADER]: await solve(),
+    },
+    body: JSON.stringify(body),
   });
+}
+
+export async function submitEnergyData(
+  params: {
+    input: unknown;
+    configName?: string;
+    buildingId: string;
+    address: string;
+    longitude: number;
+    latitude: number;
+  },
+  solve: SolveAltcha = solveAltcha,
+): Promise<SubmissionResult> {
+  const res = await postPublicWrite('/api/public/submissions', params, solve);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   const result = (await res.json()) as Partial<SubmissionResult>;
   if (
@@ -211,7 +227,10 @@ export async function submitEnergyData(params: {
   return { deletionToken: result.deletionToken };
 }
 
-export async function submitFeedback(input: FeedbackInput): Promise<void> {
+export async function submitFeedback(
+  input: FeedbackInput,
+  solve: SolveAltcha = solveAltcha,
+): Promise<void> {
   const emailAddress = input.emailAddress?.trim();
   const body = {
     category: input.category,
@@ -219,10 +238,6 @@ export async function submitFeedback(input: FeedbackInput): Promise<void> {
     ...(emailAddress ? { emailAddress } : {}),
   };
 
-  const res = await fetch('/api/public/feedback', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  });
+  const res = await postPublicWrite('/api/public/feedback', body, solve);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
 }

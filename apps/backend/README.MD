@@ -36,7 +36,6 @@ Dieses Repo startet einen HTTP-Server mit:
 - `src/index.ts`: App-Bootstrap, Fastify-Setup, Plugins, Listen
 - `src/lib/pino.ts`: Logger-Setup + `injectPinoLogger`
 - `src/auth/*`: Auth DTOs, Service, Controller, Middleware
-- `src/test/test.controller.ts`: geschuetzte Test-Route
 - `src/registries.ts`: autogenerierte TOAB Registries
 - `scripts/create-dev-jwt.mjs`: Dev-JWT Generator
 - `dev.ts`: lokaler Dev-Runner mit Watch + Restart
@@ -72,8 +71,7 @@ Interner App-Port ist `5000` (falls `PORT` nicht gesetzt ist). Externe Requests 
 
 - `GET /docs` -> Swagger UI
 - `GET /bullMQ` -> Bull Board UI
-- `GET /admin/api/auth/verify` -> gibt den vom Gateway geprueften Token-Payload zurueck
-- `GET /api/admin/test/` -> geschuetzte Test-Route (Route durch APISIX geschuetzt, Backend-Rollenpruefung aktiv)
+- `GET /api/admin/auth/verify` -> gibt den vom Gateway geprueften Token-Payload zurueck
 
 ## Umgebungsvariablen (.env)
 
@@ -100,10 +98,24 @@ AUTH_INSECURE_DEV_DECODE=true
 
 Das ist nur mit `NODE_ENV=development` oder `test` erlaubt; in jeder anderen Umgebung bricht der Start ab. Der Devcontainer setzt die Variable.
 
-CORS: Ausserhalb von `NODE_ENV=development` beantwortet das Backend Cross-Origin-Anfragen nur fuer die Origins aus `PUBLIC_CLIENT_BASE_URL` und `ADMIN_CLIENT_BASE_URL` sowie optional aus der kommagetrennten Liste `AUTH_CORS_ADDITIONAL_ORIGINS` (leer = keine); jede andere `Origin` wird nicht reflektiert. Erlaubte Request-Header sind `Content-Type`, `Authorization`, `X-Access-Token` und `X-Requested-With`.
+CORS: Ausserhalb von `NODE_ENV=development` beantwortet das Backend Cross-Origin-Anfragen nur fuer die Origins aus `PUBLIC_CLIENT_BASE_URL` und `ADMIN_CLIENT_BASE_URL` sowie optional aus der kommagetrennten Liste `AUTH_CORS_ADDITIONAL_ORIGINS` (leer = keine); jede andere `Origin` wird nicht reflektiert. Erlaubte Request-Header sind `Content-Type`, `Authorization`, `X-Access-Token`, `X-Requested-With` und `X-Altcha`.
 
 ```env
 AUTH_CORS_ADDITIONAL_ORIGINS=https://partner.example,https://other.example
+```
+
+Altcha (TA-51): Oeffentliche Schreibzugriffe (`POST /api/public/submissions`, `POST /api/public/feedback`) brauchen im Header `X-Altcha` eine geloeste, noch unbenutzte Altcha-Challenge von `GET /api/public/altcha/challenge`; sonst antwortet das Backend mit `403 FORBIDDEN`, bevor der Body gelesen wird. Die Challenges werden mit diesem Schluessel per HMAC signiert (mindestens 32 zufaellige Zeichen, z. B. `openssl rand -hex 32`); ohne ihn bricht der Start ab. Das Add-on erzeugt ihn einmalig als Kubernetes-Secret.
+
+```env
+ALTCHA_HMAC_KEY=<zufaelliger Schluessel>
+```
+
+Benutzte Challenges merkt sich das Backend bis zu ihrem Ablauf (5 Minuten) im Speicher des Prozesses. Bei mehreren Backend-Replikas koennte eine Loesung deshalb einmal je Replika verwendet werden; bei einem Neustart gehen die Eintraege verloren.
+
+Nur fuer automatisierte Tests oder lokale Entwicklung ohne Widget laesst sich die Pruefung abschalten (nur mit `NODE_ENV=development` oder `test`, sonst bricht der Start ab):
+
+```env
+ALTCHA_DISABLED=true
 ```
 
 Optional fuer Rollenpruefung ueber `resource_access`:
@@ -114,13 +126,15 @@ AUTH_RESOURCE_ACCESS_CLIENT_ID=digital-energy-twin
 
 Wenn nicht gesetzt, wird standardmaessig `digital-energy-twin` verwendet.
 
-Optional, standardmaessig aus: Ablauffrist neuer oeffentlicher Loeschlinks in Tagen (1 bis 9999):
+Optional, im Backend standardmaessig aus: Ablauffrist neuer oeffentlicher Loeschlinks in Tagen (1 bis 9999). Das Deployment-Add-on setzt sie auf 30 Tage (`submission_deletion_token_ttl_days`); die Datenschutzhinweise nennen diese Frist fuer den Download:
 
 ```env
 SUBMISSION_DELETION_TOKEN_TTL_DAYS=
 ```
 
-> **Achtung:** Die Frist laesst nur den Link ablaufen, nicht die Daten. Nach Ablauf ist nur noch der JSON-Download gesperrt; Statuspruefung und Loeschung bleiben moeglich, solange die Einreichung gespeichert ist. Die Frist ist keine Aufbewahrungsregel und loescht nichts. Gespeicherte Einreichungen bleiben bestehen, bis ein Loeschprozess fuer die Aufbewahrungsfrist sie entfernt; einen solchen Prozess gibt es noch nicht. Wie dabei mit bereits angenommenen Einreichungen umzugehen ist, entscheiden Stadt und Datenschutzbeauftragte. Die Variable darf nur zusammen mit diesem Prozess gesetzt werden, und zwar auf dieselbe Aufbewahrungsfrist.
+Ist die Frist gesetzt, erhalten beim Start des Backends alle Einreichungen ohne Ablaufzeitpunkt (Bestandsdaten von vor Einfuehrung der Frist oder aus einer Zeit ohne gesetzte Frist) den Ablauf Startzeitpunkt plus Frist, nicht Einreichungszeitpunkt plus Frist; Buerger mit einem aelteren PDF behalten so die volle Frist. Das geschieht mit einem einzelnen bedingten `UPDATE` (nur Zeilen mit `deletionTokenExpiresAt IS NULL`): idempotent, unschaedlich bei mehreren gleichzeitig startenden Replikas, bestehende Ablaufzeitpunkte werden nie veraendert, geloggt wird nur die Anzahl. Schlaegt es fehl, startet das Backend nicht. Ohne gesetzte Frist aendert der Start nichts.
+
+> **Achtung:** Die Frist laesst nur den Link ablaufen, nicht die Daten. Nach Ablauf ist nur noch der JSON-Download gesperrt; Statuspruefung und Loeschung bleiben moeglich, solange die Einreichung gespeichert ist. Die Frist ist keine Aufbewahrungsregel und loescht nichts. Gespeicherte Einreichungen bleiben bestehen, bis ein Loeschprozess fuer die Aufbewahrungsfrist sie entfernt; einen solchen Prozess gibt es noch nicht. Wie dabei mit bereits angenommenen Einreichungen umzugehen ist, entscheiden Stadt und Datenschutzbeauftragte. Die 30 Tage sind bewusst vor diesem Prozess gesetzt, um die Gueltigkeit weitergegebener oder abgeflossener Download-Links zu begrenzen; danach erhalten Buerger Auskunft ueber ihre gespeicherten Daten bei der Stadt. Sobald eine Aufbewahrungsfrist feststeht, ist die Frist daran anzugleichen.
 
 Geplantes Rollenmodell:
 - `Verwalter`: eingereichte Gebaeudedaten lesen und bearbeiten, kein Zugriff auf Systempflege.
@@ -169,10 +183,10 @@ Produktiv werden Tokens durch APISIX/OIDC geprueft. Die folgenden Aufrufe dienen
 ```bash
 TOKEN="$(pnpm -s jwt:dev --output raw)"
 
-curl -i http://localhost:5000/admin/api/auth/verify \
+curl -i http://localhost:5000/api/admin/auth/verify \
   -H "x-access-token: ${TOKEN}"
 
-curl -i http://localhost:5000/api/admin/test/ \
+curl -i http://localhost:5000/api/admin/auth/verify \
   -H "Authorization: Bearer ${TOKEN}"
 ```
 
@@ -180,7 +194,7 @@ curl -i http://localhost:5000/api/admin/test/ \
 
 - `src/instrumentation.ts` installiert `injectPinoLogger()` beim Laden des Moduls, vor dem Aufruf von `startServer()`. Dadurch werden auch Fehler bei der Umgebungsvalidierung und beim Serverstart ueber Pino ausgegeben.
 - `console.log/info/warn/error/debug` erzeugen nur ein festes `console_output`-Ereignis mit Log-Level und ggf. einer festen Fehlerkategorie. Freitext, Objekte, Fehlermeldungen, Ursachen und Stacks werden nicht uebernommen, da sie Nutzereingaben enthalten koennen.
-- Der Instrumentation-Hook deaktiviert die ungefilterten Framework- und Request-Logger. Eigene Hooks protokollieren pro Request einmal das Ergebnis: serverseitig erzeugte Log-Request-ID, HTTP-Methode, registriertes Routenmuster, Statuscode, Dauer und ggf. Fehlerkategorie. Unbekannte Routen erhalten `unmatched_route`; URLs, Query-Parameter, Tokens, Header, IP-Adressen und Request-/Response-Inhalte werden nicht geloggt. Diese Regeln gelten auch in Entwicklung.
+- Der Instrumentation-Hook deaktiviert die ungefilterten Framework- und Request-Logger. Eigene Hooks protokollieren pro Request einmal das Ergebnis: serverseitig erzeugte Log-Request-ID, HTTP-Methode, registriertes Routenmuster, Statuscode, Dauer und ggf. Fehlerkategorie. Bei `/api/admin/*`-Routen kommen Akteur (`actor`: `user` mit interner Benutzerkennung `actorId` und bekannten Rollen `actorRoles`, sonst `anonymous`) und, falls die Route ein Objekt adressiert, `targetType`/`targetId` hinzu. Die Request-ID steht in jeder Antwort im Header `X-Request-Id`; ein eingehender `X-Request-Id` wird ignoriert. Unbekannte Routen erhalten `unmatched_route`; URLs, Query-Parameter, Tokens, Header, IP-Adressen und Request-/Response-Inhalte werden nicht geloggt. Diese Regeln gelten auch in Entwicklung.
 - Datenbankfehler werden als `DATABASE_ERROR` klassifiziert. SQL, SQL-Parameter und Datenbank-Fehlerdetails bleiben aus den Logs. Neue Diagnosen sollen feste Ereignisse ueber `src/lib/pino.ts` verwenden; `fastify.log` und `request.log` sind absichtlich stumm.
 - In Produktion werden JSON-Zeilen ausgegeben; nur bei `NODE_ENV=development` wird `pino-pretty` verwendet.
 - Das Backend schreibt seine Logs ausschliesslich auf `stdout`/`stderr`; das passt zum Container-Betrieb unter Kubernetes.

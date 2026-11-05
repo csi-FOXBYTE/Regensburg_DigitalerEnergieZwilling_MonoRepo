@@ -4,26 +4,53 @@ Dieses Dokument beschreibt das einheitliche Fehlermodell im Backend.
 
 ## Ziel
 
-Alle Fehlerantworten folgen demselben Schema:
+Alle Fehlerantworten sind JSON-Objekte mit diesen Feldern:
+
+| Feld | Vorhanden | Inhalt |
+| --- | --- | --- |
+| `status` | immer | Stabiler Fehlertyp (`AppErrorStatus`, siehe unten), auf den Clients verzweigen |
+| `message` | immer | Feste oder fachliche Meldung ohne Pfade, SQL-Texte, Stacktraces oder Abhängigkeitsdetails |
+| `code` | optional | HTTP-Statuscode, identisch mit dem Statuscode der Antwort |
+
+```json
+{
+  "status": "CONFLICT",
+  "code": 409,
+  "message": "The resource was changed by a concurrent request, please retry"
+}
+```
+
+`AppError.toResponse` erzeugt immer `status`, `code` und `message`. API-Routen
+serialisieren Antworten mit den Statuscodes `400`, `401`, `403`, `404`, `405`
+und `500` jedoch über die generischen Antwortschemas von fastify-toab
+(`ERROR_400` … `ERROR_500`), die nur `status` und `message` kennen; `code`
+entfällt dort:
 
 ```json
 {
   "status": "UNAUTHORIZED",
-  "code": 401,
   "message": "Access token is missing"
 }
 ```
 
-In `NODE_ENV=development` wird zusätzlich `stack` zurückgegeben.
+`code` ist enthalten bei allen anderen Statuscodes auf API-Routen (z. B. `409`,
+`413`, `415`, `503`) und bei Antworten ohne Routenschema (unbekannte Routen,
+Router- und HTTP-Parser-Fehler). Clients müssen `code` daher als optional
+behandeln und den HTTP-Statuscode der Antwort verwenden.
+
+In `NODE_ENV=development` wird zusätzlich `stack` zurückgegeben, soweit die
+Antwort nicht über ein generisches Routenschema serialisiert wird.
 Außerhalb von Development wird kein Stacktrace an Clients ausgeliefert.
 
 ## Quelle der Fehlerbehandlung
 
 - `AppError` und gemeinsames Senden (`sendAppError`): `src/errors/app-error.ts`
-- Fehler aus Controllern, Services und Middlewares: `fastify-toab` `onRouteError` → `src/errors/route-error-handler.ts`
-- Fehler, die Fastify oder Plugins vor dem Handler auslösen (Schema-Validierung, Body-Parsing, `415`, `413`, Rate Limit `429`, Under-Pressure `503`): Fastify-`setErrorHandler` → `src/errors/request-error-handler.ts`. Er wird in `onPreStart` gesetzt und gilt damit für alle API-Routen; die vorher registrierten Plugin-Routen (`/health`, CORS-Preflight) behalten ihr eigenes Fehlerschema.
+- Fehler aus Controllern, Services und Middlewares: `fastify-toab` `onRouteError` → `src/errors/route-error-handler.ts`. Datenbankfehler, die ein Client auslösen kann, bildet `src/errors/database-error.ts` vorher auf `4xx` ab (siehe unten).
+- Fehler, die Fastify oder Plugins vor dem Handler auslösen (Schema-Validierung, Body-Parsing, Request-Guards aus `src/lib/request-guards.ts`, `415`, `413`, Under-Pressure `503`; das Backend hat kein eigenes Rate Limit, das übernimmt APISIX je Client): Fastify-`setErrorHandler` → `src/errors/request-error-handler.ts`. Er wird in `onPreStart` gesetzt und gilt damit für alle API-Routen; die vorher registrierten Plugin-Routen (`/health`, CORS-Preflight) behalten ihr eigenes Fehlerschema.
+- Unbekannte Routen: `src/errors/not-found.ts` antwortet mit `NOT_FOUND` / `404` / `Not found` und wiederholt die angefragte URL nicht.
+- Fehler, die Router und HTTP-Parser vor jedem Hook auslösen (Pfadparameter über 100 Zeichen, ungültige Prozentkodierung im Pfad, zu große Header, Parser- und Timeout-Fehler): `src/errors/framework-errors.ts`. fastify-toab legt die Fastify-Instanz ohne Serveroptionen an; `installFrameworkErrorHandlers` setzt deshalb in `onPreStart` `frameworkErrors` auf der Instanz und ersetzt den `clientError`-Handler des HTTP-Servers. Die Antwort enthält nur Status und eine feste Meldung, nie den angefragten Pfad. Diese Antworten erscheinen nicht im Request-Log, weil Fastify für sie keine Hooks ausführt.
 - APISIX prüft Token vorgelagert; das Backend verifiziert Signatur und Claims zusätzlich selbst (`src/auth/auth.service.ts`).
-- Statuscodes aus Framework-/Plugin-Fehlern bleiben erhalten. `5xx`-Antworten enthalten nie die interne Fehlermeldung.
+- Statuscodes aus Framework-/Plugin-Fehlern bleiben erhalten. `5xx`-Antworten enthalten nie die interne Fehlermeldung. `4xx`-Fehler von Body-Parser und Plugins erhalten eine feste Meldung je Fehlercode bzw. HTTP-Status (`httpErrorMessage` in `src/errors/app-error.ts`), damit weder `Content-Type` noch Body-Inhalte zurückgegeben werden. Ausgenommen sind Schema-Validierungsmeldungen (sie nennen Pfad und Regel, nicht den Wert) und `AppError`s aus Hooks wie den Request-Guards.
 
 ## Status-Typen (AppErrorStatus)
 
@@ -32,13 +59,18 @@ Außerhalb von Development wird kein Stacktrace an Clients ausgeliefert.
 - `FORBIDDEN`
 - `NOT_FOUND`
 - `METHOD_NOT_ALLOWED`
+- `REQUEST_TIMEOUT` (`408`)
+- `CONFLICT` (`409`)
 - `PAYLOAD_TOO_LARGE` (`413`)
+- `URI_TOO_LONG` (`414`)
 - `UNSUPPORTED_MEDIA_TYPE` (`415`)
-- `TOO_MANY_REQUESTS` (`429`, Header `Retry-After` bleibt erhalten)
+- `TOO_MANY_REQUESTS` (`429`, Header `Retry-After` bleibt erhalten; das Backend erzeugt selbst keine `429`, Rate Limiting erfolgt in APISIX)
+- `REQUEST_HEADER_FIELDS_TOO_LARGE` (`431`)
 - `INTERNAL_ERROR`
 - `SERVICE_UNAVAILABLE` (`503`, Header `Retry-After` bleibt erhalten)
 
 Andere `4xx`-Codes behalten ihren Code und erhalten den Status `BAD_REQUEST`.
+Ein Code hat immer denselben Status, ob die Antwort aus einem Service, einem Plugin oder dem Framework stammt (`httpErrorStatus` in `src/errors/app-error.ts`); die Request-Logzeile trägt ihn als `errorCode`.
 
 ## Aktuell implementierte Fehlerarten
 
@@ -56,6 +88,39 @@ Andere `4xx`-Codes behalten ihren Code und erhalten den Status `BAD_REQUEST`.
 - `UNAUTHORIZED` / `401` / `Access token is not active yet`
 - `SERVICE_UNAVAILABLE` / `503` / `Access token cannot be verified right now` (JWKS nicht erreichbar oder ungültig; Log-Event `auth_key_set_unavailable`)
 
+### Eingabevalidierung
+
+- `BAD_REQUEST` / `400` / Meldung der Schema-Validierung: Typ-, Längen- oder Wertebereichsverletzung sowie unbekannte Body- oder Query-Felder. JSON-Bodies werden nicht typumgewandelt; Query- und Pfadparameter werden als Text in den deklarierten Typ umgewandelt.
+- `BAD_REQUEST` / `400` / `Request must not contain NUL characters` (Body, Query oder Pfadparameter)
+- `BAD_REQUEST` / `400` / `Request body must not be nested deeper than 32 levels`
+- `BAD_REQUEST` / `400` / `Numeric parameters must be finite` (z. B. `Infinity` oder `1e400` in Query- oder Pfadparametern)
+- `UNSUPPORTED_MEDIA_TYPE` / `415` / `JSON request bodies must be UTF-8` (JSON-Body mit anderem `charset`)
+- `UNSUPPORTED_MEDIA_TYPE` / `415` / `Unsupported media type` (kein Parser für den `Content-Type`)
+- `BAD_REQUEST` / `400` / `Request body is not valid JSON`, `Request body must not be empty`, `Request body size does not match Content-Length`
+- `PAYLOAD_TOO_LARGE` / `413` / `Request body is too large`
+
+### Fachliche Konflikte
+
+- `CONFLICT` / `409` / ungültiger Statusübergang einer Einreichung (Triage)
+- `CONFLICT` / `409` / Löschen aller Einreichungen eines Gebäudes, solange nicht alle abgelehnt sind
+- `CONFLICT` / `409` / Konfigurationsversion existiert bereits
+- `CONFLICT` / `409` / aktive Konfiguration kann nicht gelöscht werden
+
+### Router und HTTP-Parser
+
+- `URI_TOO_LONG` / `414` / `URI too long` (Pfadparameter länger als 100 Zeichen)
+- `BAD_REQUEST` / `400` / `Bad request` (ungültige Prozentkodierung im Pfad, fehlerhafte HTTP-Anfrage)
+- `REQUEST_HEADER_FIELDS_TOO_LARGE` / `431` / `Request header fields too large`
+- `REQUEST_TIMEOUT` / `408` / `Request timeout`
+
+### Datenbank
+
+- `CONFLICT` / `409` / `The resource was changed by a concurrent request, please retry` (Serialisierungsfehler, Deadlock, Unique- oder Foreign-Key-Verletzung, nicht erhaltene Sperre)
+- `NOT_FOUND` / `404` / `Not found` (Datensatz wurde zwischen Prüfung und Schreibzugriff entfernt)
+- `BAD_REQUEST` / `400` / `Request contains characters that cannot be stored`
+
+Die Antwort enthält nie die Meldung des Datenbanktreibers.
+
 ### Fallback (unbekannte Fehler)
 
 Alle nicht als `AppError` geworfenen Fehler werden auf:
@@ -68,6 +133,6 @@ normalisiert.
 
 Neue fachliche Fehler sollen als `AppError` geworfen werden, damit:
 
-- `status`, `code`, `message` konsistent bleiben,
+- `status` und `message` konsistent bleiben und `code` zum HTTP-Status passt,
 - Clients stabile Fehlertypen erhalten,
 - Produktionsantworten keinen Stacktrace enthalten.

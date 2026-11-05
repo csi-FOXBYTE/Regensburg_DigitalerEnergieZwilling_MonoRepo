@@ -37,7 +37,8 @@ if [ "$component" = backend ]; then
     -e PUBLIC_CLIENT_BASE_URL=http://localhost:4321 -e ADMIN_CLIENT_BASE_URL=http://localhost:5173 \
     -e KEYCLOAK_ISSUER=https://keycloak.invalid/realms/smoke \
     -e KEYCLOAK_JWKS_URI=https://keycloak.invalid/realms/smoke/protocol/openid-connect/certs \
-    -e AUTH_EXPECTED_AUDIENCE=smoke "$image" >/dev/null
+    -e AUTH_EXPECTED_AUDIENCE=smoke -e ALTCHA_HMAC_KEY="$(openssl rand -hex 32)" \
+    -e SUBMISSION_DELETION_TOKEN_TTL_DAYS=30 "$image" >/dev/null
   port=5000 path=/health user=1000
 else
   docker run -d --name "$network-app" --network "$network" -p 127.0.0.1::8080 "$image" >/dev/null

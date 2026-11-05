@@ -1,6 +1,6 @@
 # Datenschutzhinweise für das öffentliche Sanierungstool
 
-> **Status:** Entwurf, Stand 28. Oktober 2026  
+> **Status:** Entwurf, Stand 5. November 2026  
 > **Geltungsbereich:** Öffentlicher/bürgerseitiger Teil des Digitalen Energie Zwillings (DEZ)  
 > **Freigabe:** Vor Veröffentlichung durch Betreiber, zuständige Dienststelle und behördlichen Datenschutzbeauftragten zu prüfen. Eckige Klammern kennzeichnen noch zu ergänzende oder verbindlich festzulegende Angaben.
 
@@ -232,7 +232,7 @@ Der PDF-Bericht kann folgende vertrauliche Verknüpfungen enthalten:
 - bei freiwilliger Einreichung einen Löschlink,
 - bei freiwilliger Einreichung einen Link zum JSON-Export.
 
-Lösch- und JSON-Download-Link enthalten denselben zufälligen, nicht erratbaren Capability-Token. Wer einen solchen Link erhält, kann die gespeicherten öffentlichen Einreichungsdaten herunterladen beziehungsweise nach ausdrücklicher Bestätigung löschen. Der JSON-Export enthält deshalb zusätzlich einen neutralen Löschlink ohne Sprachparameter.
+Lösch- und JSON-Download-Link enthalten denselben zufälligen, nicht erratbaren Capability-Token. Wer einen solchen Link erhält, kann die gespeicherten öffentlichen Einreichungsdaten herunterladen beziehungsweise nach ausdrücklicher Bestätigung löschen. Der JSON-Export enthält deshalb zusätzlich einen neutralen Löschlink ohne Sprachparameter. Der Download der Einreichungsdaten über den Link ist 30 Tage ab der Einreichung möglich; für Einreichungen, die vor Einführung dieser Frist erfolgt sind, laufen die 30 Tage ab ihrer Einführung. Die Löschung über den Löschlink bleibt möglich, solange die Einreichung gespeichert ist.
 
 Portable Wiederherstellungslinks arbeiten davon unabhängig: Sie enthalten den serialisierten Bearbeitungsstand im URL-Fragment. Dieses Fragment wird ausschließlich im Browser ausgewertet und bei einem normalen HTTP-Aufruf nicht an das Backend übertragen. Für die Wiederherstellung wird kein serverseitiger Sitzungsdatensatz und kein Backend-Token angelegt.
 
@@ -240,7 +240,7 @@ Speichern Sie Bericht und Links daher geschützt und geben Sie sie nur an vertra
 
 ## 11. Schutz vor automatisierten Zugriffen
 
-Öffentliche Schreibzugriffe werden durch Rate Limiting und eine selbst gehostete Altcha-Challenge am APISIX-Gateway vor Missbrauch geschützt. Die dafür eingesetzte globale Gateway-Policy wird durch die externe Deployment-Plattform bereitgestellt und betrieben; sie ist nicht Bestandteil der DEZ-Repositories. Altcha lässt den Browser eine kleine Rechenaufgabe lösen; hierfür ist kein Konto erforderlich.
+Öffentliche Schreibzugriffe (Datenspende und Feedback) werden durch Rate Limiting am APISIX-Gateway und eine selbst gehostete Altcha-Challenge vor Missbrauch geschützt. Altcha lässt den Browser vor dem Absenden eine kleine Rechenaufgabe lösen; die Aufgabe stellt das Backend der Anwendung aus und prüft auch die Lösung. Dafür werden keine Cookies gesetzt, keine Maus- oder Scrollbewegungen ausgewertet und keine Dienste Dritter eingebunden; ein Konto ist nicht erforderlich. Bereits verwendete Aufgaben merkt sich das Backend ohne IP-Adresse bis zu ihrem Ablauf nach fünf Minuten im Arbeitsspeicher, damit jede Lösung nur einmal gilt.
 
 Dabei werden insbesondere IP-Adresse, Zeitpunkt, Challenge-Daten, Prüfergebnis und technische Anfragedaten verarbeitet. Zweck ist der Schutz der Anwendung und der gespeicherten Daten vor automatisierten Massenanfragen. Rechtsgrundlage ist Art. 6 Abs. 1 Buchst. e DSGVO in Verbindung mit Art. 4 Abs. 1 BayDSG. Die Challenge- und Rate-Limit-Daten werden für [konkrete Frist ergänzen] innerhalb der CIVITAS/CORE-Umgebung der Stadt Regensburg gespeichert.
 
