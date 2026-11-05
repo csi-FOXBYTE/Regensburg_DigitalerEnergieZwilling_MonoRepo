@@ -910,24 +910,24 @@ Eine DEZ-Instanz soll fachlich immer genau eine Kommune abbilden; die Nachnutzun
 
 ## Festlegung: Nutzungsdaten und Tracking
 
-*Planungsstand:* Matomo bleibt die fachlich vorgesehene Analytics-Lösung, die technische Umsetzung ist aktuell jedoch niedrig priorisiert und keinem verbindlichen Sprint zugeordnet. Entgegen der ursprünglichen Annahme steht in der Kundenumgebung keine bereits nutzbare Matomo-Instanz zur Verfügung. Eine eigene Instanz und deren Betrieb müssen zunächst mit dem Auftraggeber abgestimmt werden; eine Umsetzung in Sprint 18 oder 19 ist derzeit unsicher.
+*Umsetzungsstand:* Matomo ist nach Sprint 19 technisch umgesetzt und ab Version v1.8.0 enthalten. Da in der Kundenumgebung keine nutzbare Matomo-Instanz zur Verfügung steht, rollt das Deployment-Add-on optional eine eigene Instanz mit Login über Keycloak aus. Produktiv ist Matomo noch nicht aktiviert; dafür sind die Freigabe nach FA-117 sowie die Aktivierung im Add-on (`matomo.enable`) und im Backend (`MATOMO_URL`, `MATOMO_SITE_ID`) erforderlich.
 
 <a id="fa-115"></a>
 
 **FA-115**  
-*Release-Zuordnung:* Nicht im aktuellen Releaseplan zugeordnet.  
+*Release-Zuordnung:* Nach Sprint 19 technisch umgesetzt (ab v1.8.0); produktive Aktivierung offen.  
 Für Nutzungsanalysen wird Matomo verbindlich eingesetzt.
 
 <a id="fa-116"></a>
 
 **FA-116**  
-*Release-Zuordnung:* Nicht im aktuellen Releaseplan zugeordnet.  
+*Release-Zuordnung:* Nach Sprint 19 technisch umgesetzt (ab v1.8.0); produktive Aktivierung offen.  
 Nutzungsdatenanalysen dürfen fachlich nur nach expliziter Einwilligung (Opt-in) erfolgen.
 
 <a id="fa-117"></a>
 
 **FA-117**  
-*Release-Zuordnung:* Nicht im aktuellen Releaseplan zugeordnet.  
+*Release-Zuordnung:* Nach Sprint 19 technisch umgesetzt (ab v1.8.0); produktive Aktivierung offen.  
 Der konkrete fachliche Umfang für Tracking, einschließlich Metriken, Auswertungszielen, Eventkatalog und Berichtskreisen, muss vor produktiver Aktivierung verbindlich festgelegt sein. Der aktuelle fachliche Zielstand ist im [Matomo-Trackingkonzept](../system/06-matomo-trackingkonzept.md) dokumentiert.
 
 ---
@@ -948,42 +948,42 @@ Für den Abnahmeprozess sind bei der Stadt Regensburg jeweils ein fachlicher und
 
 ## Konkretisierung: Matomo-Auswertungsumfang
 
-*Planungsstand:* Die folgenden Anforderungen beschreiben weiterhin den fachlichen Zielumfang, sind wegen der noch ausstehenden Bereitstellung und Betriebsabstimmung einer eigenen Matomo-Instanz jedoch aktuell keinem verbindlichen Sprint zugeordnet.
+*Umsetzungsstand:* Der folgende fachliche Zielumfang ist ab Version v1.8.0 technisch umgesetzt, aber noch nicht produktiv aktiviert. Vor der Aktivierung sind die Betriebsparameter aus dem [Matomo-Trackingkonzept](../system/06-matomo-trackingkonzept.md#betriebsparameter-und-berichtszugriff) freizugeben, darunter die Mindestfallzahl für Maßnahmenkombinationen (FA-124).
 
 <a id="fa-119"></a>
 
 **FA-119**  
-*Release-Zuordnung:* Nicht im aktuellen Releaseplan zugeordnet.  
+*Release-Zuordnung:* Nach Sprint 19 technisch umgesetzt (ab v1.8.0); produktive Aktivierung offen.  
 Der gesamte öffentliche Sanierungscheck einschließlich des gesonderten Prozesses zur freiwilligen Gebäudedatenspende muss fachlich über genau eine Matomo-Site ausgewertet werden. Die eigentlichen Daten der Gebäudedatenspende sind davon ausgenommen.
 
 <a id="fa-120"></a>
 
 **FA-120**  
-*Release-Zuordnung:* Nicht im aktuellen Releaseplan zugeordnet.  
+*Release-Zuordnung:* Nach Sprint 19 technisch umgesetzt (ab v1.8.0); produktive Aktivierung offen.  
 Die Webanalyse muss begonnene und abgeschlossene Sanierungschecks, PDF-Exporte, Beratungskontakte, begonnene und abgeschlossene Datenspenden sowie Abbruchabschnitte und Abbruchquote auswerten können. Definitionen und Nenner der Kennzahlen müssen dem [Matomo-Trackingkonzept](../system/06-matomo-trackingkonzept.md#kennzahlen) entsprechen.
 
 <a id="fa-121"></a>
 
 **FA-121**  
-*Release-Zuordnung:* Nicht im aktuellen Releaseplan zugeordnet.  
+*Release-Zuordnung:* Nach Sprint 19 technisch umgesetzt (ab v1.8.0); produktive Aktivierung offen.  
 Gebäudetypen und ausgewählte Sanierungsmaßnahmen dürfen für aggregierte Auswertungen als fachlich freigegebene Kategorieschlüssel erfasst werden. Wertebereiche und Bezeichnungen müssen versioniert und auf die im Sanierungstool tatsächlich auswählbaren Optionen beschränkt sein.
 
 <a id="fa-122"></a>
 
 **FA-122**  
-*Release-Zuordnung:* Nicht im aktuellen Releaseplan zugeordnet.  
+*Release-Zuordnung:* Nach Sprint 19 technisch umgesetzt (ab v1.8.0); produktive Aktivierung offen.  
 Matomo darf keine Gebäude-ID, Adresse, Koordinaten, Einreichungs- oder Löschkennung, Kontaktdaten, Freitexte, exakten Verbrauchs- oder Kostenwerte und keine vollständigen Eingabe-, Ergebnis- oder Einreichungsdaten erhalten. Die fachliche Gebäudedatenspende muss einen von Matomo getrennten Datenstrom verwenden.
 
 <a id="fa-123"></a>
 
 **FA-123**  
-*Release-Zuordnung:* Nicht im aktuellen Releaseplan zugeordnet.  
+*Release-Zuordnung:* Nach Sprint 19 technisch umgesetzt (ab v1.8.0); produktive Aktivierung offen.  
 Tracking darf nur für ausdrücklich eingewilligte Sitzungen erfolgen. Ohne freigegebene dauerhafte Besucherkennung müssen Berichte und Kennzahlen Sitzungen beziehungsweise Besuche ausweisen und dürfen diese nicht als eindeutig identifizierte Personen bezeichnen.
 
 <a id="fa-124"></a>
 
 **FA-124**  
-*Release-Zuordnung:* Nicht im aktuellen Releaseplan zugeordnet.  
+*Release-Zuordnung:* Nach Sprint 19 technisch umgesetzt (ab v1.8.0); produktive Aktivierung offen.  
 Dashboards müssen die verbindlichen KPI-Definitionen verwenden und aggregierte Ergebnisse bereitstellen. Für die Auswertung von Maßnahmenkombinationen ist vor Produktivbetrieb eine fachlich und datenschutzrechtlich freigegebene Mindestfallzahl festzulegen.
 
 ---

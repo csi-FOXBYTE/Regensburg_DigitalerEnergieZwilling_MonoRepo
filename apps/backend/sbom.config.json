@@ -94,14 +94,32 @@
     },
     {
       "name": "node",
-      "version": "24.22.1-bookworm-slim",
+      "version": "24.22.2-bookworm-slim",
       "type": "container",
-      "bom-ref": "node:24.22.1-bookworm-slim",
+      "bom-ref": "node:24.22.2-bookworm-slim",
       "scope": "required",
       "ecosystem": "build toolchain",
       "relationship": "referenced build/runtime software",
       "metadataSource": "Dockerfile / root package.json",
       "notes": "Release image SBOM attestations additionally inventory final OS packages.",
+      "licenses": [
+        {
+          "license": {
+            "name": "NOASSERTION"
+          }
+        }
+      ]
+    },
+    {
+      "name": "debian",
+      "version": "bookworm-slim",
+      "type": "container",
+      "bom-ref": "debian:bookworm-slim",
+      "scope": "required",
+      "ecosystem": "build toolchain",
+      "relationship": "referenced build/runtime software",
+      "metadataSource": "Dockerfile / root package.json",
+      "notes": "Runtime base of the backend image, which adds only the node binary of the build image. Release image SBOM attestations additionally inventory final OS packages.",
       "licenses": [
         {
           "license": {

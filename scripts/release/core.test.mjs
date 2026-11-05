@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
-import { components, fingerprint, isBuildInput, journalBody, manifestComponents, nextVersion, readJournal, selectReleaseState, validateManifest } from './core.mjs';
+import { components, fingerprint, ignoredDirectories, isBuildInput, journalBody, manifestComponents, nextVersion, readJournal, selectReleaseState, validateManifest } from './core.mjs';
 import { config } from './io.mjs';
 import { selectArtifacts } from './selection.mjs';
 
@@ -140,4 +140,18 @@ test('a new selection contains exactly the three app images', () => {
   const selected = selectArtifacts(files, config, previous, services);
   assert.deepEqual(Object.keys(selected), ['frontend', 'adminfrontend', 'backend']);
   assert(components.every(c => !selected[c].changed));
+});
+
+test('the Docker context ignores exactly what fingerprinting ignores', () => {
+  const patterns = readFileSync(new URL('../../.dockerignore', import.meta.url), 'utf8')
+    .split('\n').map(line => line.trim()).filter(line => line && !line.startsWith('#'));
+  for (const name of ignoredDirectories) assert(patterns.includes(`**/${name}`), `.dockerignore lacks **/${name}`);
+  for (const pattern of patterns) {
+    const name = pattern.replace(/^\*\*\//, '');
+    const sample = name.includes('*') ? name.replaceAll('*', 'x') : `${name}/file`;
+    for (const c of components) {
+      const file = pattern.startsWith('**/') ? `apps/${c}/${sample}` : sample;
+      assert(!isBuildInput(file, c), `${file} is fingerprinted but .dockerignore excludes it (${pattern})`);
+    }
+  }
 });

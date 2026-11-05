@@ -88,12 +88,13 @@ Quelle: `raw/backend-architecture.puml`
 - Für `"/api/admin/*"` gilt:
   - APISIX muss den externen Routenschutz und die vorgelagerte OIDC-Prüfung entsprechend der Deployment-Policy erzwingen.
   - Das Backend nimmt das Access Token aus `X-Access-Token` oder `Authorization: Bearer` entgegen.
-  - In produktiven Umgebungen validiert die `authMiddleware` das Token unabhängig von der Gateway-Prüfung. Signatur und zeitliche Gültigkeit werden mit RS256 gegen `KEYCLOAK_JWKS_URI` geprüft.
+  - Die `authMiddleware` validiert das Token unabhängig von der Gateway-Prüfung. Geprüft werden die RS256-Signatur gegen `KEYCLOAK_JWKS_URI` (nur HTTPS), `iss` gegen `KEYCLOAK_ISSUER`, `aud` gegen `AUTH_EXPECTED_AUDIENCE`, der Keycloak-Token-Typ `Bearer` (ID- und Refresh-Tokens werden abgelehnt), die Pflicht-Claims `exp`, `iat`, `sub` mit 5 s Uhrentoleranz sowie die Payload-Struktur.
+  - Nur für lokale Entwicklung kann `AUTH_INSECURE_DEV_DECODE=true` gesetzt werden: Dann wird das Token ohne Signaturprüfung dekodiert. Außerhalb von `NODE_ENV=development`/`test` verweigert das Backend damit den Start.
   - Die Rollen werden anschließend aus `resource_access` für den über `AUTH_RESOURCE_ACCESS_CLIENT_ID` konfigurierten Client gelesen; verwendet werden `manager`, `maintainer` und `admin`.
   - Das Backend erzwingt die daraus abgeleiteten Berechtigungen selbst. Eine erfolgreiche APISIX-Prüfung ohne erfolgreiche Backend-Prüfung führt nicht zum Zugriff.
 - Für `"/api/public/*"` gilt:
   - Keine Auth-Middleware als Default.
-  - Schutz gegen Missbrauch erfolgt über die globale APISIX-Policy der externen Deployment-Plattform für Altcha und Rate Limiting; deren Bereitstellung und Betriebsnachweis liegen außerhalb der DEZ-Repositories.
+  - Schutz gegen Missbrauch: `POST /api/public/submissions` und `POST /api/public/feedback` verlangen im Header `X-Altcha` eine gelöste, unbenutzte Altcha-Challenge von `GET /api/public/altcha/challenge` (`src/altcha/altcha.ts`, geprüft im `onRequest`-Hook vor dem Lesen des Bodys, sonst `403`). Die Challenges sind mit `ALTCHA_HMAC_KEY` signiert; ohne Schlüssel startet das Backend nicht (`ALTCHA_DISABLED=true` nur mit `NODE_ENV=development`/`test`). Rate Limiting erfolgt am APISIX-Gateway.
   - Das Backend übernimmt danach Schema-/Fachvalidierung und Recompute-Verifikation.
 - Diese Konvention stellt sicher, dass die Trennung aus APISIX-Routing und fastify-toab-Namespace konsistent und prüfbar bleibt.
 
@@ -104,7 +105,7 @@ Quelle: `raw/backend-architecture.puml`
 
 - Strikte Trennung von Public- und Admin-Endpunkten.
 - APISIX ist der verbindliche externe Enforcement-Point für Routenschutz und vorgelagerte OIDC-Prüfung; die unabhängige Token-, Claim- und Rollenprüfung im Backend bildet eine zweite, für administrative APIs zwingende Enforcement-Schicht.
-- Von der externen Deployment-Plattform betriebene globale APISIX-Policy für Rate Limiting und Altcha-Challenges bei öffentlichen Schreibzugriffen; das Backend setzt diese vorgelagerte Schutzschicht voraus und ergänzt sie durch eigene Fachvalidierung und Recompute-Verifikation.
+- Öffentliche Schreibzugriffe: Rate Limiting am APISIX-Gateway, Altcha-Prüfung im Backend sowie eigene Fachvalidierung und Recompute-Verifikation.
 - Statelesses Backend, containerisierbar, mit Observability (Logs, Metriken, Tracing).
 - Als **CIVITAS/CORE-fähiges Add-on** ausgelegt: läuft als eigener Container und ist von außen orchestrierbar.
 - Security by Design: Least Privilege, Secure Defaults, Defense in Depth.

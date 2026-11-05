@@ -1,7 +1,7 @@
 # Matomo-Trackingkonzept und Eventkatalog
 
 > **Status:** Fachlicher Zielstand, Stand 14. August 2026  
-> **Umsetzungsstand:** Matomo und Consent-Management sind im Public-Frontend noch nicht produktiv aktiviert und aktuell niedrig priorisiert. Entgegen der früheren Annahme steht keine zugängliche Matomo-Instanz des Auftraggebers bereit. Eine eigene Instanz sowie Betrieb und Zuständigkeiten müssen abgestimmt werden; die Umsetzung in Sprint 18 oder 19 ist nicht verbindlich zugesagt. Die technische Anbindung ist im Public-Frontend vorbereitet und bleibt inaktiv, solange für die Umgebung keine Matomo-Instanz konfiguriert ist (siehe [Technische Umsetzung](#technische-umsetzung)).  
+> **Umsetzungsstand:** Tracking-Adapter, Consent-Management und eine eigene Matomo-Instanz sind ab Version v1.8.0 technisch umgesetzt, aber noch nicht produktiv aktiviert. Da keine zugängliche Matomo-Instanz des Auftraggebers bereitsteht, rollt das Deployment-Add-on optional eine eigene Instanz mit Login über Keycloak aus ([images/matomo](https://github.com/csi-FOXBYTE/Regensburg_DigitalerEnergieZwilling_digital-energy-twin_addon/tree/main/images/matomo)). Die Anbindung bleibt inaktiv, solange für die Umgebung keine Matomo-Instanz konfiguriert ist (siehe [Technische Umsetzung](#technische-umsetzung)); vor der Aktivierung sind die [Betriebsparameter](#betriebsparameter-und-berichtszugriff) freizugeben.  
 > **Geltungsbereich:** Öffentlicher Teil des Sanierungstools des Digitalen Energie Zwillings (DEZ)
 
 ## Inhaltsverzeichnis

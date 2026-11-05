@@ -1,6 +1,6 @@
 # Datenschutzhinweise für das öffentliche Sanierungstool
 
-> **Status:** Entwurf, Stand 14. Oktober 2026  
+> **Status:** Entwurf, Stand 5. November 2026  
 > **Geltungsbereich:** Öffentlicher/bürgerseitiger Teil des Digitalen Energie Zwillings (DEZ)  
 > **Freigabe:** Vor Veröffentlichung durch Betreiber, zuständige Dienststelle und behördlichen Datenschutzbeauftragten zu prüfen. Eckige Klammern kennzeichnen noch zu ergänzende oder verbindlich festzulegende Angaben.
 
@@ -225,9 +225,9 @@ Einreichungen werden bis [fachlich und rechtlich freigegebene Regelfrist ergänz
 
 ## 9. Löschung einer freiwilligen Einreichung
 
-Für jede gespeicherte Einreichung erzeugt das Backend einen zufälligen Lösch-Token. Der PDF-Bericht enthält den daraus erzeugten Link zur Löschseite. Die Löschung erfolgt zweistufig: Zuerst wird der zufällige Löschlink aufgerufen, anschließend muss die Löschung in einem Bestätigungsdialog ausdrücklich bestätigt werden.
+Für jede gespeicherte Einreichung erzeugt das Backend einen zufälligen Lösch-Token. Gespeichert wird nur ein daraus berechneter Prüfwert (SHA-256-Hash), nicht der Token selbst. Der PDF-Bericht enthält den Link zur Löschseite; der Token steht darin im URL-Fragment, das Ihr Browser nicht an Server überträgt. Die Löschung erfolgt zweistufig: Zuerst wird der zufällige Löschlink aufgerufen, anschließend muss die Löschung in einem Bestätigungsdialog ausdrücklich bestätigt werden.
 
-Die Löschseite wird vom Public-Frontend angezeigt. Sie prüft beim Backend ausschließlich, ob die Einreichung noch verfügbar ist, und zeigt erst dann den Bestätigungsdialog. Erst die ausdrückliche Bestätigung sendet eine Löschanfrage per HTTP `DELETE`; der vorherige Seiten- und Statusabruf verändert keine Daten. Fehlende, ungültige und bereits verwendete Tokens werden gleich behandelt. Ein zusätzlicher Adressabgleich findet nicht statt.
+Die Löschseite wird vom Public-Frontend angezeigt. Sie prüft beim Backend ausschließlich, ob die Einreichung noch verfügbar ist, und zeigt erst dann den Bestätigungsdialog. Erst die ausdrückliche Bestätigung sendet eine Löschanfrage; der vorherige Seiten- und Statusabruf verändert keine Daten. Fehlende, ungültige und bereits verwendete Tokens werden gleich behandelt. Ein zusätzlicher Adressabgleich findet nicht statt. Die Löschung über den Löschlink bleibt möglich, solange die Einreichung gespeichert ist; sie läuft nicht ab. Ein Ablauf des Links führt nicht zur Löschung Ihrer Daten. Wie lange Einreichungen gespeichert werden, richtet sich allein nach der Speicherdauer in Abschnitt 8.
 
 Nach erfolgreicher Prüfung werden der Einreichungsdatensatz und daraus abgeleitete personenbezogene Gebäudedaten aus der Produktivdatenbank gelöscht. Zugehörige Sicherungskopien werden nach Ablauf des regulären Backupzyklus von [Frist ergänzen] überschrieben beziehungsweise gelöscht.
 
@@ -245,7 +245,7 @@ Der PDF-Bericht kann folgende vertrauliche Verknüpfungen enthalten:
 - bei freiwilliger Einreichung einen Löschlink,
 - bei freiwilliger Einreichung einen Link zum JSON-Export.
 
-Lösch- und JSON-Download-Link enthalten denselben zufälligen, nicht erratbaren Capability-Token. Wer einen solchen Link erhält, kann die gespeicherten öffentlichen Einreichungsdaten herunterladen beziehungsweise nach ausdrücklicher Bestätigung löschen. Der JSON-Export enthält deshalb zusätzlich einen neutralen Löschlink ohne Sprachparameter.
+Lösch- und JSON-Download-Link enthalten denselben zufälligen, nicht erratbaren Capability-Token. Wer einen solchen Link erhält, kann die gespeicherten öffentlichen Einreichungsdaten herunterladen beziehungsweise nach ausdrücklicher Bestätigung löschen. Der JSON-Export enthält deshalb zusätzlich einen neutralen Löschlink ohne Sprachparameter. Der Download der Einreichungsdaten über den Link ist 30 Tage ab der Einreichung möglich; für Einreichungen, die vor Einführung dieser Frist erfolgt sind, laufen die 30 Tage ab ihrer Einführung. Die Löschung über den Löschlink bleibt möglich, solange die Einreichung gespeichert ist.
 
 Portable Wiederherstellungslinks arbeiten davon unabhängig: Sie enthalten den serialisierten Bearbeitungsstand im URL-Fragment. Dieses Fragment wird ausschließlich im Browser ausgewertet und bei einem normalen HTTP-Aufruf nicht an das Backend übertragen. Für die Wiederherstellung wird kein serverseitiger Sitzungsdatensatz und kein Backend-Token angelegt.
 
@@ -253,15 +253,13 @@ Speichern Sie Bericht und Links daher geschützt und geben Sie sie nur an vertra
 
 ## 11. Schutz vor automatisierten Zugriffen
 
-Öffentliche Schreibzugriffe werden durch Rate Limiting und eine selbst gehostete Altcha-Challenge am APISIX-Gateway vor Missbrauch geschützt. Die dafür eingesetzte globale Gateway-Policy wird durch die externe Deployment-Plattform bereitgestellt und betrieben; sie ist nicht Bestandteil der DEZ-Repositories. Altcha lässt den Browser eine kleine Rechenaufgabe lösen; hierfür ist kein Konto erforderlich.
+Öffentliche Schreibzugriffe (Datenspende und Feedback) werden durch Rate Limiting am APISIX-Gateway und eine selbst gehostete Altcha-Challenge vor Missbrauch geschützt. Altcha lässt den Browser vor dem Absenden eine kleine Rechenaufgabe lösen; die Aufgabe stellt das Backend der Anwendung aus und prüft auch die Lösung. Dafür werden keine Cookies gesetzt, keine Maus- oder Scrollbewegungen ausgewertet und keine Dienste Dritter eingebunden; ein Konto ist nicht erforderlich. Bereits verwendete Aufgaben merkt sich das Backend ohne IP-Adresse bis zu ihrem Ablauf nach fünf Minuten im Arbeitsspeicher, damit jede Lösung nur einmal gilt.
 
 Dabei werden insbesondere IP-Adresse, Zeitpunkt, Challenge-Daten, Prüfergebnis und technische Anfragedaten verarbeitet. Zweck ist der Schutz der Anwendung und der gespeicherten Daten vor automatisierten Massenanfragen. Rechtsgrundlage ist Art. 6 Abs. 1 Buchst. e DSGVO in Verbindung mit Art. 4 Abs. 1 BayDSG. Die Challenge- und Rate-Limit-Daten werden für [konkrete Frist ergänzen] innerhalb der CIVITAS/CORE-Umgebung der Stadt Regensburg gespeichert.
 
 ## 12. Webanalyse mit Matomo
 
-> **Aktivierung ausstehend:** Die Webanalyse ist technisch umgesetzt, wird aber nur angeboten, wenn für die Umgebung eine Matomo-Instanz konfiguriert ist. Andernfalls erscheint sie nicht in den Datenschutzeinstellungen und es werden keine Analyseereignisse übermittelt. Vor der Aktivierung müssen Betrieb, Zuständigkeit sowie die unten offenen Angaben festgelegt werden. [Hinweis nach Aktivierung entfernen.]
-
-Ist die Webanalyse aktiviert, verwenden wir Matomo zur statistischen Auswertung der Nutzung des Sanierungstools. Die Matomo-Instanz wird unter [interne Matomo-URL ergänzen] in der CIVITAS/CORE-Umgebung der Stadt Regensburg betrieben. Zuständig ist [zuständige Stelle der Stadt Regensburg oder beauftragter Betreiber ergänzen]. Eine Übermittlung der Analysedaten an Matomo Cloud findet nicht statt.
+Wir verwenden Matomo zur statistischen Auswertung der Nutzung des Sanierungstools. Die Matomo-Instanz wird unter `https://matomo.det.[Domain des Sanierungstools ergänzen]` als eigener Dienst mit eigener Datenbank in der CIVITAS/CORE-Umgebung der Stadt Regensburg betrieben. Technischer Betreiber ist der in Abschnitt 4 genannte Betreiber dieser Umgebung. Fachlich zuständig ist [zuständige Stelle der Stadt Regensburg ergänzen]. Eine Übermittlung der Analysedaten an Matomo Cloud findet nicht statt.
 
 ### Einwilligung und Widerruf
 
@@ -292,20 +290,36 @@ Gebäudetypen und Sanierungsmaßnahmen werden nur anhand festgelegter Kategorien
 
 ### Verarbeitung in Matomo
 
-Die Matomo-Instanz ist zum Start nach der CNIL-Compliance-Richtlinie von Matomo für datensparsame Reichweitenmessung konfiguriert. Es handelt sich um Anfangseinstellungen, die sich künftig ändern können; wesentliche Änderungen werden in diesen Datenschutzhinweisen nachgetragen. Derzeit gilt:
+Die Matomo-Instanz ist datensparsam konfiguriert. Es handelt sich um Anfangseinstellungen, die sich künftig ändern können; wesentliche Änderungen werden in diesen Datenschutzhinweisen nachgetragen. Derzeit speichert Matomo je Sitzung:
 
-- Die IP-Adresse wird vor der Speicherung vollständig maskiert (bei IPv4 0.0.0.0) und auch für die weitere Auswertung nur maskiert verwendet. Eine Geolokalisierung findet nicht statt.
-- Referrer werden nicht gespeichert.
-- Von Browser und Betriebssystem wird nur die Hauptversion gespeichert; Gerätemodell und Bildschirmauflösung werden nicht erfasst.
-- Matomo setzt keine Cookies.
-- Zusammengehörige Ereignisse werden über die zufällige Session-ID zugeordnet.
-- Das Besucher-Log und Besucherprofile sind deaktiviert; einzelne Sitzungen sind in der Matomo-Oberfläche nicht einsehbar. Zahlen in Berichten zu Teilmengen werden auf Zehnerwerte gerundet.
+- die zufällige Session-ID, über die zusammengehörige Ereignisse zugeordnet werden,
+- die vollständig maskierte IP-Adresse,
+- die Spracheinstellung des Browsers,
+- Zeitpunkt des ersten und des letzten Ereignisses, Anzahl der Ereignisse und die daraus berechnete Sitzungsdauer,
+- eine von Matomo aus technischen Merkmalen der Anfrage gebildete Prüfsumme zur internen Zuordnung von Anfragen zu einem Besuch.
+
+Je Ereignis speichert Matomo:
+
+- die Ereigniskategorie „Sanierungstool“ und die Ereignisart, zum Beispiel „Abschnitt abgeschlossen“ oder „PDF-Bericht heruntergeladen“,
+- soweit vorgesehen den zugehörigen Kategorieschlüssel für Abschnitt, Gebäudetyp, Sanierungsmaßnahme, Dokumenttyp oder Kontaktweg,
+- die Startadresse der gewählten Sprachversion als Seitenadresse,
+- den Zeitpunkt des Eingangs bei Matomo.
+
+Die Browserkennung (User-Agent) wird beim Eingang einer Anfrage nur zur Erkennung automatisierter Zugriffe und zur Bildung der genannten Prüfsumme ausgewertet. Gerätetyp, Gerätehersteller und -modell, Betriebssystem, Browser, Bildschirmauflösung und Browser-Plugins werden nicht gespeichert. Referrer werden nicht gespeichert, eine Geolokalisierung findet nicht statt und Matomo setzt keine Cookies.
+
+Berechtigte Nutzer der Matomo-Oberfläche sehen neben aggregierten Berichten auch den Ablauf einzelner Sitzungen. Diese sind nur über die zufällige Session-ID gekennzeichnet.
+
+Ihre IP-Adresse wird beim Aufruf von Matomo vom Gateway APISIX weitergeleitet (Abschnitt 4). Matomo maskiert sie vor jeder Speicherung vollständig (bei IPv4 0.0.0.0) und verwendet auch für die weitere Auswertung nur die maskierte Adresse. Das Zugriffsprotokoll der Matomo-Instanz enthält Ihre IP-Adresse nicht, sondern nur die interne Adresse des vorgelagerten Gateways, sowie keine URL-Parameter, keinen Referrer und keine Browserkennung.
 
 Technisch erforderliche IP-Verarbeitungen auf Ebene von Webserver und APISIX richten sich nach Abschnitt 4.
 
 ### Speicherdauer, Zugriff und Rechtsgrundlage
 
-Die einzelnen Ereignisse einschließlich Session-ID werden nach den derzeitigen Einstellungen nach 180 Tagen gelöscht. Daraus erstellte aggregierte Berichte ohne Bezug zu einzelnen Sitzungen werden für [Aufbewahrungsfrist der Berichte ergänzen] gespeichert. Zugriff erhalten [berechtigte Rollen und Berichtsempfänger ergänzen].
+Die einzelnen Ereignisse einschließlich Session-ID werden nach [Löschfrist der Rohdaten festlegen, in Matomo einstellen und ergänzen] gelöscht. Daraus erstellte aggregierte Berichte ohne Bezug zu einzelnen Sitzungen werden für [Aufbewahrungsfrist der Berichte ergänzen] gespeichert.
+
+Die Matomo-Datenbank wird jede Nacht innerhalb der CIVITAS/CORE-Umgebung der Stadt Regensburg gesichert. Sicherungskopien werden in der Regel nach 14 Tagen gelöscht. Bereits in Matomo gelöschte Daten können bis dahin noch in Sicherungskopien enthalten sein.
+
+Zugriff auf Matomo erhalten nur Personen, die sich über die zentrale Benutzerverwaltung der CIVITAS/CORE-Umgebung anmelden und denen ausdrücklich Lese- oder Verwaltungsrechte für Matomo zugewiesen sind. Für Notfälle besteht zusätzlich ein gesondert gesichertes Administratorkonto. Berechtigt sind [berechtigte Stellen und Berichtsempfänger ergänzen].
 
 Rechtsgrundlagen sind Art. 6 Abs. 1 Buchst. a DSGVO sowie für die Speicherung der Session-ID im Browser § 25 Abs. 1 TDDDG. Ein Widerruf wirkt für die Zukunft und berührt nicht die Rechtmäßigkeit der bis dahin erfolgten Verarbeitung.
 
@@ -341,7 +355,7 @@ Eine Offenlegung kann außerdem erfolgen, wenn die Stadt Regensburg hierzu geset
 
 ## 16. Datenübermittlungen in Drittländer
 
-Die DEZ-Kernkomponenten, die Produktivdatenbank, der S3-kompatible Datendienst, Sicherungskopien und die zentralen Protokolle werden in der CIVITAS/CORE-Umgebung der Stadt Regensburg verarbeitet. [Produktive Hostingregionen und Backupstandorte bestätigen.]
+Die DEZ-Kernkomponenten, die Produktivdatenbank, der S3-kompatible Datendienst, die Matomo-Instanz, Sicherungskopien und die zentralen Protokolle werden in der CIVITAS/CORE-Umgebung der Stadt Regensburg verarbeitet. [Produktive Hostingregionen und Backupstandorte bestätigen.]
 
 Eine Übermittlung personenbezogener Daten in Staaten außerhalb der Europäischen Union oder des Europäischen Wirtschaftsraums findet für die DEZ-Kernfunktionen nicht statt. Für den externen Tile-Endpunkt auf `intergeo38.bayernwolke.de` und andere Zusatzdienste ist ein möglicher Drittlandbezug noch zu bestätigen; gegebenenfalls werden [Empfänger, Staat, Rechtsgrundlage nach Art. 44 ff. DSGVO und geeignete Garantien ergänzen].
 
@@ -379,7 +393,7 @@ Internet: https://www.datenschutz-bayern.de/
 
 ## 20. Sicherheit
 
-Externe Zugriffe werden verschlüsselt über HTTPS bereitgestellt. Der öffentliche Bereich und der Verwaltungsbereich sind technisch getrennt. Administrative Zugriffe werden über Keycloak und APISIX geschützt; im öffentlichen Bereich ist keine Anmeldung erforderlich. Die Datenbank ist nicht direkt aus dem Internet erreichbar.
+Externe Zugriffe werden verschlüsselt über HTTPS bereitgestellt. Der öffentliche Bereich und der Verwaltungsbereich sind technisch getrennt. Administrative Zugriffe werden über die zentrale Benutzerverwaltung der CIVITAS/CORE-Umgebung und das Gateway APISIX geschützt; im öffentlichen Bereich ist keine Anmeldung erforderlich. Die Datenbank ist nicht direkt aus dem Internet erreichbar.
 
 Trotz technischer und organisatorischer Schutzmaßnahmen kann eine Datenübertragung über das Internet nie vollständig risikofrei sein.
 
@@ -387,4 +401,4 @@ Trotz technischer und organisatorischer Schutzmaßnahmen kann eine Datenübertra
 
 Diese Datenschutzhinweise werden angepasst, wenn sich Funktionen, Datenflüsse, Empfänger oder Rechtsgrundlagen ändern.
 
-Stand: 14. Oktober 2026
+Stand: 28. Oktober 2026

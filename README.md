@@ -20,7 +20,7 @@ Their source history and this workspace's import provenance are recorded in
 ## Develop locally
 
 Use VS Code **Reopen in Container** from this directory. The devcontainer uses
-Node 24.22.1 and pnpm 11.22.0 as the `node` user. It runs a local PostgreSQL
+Node 24.22.2 and pnpm 11.22.0 as the `node` user. It runs a local PostgreSQL
 database, Redis and APISIX. Before starting it, copy `.env.example` to
 `.env` in the repository root and replace the map resource URLs. The `.env` file
 is ignored by Git. Alternatively, start its services on the host:

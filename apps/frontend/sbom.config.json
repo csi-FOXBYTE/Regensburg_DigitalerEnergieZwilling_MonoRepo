@@ -11,9 +11,9 @@
   "additionalComponents": [
     {
       "name": "node",
-      "version": "24.22.1-bookworm-slim",
+      "version": "24.22.2-bookworm-slim",
       "type": "container",
-      "bom-ref": "node:24.22.1-bookworm-slim",
+      "bom-ref": "node:24.22.2-bookworm-slim",
       "scope": "required",
       "ecosystem": "build toolchain",
       "relationship": "referenced build/runtime software",
@@ -47,9 +47,9 @@
     },
     {
       "name": "nginx",
-      "version": "1.30.4-alpine",
+      "version": "1.30.6-alpine",
       "type": "container",
-      "bom-ref": "nginx:1.30.4-alpine",
+      "bom-ref": "nginx:1.30.6-alpine",
       "scope": "required",
       "ecosystem": "build toolchain",
       "relationship": "referenced build/runtime software",

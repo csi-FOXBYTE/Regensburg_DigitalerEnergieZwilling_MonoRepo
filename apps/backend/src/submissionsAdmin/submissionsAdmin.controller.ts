@@ -53,7 +53,7 @@ const catchSubmissionErrors = (err: unknown) => {
     });
   if (err instanceof InvalidStatusTransitionError)
     throw new AppError({
-      status: "BAD_REQUEST",
+      status: "CONFLICT",
       code: 409,
       message: err.message,
     });
@@ -65,7 +65,7 @@ const catchSubmissionErrors = (err: unknown) => {
     });
   if (err instanceof BuildingSubmissionsNotDeclinedError)
     throw new AppError({
-      status: "BAD_REQUEST",
+      status: "CONFLICT",
       code: 409,
       message: err.message,
     });

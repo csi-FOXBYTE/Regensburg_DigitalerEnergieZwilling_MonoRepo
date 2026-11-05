@@ -3,6 +3,7 @@ import { DEFAULT_CONFIG, validateAndMigrate, validateConfig } from "@csi-foxbyte
 import type { Subsidy } from "@csi-foxbyte/regensburg_digitalerenergiezwilling_energycalculationcore";
 import { getDatabaseService } from "../@internals/index.js";
 import { AppError } from "../errors/app-error.js";
+import { findSubsidyLinkIssues } from "./subsidy-links.js";
 
 // Reserved version name for the default config
 export const DEFAULT_VERSION = "DEFAULT";
@@ -188,11 +189,15 @@ const configService = createService("config", async ({ services }) => {
     }
     const existing = await db.config.findUnique({ where: { versionName } });
     if (existing != null) {
-      throw new AppError({ status: "BAD_REQUEST", code: 409, message: `Version "${versionName}" already exists` });
+      throw new AppError({ status: "CONFLICT", code: 409, message: `Version "${versionName}" already exists` });
     }
     const result = validateConfig(JSON.parse(calculationConfig));
     if (!result.success) {
       throw new AppError({ status: "BAD_REQUEST", code: 400, message: `Invalid calculationConfig: ${result.issues.map(i => `${i.path}: ${i.message}`).join(", ")}` });
+    }
+    const subsidyIssues = findSubsidyLinkIssues(subsidies);
+    if (subsidyIssues.length > 0) {
+      throw new AppError({ status: "BAD_REQUEST", code: 400, message: `Invalid subsidies: ${subsidyIssues.join(", ")}` });
     }
     return db.config.create({
       data: { versionName, calculationConfig, subsidies },
@@ -250,7 +255,7 @@ const configService = createService("config", async ({ services }) => {
       throw new AppError({ status: "NOT_FOUND", code: 404, message: `Version "${versionName}" not found` });
     }
     if (config.isActive) {
-      throw new AppError({ status: "BAD_REQUEST", code: 409, message: `Cannot delete active config "${versionName}"` });
+      throw new AppError({ status: "CONFLICT", code: 409, message: `Cannot delete active config "${versionName}"` });
     }
     return db.config.delete({ where: { versionName } });
   }

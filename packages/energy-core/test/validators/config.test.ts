@@ -68,6 +68,20 @@ describe("validateConfig — shape failures", () => {
       assert.ok(typeof result.issues[0]!.message === "string");
     }
   });
+
+  test("reports a missing value as Required and a wrong type as a type error", () => {
+    const cfg = fresh() as { heat: Record<string, unknown> };
+    delete cfg.heat.defaultPrimaryEnergyCarrierPriority;
+    cfg.heat.thermalBridgeSurcharge = "high";
+    const result = validateConfig(cfg);
+    assert.strictEqual(result.success, false);
+    if (!result.success) {
+      const message = (path: string) => result.issues.find((i) => i.path === path)?.message;
+      assert.strictEqual(message("heat.defaultPrimaryEnergyCarrierPriority"), "Required");
+      assert.ok(message("heat.thermalBridgeSurcharge"));
+      assert.notStrictEqual(message("heat.thermalBridgeSurcharge"), "Required");
+    }
+  });
 });
 
 // ── General defaults ─────────────────────────────────────────────────────────

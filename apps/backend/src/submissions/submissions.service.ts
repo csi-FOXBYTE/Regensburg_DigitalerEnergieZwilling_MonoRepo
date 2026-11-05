@@ -23,6 +23,9 @@ import {
   UserNotFoundError,
 } from "./submissions.errors.js";
 import type { DeletionReceiptInput } from "./submissions.dto.js";
+import { deletionTokenExpiry, deletionTokenTtlDays } from "./deletion-token-expiry.js";
+
+export { deletionTokenTtlDays };
 
 type Roles = string[];
 type DB = Awaited<ReturnType<typeof getDatabaseService>>;
@@ -42,6 +45,29 @@ type DeletionReceipt = DeletionReceiptInput;
 
 const deletionActorRole = (roles: Roles) =>
   roles.includes("admin") ? "admin" : "manager";
+
+// Public deletion tokens are bearer capabilities: only their SHA-256 hash is
+// stored, so a database read alone cannot download or delete a submission.
+export const hashDeletionToken = (deletionToken: string) =>
+  createHash("sha256").update(deletionToken, "utf8").digest("hex");
+
+// The plaintext token is handed to the client once and never persisted.
+// The expiry only limits downloading the data. Deleting stays possible while
+// the submission is stored: the link is the citizen's way to withdraw consent,
+// so it must not die before the data does.
+export const issueDeletionToken = (ttlDays: number | null, now = new Date()) => {
+  const deletionTokenExpiresAt = deletionTokenExpiry(ttlDays, now);
+
+  const deletionToken = randomBytes(32).toString("base64url");
+  return {
+    deletionToken,
+    deletionTokenHash: hashDeletionToken(deletionToken),
+    deletionTokenExpiresAt,
+  };
+};
+
+const isExpired = (expiresAt: Date | null) =>
+  expiresAt !== null && expiresAt.getTime() <= Date.now();
 
 const deletionReceiptCommitment = (receipt: DeletionReceipt) =>
   createHash("sha256")
@@ -164,6 +190,7 @@ const submit = async (
   db: DB,
   configService: ConfigService,
   ngsiLdContext: string,
+  deletionTokenTtl: number | null,
   params: {
     input: unknown;
     configName?: string;
@@ -189,8 +216,11 @@ const submit = async (
   const result = calculate(detConfig, validation.data);
   const ngsiEntity = makeNgsiLdEntity(result, CURRENCY, params.buildingId, ngsiLdContext);
 
-  return db.submission.create({
+  const { deletionToken, deletionTokenHash, deletionTokenExpiresAt } = issueDeletionToken(deletionTokenTtl);
+  const submission = await db.submission.create({
     data: {
+      deletionTokenHash,
+      deletionTokenExpiresAt,
       status: "NEW",
       building: {
         connectOrCreate: {
@@ -209,6 +239,7 @@ const submit = async (
         config.id === DEFAULT_VERSION ? undefined : { connect: { id: config.id } },
     },
   });
+  return { ...submission, deletionToken };
 };
 
 const assign = async (
@@ -520,17 +551,20 @@ export const decline = async (
   });
 };
 
+// Checks whether the submission can still be deleted. Deletion ignores the
+// token expiry, see issueDeletionToken.
 export const assertAvailableByToken = async (db: DB, deletionToken: string) => {
   const submission = await db.submission.findUnique({
-    where: { deletionToken },
+    where: { deletionTokenHash: hashDeletionToken(deletionToken) },
     select: { id: true },
   });
   if (!submission) throw new SubmissionNotFoundError();
 };
 
+// Unknown and expired tokens are indistinguishable for the caller (404).
 export const getPublicDownloadByToken = async (db: DB, deletionToken: string) => {
   const submission = await db.submission.findUnique({
-    where: { deletionToken },
+    where: { deletionTokenHash: hashDeletionToken(deletionToken) },
     select: {
       id: true,
       buildingId: true,
@@ -541,22 +575,26 @@ export const getPublicDownloadByToken = async (db: DB, deletionToken: string) =>
       rawInput: true,
       ngsiData: true,
       usedConfig: { select: { versionName: true } },
+      deletionTokenExpiresAt: true,
     },
   });
-  if (!submission) throw new SubmissionNotFoundError();
-  return submission;
+  if (!submission || isExpired(submission.deletionTokenExpiresAt))
+    throw new SubmissionNotFoundError();
+  const { deletionTokenExpiresAt: _expiresAt, ...download } = submission;
+  return download;
 };
 
 export const deleteByToken = async (db: DB, deletionToken: string) => {
   return db.$transaction(async (tx) => {
+    const deletionTokenHash = hashDeletionToken(deletionToken);
     const submission = await tx.submission.findUnique({
-      where: { deletionToken },
+      where: { deletionTokenHash },
       select: { id: true },
     });
     if (!submission) throw new SubmissionNotFoundError();
 
     const deleted = await tx.submission.deleteMany({
-      where: { deletionToken },
+      where: { id: submission.id, deletionTokenHash },
     });
     if (deleted.count !== 1) throw new SubmissionNotFoundError();
 
@@ -636,9 +674,11 @@ const submissionsService = createService("submissions", async ({ services }) => 
   const db = await getDatabaseService(services);
   const configService = await getConfigService(services);
   const ngsiLdContext = `${process.env.APP_BASE_URL}/public/det-building-energy-data-context.jsonld`;
+  const deletionTokenTtl = deletionTokenTtlDays();
 
   return {
-    submit: (params: Parameters<typeof submit>[3]) => submit(db, configService, ngsiLdContext, params),
+    submit: (params: Parameters<typeof submit>[4]) =>
+      submit(db, configService, ngsiLdContext, deletionTokenTtl, params),
     assertAvailableByToken: (deletionToken: string) =>
       assertAvailableByToken(db, deletionToken),
     getPublicDownloadByToken: (deletionToken: string) =>

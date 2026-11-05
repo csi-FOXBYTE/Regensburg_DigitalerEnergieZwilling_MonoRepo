@@ -20,6 +20,19 @@
     "retryButton": "Try again",
     "openApplication": "Open application"
   },
+  "submissionDownload": {
+    "loadingTitle": "Loading submitted data",
+    "loadingDescription": "Please wait while we retrieve your submitted data.",
+    "readyTitle": "Download submitted data",
+    "readyDescription": "Your data stored on the $t(municipality:dataSubmission.server) is ready as a JSON file.",
+    "downloadButton": "Download JSON file",
+    "unavailableTitle": "Link unavailable",
+    "unavailableDescription": "This link is no longer valid or the submitted data is no longer available.",
+    "serviceErrorTitle": "Service temporarily unavailable",
+    "serviceErrorDescription": "The data could not be retrieved. Please try again.",
+    "retryButton": "Try again",
+    "openApplication": "Open application"
+  },
   "sessionResumeDialog": {
     "title": "Open Session",
     "description": "You have an open session. Would you like to continue?",

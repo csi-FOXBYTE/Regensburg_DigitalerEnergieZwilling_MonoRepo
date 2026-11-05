@@ -15,8 +15,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { useCapabilityLink } from '@/hooks/useCapabilityLink';
+import { downloadJson } from '@/lib/downloadJson';
 import { LoaderCircle } from 'lucide-react';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 type State =
@@ -30,23 +32,18 @@ type State =
 
 type FailedOperation = 'status' | 'delete';
 
-function getRouteContext(): { locale: 'de' | 'en'; token: string | null } {
-  const path = window.location.pathname;
-  const match = /^\/(de|en)\/delete\/([^/]+)$/.exec(path);
-  const locale = /^\/de(?:\/|$)/.test(path) ? 'de' : 'en';
-  if (!match) return { locale, token: null };
-
-  try {
-    const token = decodeURIComponent(match[2]);
-    return { locale, token: token.length > 0 ? token : null };
-  } catch {
-    return { locale, token: null };
-  }
-}
+type PageProps = { locale: 'de' | 'en'; token: string | null };
 
 export default function DeleteConfirmationDialog() {
+  const { locale, token } = useCapabilityLink('delete');
+  // Another link pasted into the same tab starts over with fresh state.
+  return (
+    <DeleteConfirmationPage key={token ?? ''} locale={locale} token={token} />
+  );
+}
+
+function DeleteConfirmationPage({ locale, token }: PageProps) {
   const { t } = useTranslation('map');
-  const { locale, token } = useMemo(getRouteContext, []);
   const [state, setState] = useState<State>(token ? 'checking' : 'unavailable');
   const [failedOperation, setFailedOperation] =
     useState<FailedOperation>('status');
@@ -115,15 +112,10 @@ export default function DeleteConfirmationDialog() {
 
   function downloadDeletionReceipt() {
     if (!deletionReceipt) return;
-    const blob = new Blob([JSON.stringify(deletionReceipt, null, 2)], {
-      type: 'application/json',
-    });
-    const url = URL.createObjectURL(blob);
-    const anchor = document.createElement('a');
-    anchor.href = url;
-    anchor.download = `deletion-receipt-${deletionReceipt.auditEventId}.json`;
-    anchor.click();
-    URL.revokeObjectURL(url);
+    downloadJson(
+      deletionReceipt,
+      `deletion-receipt-${deletionReceipt.auditEventId}.json`,
+    );
   }
 
   if (state === 'checking') {

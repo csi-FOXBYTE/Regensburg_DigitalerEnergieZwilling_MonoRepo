@@ -125,7 +125,7 @@ Aufgaben:
 
 ### Auth Middleware
 
-Die Auth Middleware validiert produktiv das RS256-signierte Access Token unabhängig von der vorgelagerten APISIX-Prüfung gegen die über `KEYCLOAK_JWKS_URI` konfigurierte JWKS-Quelle und wertet die Rollen aus dem konfigurierten Resource-Access-Client aus. Im Code werden die Rollen `manager`, `maintainer` und `admin` verwendet.
+Die Auth Middleware validiert produktiv das RS256-signierte Access Token unabhängig von der vorgelagerten APISIX-Prüfung gegen die über `KEYCLOAK_JWKS_URI` (nur HTTPS) konfigurierte JWKS-Quelle, prüft Issuer (`KEYCLOAK_ISSUER`), Audience (`AUTH_EXPECTED_AUDIENCE`), Token-Typ `Bearer` sowie die Pflicht-Claims `exp`, `iat` und `sub` und wertet die Rollen aus dem konfigurierten Resource-Access-Client aus. Im Code werden die Rollen `manager`, `maintainer` und `admin` verwendet.
 
 Aufgaben:
 - Annahme des Tokens aus `X-Access-Token` oder `Authorization: Bearer`
@@ -206,7 +206,7 @@ Auf Komponentenebene werden Sicherheitsanforderungen als konkrete Kontrollpunkte
 
 - **APISIX + Auth Middleware**: APISIX schützt die administrativen Routen und prüft OIDC vorgelagert. Das Backend betrachtet dies nicht als alleinige Freigabe, sondern validiert Access Tokens unabhängig per RS256/JWKS und wertet Claims/Rollen für die eigene fachliche Autorisierung aus.
 - **OpenAPI Controllers**: Trennen öffentliche und administrative Endpunkte, validieren Anfragen und leiten nur validierte Daten an Fachservices weiter.
-- **User Data Service**: Verarbeitet öffentliche Schreibzugriffe erst nach der globalen Altcha-/Rate-Limit-Policy, die durch die externe Deployment-Plattform in APISIX betrieben wird, und führt anschließend fachliche Validierung und Verifikation aus.
+- **User Data Service**: Verarbeitet öffentliche Schreibzugriffe erst, nachdem das Backend die Altcha-Lösung geprüft hat (Rate Limiting erfolgt vorgelagert in APISIX), und führt anschließend fachliche Validierung und Verifikation aus.
 - **Configuration Service + Snapshot Exporter**: Erzwingen versionierte, unveränderliche Veröffentlichungen statt in-place-Änderungen.
 - **Triage/Reporting-Pfad**: Statuswechsel werden nachvollziehbar geführt und für Audit-Zwecke protokolliert.
 - **Observability**: Erfasst sicherheitsrelevante Ereignisse (Auth, Zugriffsentscheidungen, Fehlerpfade) als Grundlage für Incident-Analyse.

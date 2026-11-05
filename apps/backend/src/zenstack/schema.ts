@@ -204,12 +204,16 @@ export class SchemaType implements SchemaDef {
                     updatedAt: true,
                     attributes: [{ name: "@updatedAt" }]
                 },
-                deletionToken: {
-                    name: "deletionToken",
+                deletionTokenHash: {
+                    name: "deletionTokenHash",
                     type: "String",
                     unique: true,
-                    attributes: [{ name: "@unique" }, { name: "@default", args: [{ name: "value", value: ExpressionUtils.call("nanoid") }] }],
-                    default: ExpressionUtils.call("nanoid")
+                    attributes: [{ name: "@unique" }]
+                },
+                deletionTokenExpiresAt: {
+                    name: "deletionTokenExpiresAt",
+                    type: "DateTime",
+                    optional: true
                 },
                 status: {
                     name: "status",
@@ -298,7 +302,7 @@ export class SchemaType implements SchemaDef {
             idFields: ["id"],
             uniqueFields: {
                 id: { type: "String" },
-                deletionToken: { type: "String" }
+                deletionTokenHash: { type: "String" }
             }
         },
         SubmissionChangeHistoryEntry: {

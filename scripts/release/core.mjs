@@ -45,14 +45,17 @@ export function nextVersion(previous, bump, initial = '0.1.0', transition = null
   return parts.join('.');
 }
 
+// Never build inputs at any depth. .dockerignore excludes the same directories
+// (core.test.mjs compares both), so CI builds see what releases fingerprint.
+export const ignoredDirectories = ['node_modules', '.git', '.local', '.devcontainer', '.pnpm-store',
+  '.tanstack', 'dist', '.build', '.dev', '.astro', 'coverage', '.cache', '.claude', '.tmp'];
+
 // This is also the Docker context allowlist. Adding a build input means adding
 // it here, so fingerprinting and the files available to COPY cannot diverge.
 export function isBuildInput(file, component) {
   assert(components.includes(component));
-  if (file.split('/').some(part => ['node_modules', '.git', '.local', '.devcontainer',
-    '.pnpm-store', '.tanstack', 'dist', '.build', '.dev', '.astro', 'coverage', '.cache'].includes(part)
-    || part.startsWith('.env'))) return false;
-  if (/(^|\/)SBOM\.(cdx\.json|csv)$/.test(file) || file.endsWith('.tsbuildinfo')) return false;
+  if (file.split('/').some(part => ignoredDirectories.includes(part) || part.startsWith('.env'))) return false;
+  if (/(^|\/)SBOM[^/]*$/.test(file) || file.endsWith('.tsbuildinfo')) return false;
   if (file.startsWith('apps/frontend/public/cesium/')) return false;
   if (file.startsWith(`apps/${component}/`) || file.startsWith('packages/energy-core/')) return true;
   if (/^apps\/[^/]+\/package\.json$/.test(file)) return true;

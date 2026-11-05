@@ -175,9 +175,10 @@ dokumentiert.
 - **Public Write**: Der öffentliche Bereich darf Berechnungsergebnisse schreiben (inkl. Eingaben und Config-Version).
 - **Server-Recompute**: Beim Speichern werden die Ergebnisse serverseitig mit dem gleichen Berechnungskern
   neu berechnet.
-- **Input-Validation**: Eingangsgrößen werden gegen konfigurierte Grenzen geprüft
-  (z.B. Wertebereiche wie 100–2000).
-- **Public Capability API**: Nach dem Speichern erhält der Client ausschließlich einen zufälligen Lösch-Token. Derselbe Token schützt die nicht verändernde Verfügbarkeitsprüfung, den vom Backend erzeugten JSON-Download und die physische Löschung per HTTP `DELETE`. Fehlende, ungültige und bereits verwendete Tokens sind als `404` nicht unterscheidbar; die frühere mutierende `GET`-Route entfällt. Nach erfolgreicher Löschung erhält der Client einen Löschbeleg, den er lokal herunterladen und später über `POST /api/public/submissions/deletion-receipts/verify` prüfen lassen kann.
+- **Input-Validation**: Das Request-Schema begrenzt Eingangsgrößen vor der Berechnung auf feste Wertebereiche,
+  Längen und Jahresgrenzen; unbekannte Felder werden mit `400` abgewiesen. Danach prüft die Core-Validierung
+  Typen und Katalogwerte.
+- **Public Capability API**: Nach dem Speichern erhält der Client einmalig einen zufälligen Lösch-Token (32 Byte, base64url); gespeichert wird nur dessen SHA-256-Hash (`deletionTokenHash`) und optional ein Ablaufzeitpunkt (`deletionTokenExpiresAt`, gesetzt über `SUBMISSION_DELETION_TOKEN_TTL_DAYS`; Einreichungen ohne Ablaufzeitpunkt erhalten ihn bei gesetzter Frist beim Backend-Start, gerechnet ab diesem Zeitpunkt). Derselbe Token schützt die nicht verändernde Verfügbarkeitsprüfung (`POST /api/public/submissions/status`), den vom Backend erzeugten JSON-Download (`POST …/download`) und die physische Löschung (`POST …/delete`). Der Token steht nur im Request-Body, nie in der URL; eine `GET`-Route mit Token im Pfad gibt es nicht. Die Ablauffrist gilt nur für den Download; Statusprüfung und Löschung bleiben möglich, solange die Einreichung gespeichert ist. Fehlende, ungültige, bereits verwendete und (beim Download) abgelaufene Tokens sind als `404` nicht unterscheidbar; die frühere mutierende `GET`-Route entfällt. Nach erfolgreicher Löschung erhält der Client einen Löschbeleg, den er lokal herunterladen und später über `POST /api/public/submissions/deletion-receipts/verify` prüfen lassen kann.
 - **Triage**: Stadtverwaltung / Fachpersonal prüft Datensätze auf Plausibilität, gibt sie intern frei oder lehnt sie ab. Eine tatsächliche Löschung erfolgt separat über die dafür vorgesehenen Delete-Endpunkte. Der Endpunkt für eine einzelne Einreichung löscht nur diese Einreichung; der Endpunkt für eine Gebäudegruppe prüft atomar, dass alle zugehörigen Einreichungen abgelehnt sind.
 - **Indexierung**: Aus verifizierten und triagierten Ergebnissen werden abgeleitete Basisdaten pro Gebäude erzeugt
   (z.B. für Vergleiche, Quartiersanalysen und Reports).
@@ -195,7 +196,7 @@ dokumentiert.
 
 Quelle: `raw/data-model.puml`
 
-### Public Write Flow (APISIX-Altcha + Verifikation)
+### Public Write Flow (Altcha + Verifikation)
 
 ![public-write-flow.png](./attachments/public-write-flow.png)
 
@@ -210,10 +211,10 @@ Quelle: `raw/public-write-flow.puml`
 - **Ressourcen**: Gebäude, Eingaben, Berechnungen, Konfigurationen, Kataloge, Triage, Reports
 - **Auth/Session**: OIDC für Admin; öffentlicher Bereich ohne Auth mit Local Storage für Zustandswiederherstellung und optionalem Schreibzugriff für Berechnungsergebnisse
 - **Validation**: Public Write prüft Eingaben (Range/Schema)
-- **Abuse-Schutz**: Öffentliche Schreibzugriffe sind durch die globale, von der externen Deployment-Plattform betriebene APISIX-Policy für Altcha-Challenges und Rate Limiting geschützt
+- **Abuse-Schutz**: Öffentliche Schreibzugriffe sind durch eine vom Backend geprüfte Altcha-Challenge und durch Rate Limiting am APISIX-Gateway geschützt
 - **State-Restore**: Local Storage und portable, ausschließlich im Browser ausgewertete URL-Fragmente stellen Bearbeitungsstände wieder her; das Backend persistiert keine Frontend-Sitzung und bietet keinen Wiederherstellungsendpunkt
-- **Altcha kurz erklärt**: Altcha ist eine selbsthostbare, datenschutzfreundliche Challenge; der Client löst eine kleine Rechenaufgabe und sendet ein Token, das von der globalen APISIX-Policy der externen Deployment-Plattform geprüft wird.
-- **Enforcement**: Bereitstellung, Betrieb und Nachweis der Altcha- und Rate-Limit-Policy sind externe Plattformverantwortung und nicht Bestandteil der DEZ-Repositories. Das Backend übernimmt danach Schema-/Fachvalidierung und Recompute-Verifikation.
+- **Altcha kurz erklärt**: Altcha ist eine selbsthostbare, datenschutzfreundliche Proof-of-Work-Challenge. Der Client holt vor jedem Schreibzugriff eine HMAC-signierte Challenge (`GET /api/public/altcha/challenge`, fünf Minuten gültig), löst sie mit dem selbst gehosteten Altcha-Widget und sendet die Lösung im Header `X-Altcha`.
+- **Enforcement**: Das Backend prüft die Lösung bei `POST /api/public/submissions` und `POST /api/public/feedback` im `onRequest`-Hook, also bevor der Body gelesen und validiert wird. Fehlende, ungültige, abgelaufene und bereits verwendete Lösungen werden mit `403 FORBIDDEN` abgewiesen. Verwendete Challenges merkt sich der Backend-Prozess bis zu ihrem Ablauf im Speicher; bei mehreren Replikas wäre eine Lösung einmal je Replika verwendbar. Danach folgen Schema-/Fachvalidierung und Recompute-Verifikation. Rate Limiting erfolgt am APISIX-Gateway.
 - **Publish-Flow**: Admin veröffentlicht Konfiguration → JSON-Snapshot wird erzeugt → Public Client liest JSON
 - **Versionierung**: Konfigurations- und API-Versionen klar trennen
 - **Fehlerformate**: Standardisierte Fehlercodes und Validierungsdetails
@@ -233,7 +234,7 @@ Quelle: `raw/public-write-flow.puml`
 Security by Design wird in Datenmodell und API-Vertrag explizit verankert:
 
 - **Minimale Datenerhebung**: Pflicht zur Berechnung ohne obligatorische personenbezogene Übermittlung; Persistenz bleibt optional und explizit.
-- **Vertragsbasierte Eingabehärtung**: Public-Write-Requests werden über Schema und Wertebereiche geprüft; ungültige Payloads werden verworfen.
+- **Vertragsbasierte Eingabehärtung**: Public-Write-Requests werden über Schema und Wertebereiche geprüft; ungültige Payloads und unbekannte Felder werden mit `400` verworfen.
 - **Verifikation vor Weiterverwendung**: Serverseitige Neu-Berechnung und Triage sind Voraussetzungen für interne Indexierung.
 - **Lebenszyklus-Kontrolle**: Statuswechsel folgen einem definierten Triage-Lifecycle, werden auditierbar protokolliert und lassen pro Gebäude höchstens eine aktive Freigabe zu.
 - **Löschsicherheit**: Die gebündelte administrative Löschung wird vollständig zurückgewiesen, sobald mindestens eine Einreichung der Gebäude-ID nicht den Status `abgelehnt` besitzt; eine Teillöschung findet nicht statt.
@@ -250,7 +251,7 @@ Diese Vertragsregeln entsprechen insbesondere TA-48 bis TA-50, TA-80 bis TA-83, 
 ### Abgleich mit technischen Anforderungen
 
 - Die Trennung von öffentlichen und administrativen APIs entspricht TA-02, TA-03 und TA-35.
-- Public Write mit der extern betriebenen globalen APISIX-Policy für Altcha und Rate Limiting entspricht TA-47 bis TA-51.
+- Public Write mit Altcha-Prüfung im Backend und Rate Limiting am APISIX-Gateway entspricht TA-47 bis TA-51.
 - Konfigurations-Publishing mit Snapshot entspricht TA-27 bis TA-46.
 - Offline-Pipeline, 3D Tiles Prinzipien und NGSI-LD-Export nach Stellio entsprechen TA-10 bis TA-18 sowie TA-72.
 

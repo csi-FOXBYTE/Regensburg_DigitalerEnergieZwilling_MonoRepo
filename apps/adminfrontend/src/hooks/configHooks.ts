@@ -6,6 +6,7 @@ import {
   patchApiAdminConfigVersionNameActivate,
   postApiAdminConfig,
 } from "@/api/api.gen";
+import { serializeSubsidies } from "@/lib/subsidies";
 import type { DETConfig } from "@csi-foxbyte/regensburg_digitalerenergiezwilling_energycalculationcore";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import type { SubsidyWrapper } from "./store";
@@ -26,7 +27,7 @@ export function useSaveConfig() {
       postApiAdminConfig({
         versionName,
         calculationConfig: JSON.stringify(config),
-        subsidies: subsidies.map((subsidy) => JSON.stringify(subsidy)),
+        subsidies: serializeSubsidies(subsidies),
       }),
   });
 }

@@ -61,6 +61,7 @@ Dieses Kapitel beschreibt Aufbau, Verantwortlichkeiten und Schnittstellen des Fr
 - Öffentliche und administrative Backend-APIs.
 - Generierter, typsicherer API-Client aus OpenAPI 3.0 oder höher; Werkzeug und verbindliche Konventionen sind noch zu klären.
 - Basemap-Dienste (WMS/WMTS) für Kartenhintergründe.
+- Optional die Matomo-HTTP-Tracking-API über APISIX (Host `matomo.det.<domain>`); Tracker-URL und Site-ID liefert `GET /api/public/analytics-config`, gesendet wird erst nach Opt-in.
 
 ---
 
@@ -85,7 +86,7 @@ Quelle: `raw/frontend-architecture.puml`
 <a id="consent-und-matomo-tracking"></a>
 ## Consent und Matomo-Tracking
 
-> **Umsetzungsstand:** Dieser Abschnitt beschreibt das Zielbild. Matomo ist noch nicht aktiviert und aktuell niedrig priorisiert. Da keine zugängliche Kundeninstanz vorhanden ist, müssen eine eigene Instanz sowie Betrieb und Zuständigkeiten abgestimmt werden; eine Umsetzung in Sprint 18 oder 19 ist offen. Die technische Anbindung ist bereits vorbereitet und bleibt ohne die Backend-Variablen `MATOMO_URL` und `MATOMO_SITE_ID` vollständig inaktiv; Details im [Matomo-Trackingkonzept](../system/06-matomo-trackingkonzept.md#technische-umsetzung).
+> **Umsetzungsstand:** Consent-Management und Tracking-Adapter sind ab Version v1.8.0 umgesetzt; eine eigene Matomo-Instanz stellt optional das Deployment-Add-on bereit. Produktiv ist Matomo noch nicht aktiviert. Ohne die Backend-Variablen `MATOMO_URL` und `MATOMO_SITE_ID` bleibt die Anbindung vollständig inaktiv; Details im [Matomo-Trackingkonzept](../system/06-matomo-trackingkonzept.md#technische-umsetzung).
 
 - Das Public-Frontend verwaltet den Consent-Status für Webanalyse unabhängig von technisch notwendiger lokaler Speicherung und der gesonderten Einwilligung zur Gebäudedatenspende.
 - Matomo-Ressourcen und der zentrale Tracking-Adapter werden erst nach gültigem Opt-in aktiviert.

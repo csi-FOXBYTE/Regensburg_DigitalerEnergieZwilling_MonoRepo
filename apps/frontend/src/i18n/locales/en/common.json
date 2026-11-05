@@ -115,7 +115,7 @@
     "functional": "Progress & settings",
     "functionalDescription": "Saves your selected buildings, inputs, renovation measures and previously seen notices locally on this device. Progress is kept for 90 days after the last save or explicit resumption. Notices are remembered for 90 days.",
     "analytics": "Web analytics",
-    "analyticsDescription": "Uses Matomo to record which sections of the renovation check are started and completed, and whether the report, energy advice contact or data donation are used. Only predefined events plus building type and kind of measure as categories are sent, never addresses, building identifiers or calculated values. No cookies are set; a random session identifier is stored only in this browser tab.",
+    "analyticsDescription": "Uses Matomo to record which sections of the renovation check you start and complete, and whether you use the report, energy advice contact or data donation. Only predefined events plus building type and kind of measure as categories are sent, never your address, building identifier or calculated values. No cookies are set on your device; a random session identifier is stored only in this browser tab.",
     "memoryOnly": "Without optional storage, your progress is kept only while this page is open. Reloading or closing it will lose your inputs.",
     "save": "Save selection",
     "storageError": "Your browser could not save your choice or progress for future visits, or delete stored data. Your choice applies to this open page; you can continue calculating.",

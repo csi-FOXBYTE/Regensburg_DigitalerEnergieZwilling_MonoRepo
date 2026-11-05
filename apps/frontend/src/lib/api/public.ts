@@ -1,3 +1,5 @@
+import { ALTCHA_HEADER, solveAltcha, type SolveAltcha } from './altcha';
+
 export type SubmissionResult = {
   deletionToken: string;
 };
@@ -91,17 +93,24 @@ export async function getAnalyticsConfig(): Promise<AnalyticsConfig | null> {
   return { trackerUrl: url.toString(), siteId: siteId as number };
 }
 
-function submissionUrl(token: string, suffix = ''): string {
-  return `/api/public/submissions/${encodeURIComponent(token)}${suffix}`;
+// The token goes in the request body, never in the URL, so it does not end up
+// in gateway or ingress access logs.
+function postWithToken(
+  action: 'status' | 'download' | 'delete',
+  token: string,
+): Promise<Response> {
+  return fetch(`/api/public/submissions/${action}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ deletionToken: token }),
+    cache: 'no-store',
+  });
 }
 
 export async function checkSubmissionAvailability(
   token: string,
 ): Promise<void> {
-  const res = await fetch(submissionUrl(token, '/status'), {
-    method: 'GET',
-    cache: 'no-store',
-  });
+  const res = await postWithToken('status', token);
   if (res.status === 404) throw new SubmissionUnavailableError();
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
@@ -135,16 +144,32 @@ function parseDeletionReceipt(value: unknown): DeletionReceipt {
 export async function deleteSubmission(
   token: string,
 ): Promise<DeletionReceipt> {
-  const res = await fetch(submissionUrl(token), {
-    method: 'DELETE',
-    cache: 'no-store',
-  });
+  const res = await postWithToken('delete', token);
   if (res.status === 404) throw new SubmissionUnavailableError();
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
   const result = (await res.json()) as { success?: unknown; receipt?: unknown };
   if (result.success !== true) throw new Error('Malformed deletion response');
   return parseDeletionReceipt(result.receipt);
+}
+
+export type SubmissionDownload = { filename: string; data: unknown };
+
+export async function downloadSubmission(
+  token: string,
+): Promise<SubmissionDownload> {
+  const res = await postWithToken('download', token);
+  if (res.status === 404) throw new SubmissionUnavailableError();
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+  const result = (await res.json()) as { id?: unknown };
+  if (typeof result.id !== 'string' || result.id.length === 0) {
+    throw new Error('Malformed download response');
+  }
+  return {
+    filename: `submission-${result.id.replace(/[^A-Za-z0-9_-]/g, '_')}.json`,
+    data: result,
+  };
 }
 
 export async function verifyDeletionReceipt(
@@ -164,19 +189,33 @@ export async function verifyDeletionReceipt(
   return result.valid;
 }
 
-export async function submitEnergyData(params: {
-  input: unknown;
-  configName?: string;
-  buildingId: string;
-  address: string;
-  longitude: number;
-  latitude: number;
-}): Promise<SubmissionResult> {
-  const res = await fetch('/api/public/submissions', {
+async function postPublicWrite(
+  url: string,
+  body: unknown,
+  solve: SolveAltcha,
+): Promise<Response> {
+  return fetch(url, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(params),
+    headers: {
+      'Content-Type': 'application/json',
+      [ALTCHA_HEADER]: await solve(),
+    },
+    body: JSON.stringify(body),
   });
+}
+
+export async function submitEnergyData(
+  params: {
+    input: unknown;
+    configName?: string;
+    buildingId: string;
+    address: string;
+    longitude: number;
+    latitude: number;
+  },
+  solve: SolveAltcha = solveAltcha,
+): Promise<SubmissionResult> {
+  const res = await postPublicWrite('/api/public/submissions', params, solve);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   const result = (await res.json()) as Partial<SubmissionResult>;
   if (
@@ -188,7 +227,10 @@ export async function submitEnergyData(params: {
   return { deletionToken: result.deletionToken };
 }
 
-export async function submitFeedback(input: FeedbackInput): Promise<void> {
+export async function submitFeedback(
+  input: FeedbackInput,
+  solve: SolveAltcha = solveAltcha,
+): Promise<void> {
   const emailAddress = input.emailAddress?.trim();
   const body = {
     category: input.category,
@@ -196,10 +238,6 @@ export async function submitFeedback(input: FeedbackInput): Promise<void> {
     ...(emailAddress ? { emailAddress } : {}),
   };
 
-  const res = await fetch('/api/public/feedback', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  });
+  const res = await postPublicWrite('/api/public/feedback', body, solve);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
 }

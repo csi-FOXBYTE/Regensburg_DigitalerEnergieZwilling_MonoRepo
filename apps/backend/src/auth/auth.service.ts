@@ -1,26 +1,155 @@
 import { createService } from "@csi-foxbyte/fastify-toab";
+import { Value } from "@sinclair/typebox/value";
 import type { FastifyRequest } from "fastify";
-import { createRemoteJWKSet, errors as joseErrors, jwtVerify } from "jose";
-import jwt from "jsonwebtoken";
+import {
+  createRemoteJWKSet,
+  decodeJwt,
+  errors as joseErrors,
+  jwtVerify,
+  type JWTPayload,
+  type JWTVerifyGetKey,
+} from "jose";
 import { AppError } from "../errors/app-error.js";
-import type { AccessToken } from "./auth.dto.js";
+import { logEvent, type PrivacyLogger } from "../lib/pino.js";
+import { AccessTokenDto, type AccessToken } from "./auth.dto.js";
 
 type HeaderValue = string | string[] | undefined;
 
 const DEV_ENVS = new Set(["development", "test"]);
 
-const authService = createService("auth", async () => {
-  const isDevEnv = DEV_ENVS.has(process.env.NODE_ENV ?? "");
-  const jwks = isDevEnv
-    ? null
-    : createRemoteJWKSet(new URL(process.env.KEYCLOAK_JWKS_URI!));
+// Keycloak marks access tokens with typ "Bearer"; ID and refresh tokens differ.
+const ACCESS_TOKEN_TYPE = "Bearer";
+const ACCESS_TOKEN_HEADER_TYPES = new Set(["jwt", "at+jwt", "application/at+jwt"]);
 
-  if (!isDevEnv && jwks === null)
-    throw new AppError({
-      status: "INTERNAL_ERROR",
-      code: 500,
-      message: "JWKS is null in a non-development environment. KEYCLOAK_JWKS_URI may be misconfigured.",
-    });
+export type AuthConfig =
+  | { mode: "verify"; jwksUri: URL; issuer: string; audience: string }
+  // Decodes without a signature check. Only for local development with
+  // gateway-free dev tokens (scripts/create-dev-jwt.mjs).
+  | { mode: "insecure-dev-decode" };
+
+export const resolveAuthConfig = (
+  env: Record<string, string | undefined> = process.env,
+): AuthConfig => {
+  const nodeEnv = env.NODE_ENV ?? "";
+
+  // An empty value (e.g. from a deployment template) means unset: verify.
+  if (env.AUTH_INSECURE_DEV_DECODE) {
+    if (env.AUTH_INSECURE_DEV_DECODE !== "true")
+      throw new Error('AUTH_INSECURE_DEV_DECODE must be "true" or unset');
+    if (!DEV_ENVS.has(nodeEnv))
+      throw new Error(
+        "AUTH_INSECURE_DEV_DECODE is only allowed with NODE_ENV=development or NODE_ENV=test",
+      );
+    return { mode: "insecure-dev-decode" };
+  }
+
+  let jwksUri: URL;
+  try {
+    jwksUri = new URL(env.KEYCLOAK_JWKS_URI ?? "");
+  } catch {
+    throw new Error("KEYCLOAK_JWKS_URI is missing or invalid");
+  }
+  if (jwksUri.protocol !== "https:")
+    throw new Error("KEYCLOAK_JWKS_URI must use HTTPS");
+
+  const issuer = env.KEYCLOAK_ISSUER;
+  if (!issuer) throw new Error("KEYCLOAK_ISSUER is not configured");
+  const audience = env.AUTH_EXPECTED_AUDIENCE;
+  if (!audience) throw new Error("AUTH_EXPECTED_AUDIENCE is not configured");
+
+  return { mode: "verify", jwksUri, issuer, audience };
+};
+
+const invalidToken = (message = "Access token is invalid") =>
+  new AppError({ status: "UNAUTHORIZED", code: 401, message });
+
+// Errors caused by the token itself. Anything else (JWKS timeout, Keycloak
+// unreachable, non-200 or malformed key set, TLS/DNS failure) is an outage
+// and must not look like an invalid token.
+const tokenErrors = [
+  joseErrors.JWTClaimValidationFailed,
+  joseErrors.JWTInvalid,
+  joseErrors.JWSInvalid,
+  joseErrors.JWSSignatureVerificationFailed,
+  joseErrors.JOSEAlgNotAllowed,
+  joseErrors.JOSENotSupported,
+  joseErrors.JWKSNoMatchingKey,
+  joseErrors.JWKSMultipleMatchingKeys,
+];
+
+const toAccessToken = (payload: JWTPayload): AccessToken => {
+  if (!Value.Check(AccessTokenDto, payload))
+    throw invalidToken("Access token payload is invalid");
+  return payload;
+};
+
+export const createAccessTokenVerifier = (
+  config: AuthConfig,
+  getKey: JWTVerifyGetKey | null = config.mode === "verify"
+    ? createRemoteJWKSet(config.jwksUri)
+    : null,
+  write: PrivacyLogger = logEvent,
+) => {
+  if (config.mode === "verify") {
+    if (!getKey) throw new Error("A JWKS is required to verify access tokens");
+
+    return async (accessToken: string): Promise<AccessToken> => {
+      let payload: JWTPayload;
+      try {
+        const result = await jwtVerify(accessToken, getKey, {
+          algorithms: ["RS256"],
+          issuer: config.issuer,
+          audience: config.audience,
+          requiredClaims: ["exp", "iat", "sub"],
+          clockTolerance: 5,
+        });
+        const headerType = result.protectedHeader.typ?.toLowerCase();
+        if (headerType !== undefined && !ACCESS_TOKEN_HEADER_TYPES.has(headerType))
+          throw invalidToken();
+        if (result.payload.typ !== ACCESS_TOKEN_TYPE) throw invalidToken();
+        payload = result.payload;
+      } catch (err) {
+        if (err instanceof AppError) throw err;
+        if (err instanceof joseErrors.JWTExpired)
+          throw invalidToken("Access token has expired");
+        if (
+          err instanceof joseErrors.JWTClaimValidationFailed &&
+          err.claim === "nbf"
+        )
+          throw invalidToken("Access token is not active yet");
+        if (tokenErrors.some((type) => err instanceof type)) throw invalidToken();
+        write({ event: "auth_key_set_unavailable" });
+        throw new AppError({
+          status: "SERVICE_UNAVAILABLE",
+          code: 503,
+          message: "Access token cannot be verified right now",
+          cause: err,
+        });
+      }
+      return toAccessToken(payload);
+    };
+  }
+
+  return async (accessToken: string): Promise<AccessToken> => {
+    let payload: JWTPayload;
+    try {
+      payload = decodeJwt(accessToken);
+    } catch {
+      throw invalidToken("Access token payload is invalid");
+    }
+
+    const now = Math.floor(Date.now() / 1000);
+    if (typeof payload.exp === "number" && payload.exp <= now)
+      throw invalidToken("Access token has expired");
+    if (typeof payload.nbf === "number" && payload.nbf > now)
+      throw invalidToken("Access token is not active yet");
+
+    return toAccessToken(payload);
+  };
+};
+
+const authService = createService("auth", async () => {
+  const verifyAccessToken = createAccessTokenVerifier(resolveAuthConfig());
 
   const asSingleHeader = (value: HeaderValue): string | null => {
     if (Array.isArray(value))
@@ -50,71 +179,6 @@ const authService = createService("auth", async () => {
     return accessTokenHeader;
   };
 
-  const verifyAccessToken = async (
-    accessToken: string,
-  ): Promise<AccessToken> => {
-    if (!isDevEnv) {
-      if (jwks === null)
-        throw new AppError({
-          status: "INTERNAL_ERROR",
-          code: 500,
-          message: "JWKS is null in a non-development environment. JWT verification cannot proceed.",
-        });
-      try {
-        const { payload } = await jwtVerify(accessToken, jwks, {
-          algorithms: ["RS256"],
-        });
-        return payload as AccessToken;
-      } catch (err) {
-        if (err instanceof joseErrors.JWTExpired)
-          throw new AppError({
-            status: "UNAUTHORIZED",
-            code: 401,
-            message: "Access token has expired",
-          });
-        if (
-          err instanceof joseErrors.JWTClaimValidationFailed &&
-          err.claim === "nbf"
-        )
-          throw new AppError({
-            status: "UNAUTHORIZED",
-            code: 401,
-            message: "Access token is not active yet",
-          });
-        throw new AppError({
-          status: "UNAUTHORIZED",
-          code: 401,
-          message: "Access token is invalid",
-        });
-      }
-    }
-
-    const decoded = jwt.decode(accessToken);
-    if (!decoded || typeof decoded === "string")
-      throw new AppError({
-        status: "UNAUTHORIZED",
-        code: 401,
-        message: "Access token payload is invalid",
-      });
-    const payload = decoded as AccessToken;
-
-    const now = Math.floor(Date.now() / 1000);
-    if (typeof payload.exp === "number" && payload.exp <= now)
-      throw new AppError({
-        status: "UNAUTHORIZED",
-        code: 401,
-        message: "Access token has expired",
-      });
-    if (typeof payload.nbf === "number" && payload.nbf > now)
-      throw new AppError({
-        status: "UNAUTHORIZED",
-        code: 401,
-        message: "Access token is not active yet",
-      });
-
-    return payload;
-  };
-
   const resolveAccessTokenFromRequest = (request: FastifyRequest): string => {
     const accessTokenHeader = asSingleHeader(request.headers["x-access-token"]);
     const authorizationHeader = asSingleHeader(request.headers.authorization);
@@ -141,6 +205,9 @@ const authService = createService("auth", async () => {
     verifyAccessToken,
     verifyRequest,
   };
+}, {
+  // Resolve at startup so a misconfigured or forbidden auth mode stops the server.
+  buildTime: "INSTANT",
 });
 
 export default authService;

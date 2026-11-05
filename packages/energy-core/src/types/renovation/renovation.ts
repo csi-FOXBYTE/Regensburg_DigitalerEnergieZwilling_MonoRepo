@@ -37,15 +37,15 @@ export const HeatingRenovationConfigSchema = z.object({
 export type HeatingRenovationConfig = z.infer<typeof HeatingRenovationConfigSchema>;
 
 export const HeatingRenovationLabelTemplatesSchema = z.object({
-  carrierAndSystem: z.record(z.string()),
-  carrierOnly: z.record(z.string()),
-  systemOnly: z.record(z.string()),
+  carrierAndSystem: z.record(z.string(), z.string()),
+  carrierOnly: z.record(z.string(), z.string()),
+  systemOnly: z.record(z.string(), z.string()),
 });
 export type HeatingRenovationLabelTemplates = z.infer<typeof HeatingRenovationLabelTemplatesSchema>;
 
 export const HeatingSurfaceRenovationConfigSchema = z.object({
   targetSurfaceType: z.string(),
-  localization: z.record(z.string()),
+  localization: z.record(z.string(), z.string()),
   recommendedForSystems: z.array(z.string()),
 });
 export type HeatingSurfaceRenovationConfig = z.infer<typeof HeatingSurfaceRenovationConfigSchema>;

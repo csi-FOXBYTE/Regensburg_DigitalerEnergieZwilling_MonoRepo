@@ -38,7 +38,8 @@ const developmentRoutes = {
         return;
       }
 
-      const neutralMatch = /^\/delete\/([^/]+)$/.exec(url.pathname);
+      // Mirrors nginx.conf: /delete#<token> and legacy /delete/<token>.
+      const neutralMatch = /^\/delete(?:\/([^/]+))?$/.exec(url.pathname);
       if (neutralMatch) {
         const locale = /^de/i.test(request.headers['accept-language'] ?? '')
           ? 'de'
@@ -46,7 +47,7 @@ const developmentRoutes = {
         response.statusCode = 302;
         response.setHeader(
           'Location',
-          `/${locale}/delete/${neutralMatch[1]}${url.search}`,
+          `/${locale}/delete${url.search}${neutralMatch[1] ? `#${neutralMatch[1]}` : ''}`,
         );
         response.end();
         return;

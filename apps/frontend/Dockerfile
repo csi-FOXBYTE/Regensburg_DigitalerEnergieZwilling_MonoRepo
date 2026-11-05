@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
-ARG NODE_BASE_IMAGE=node:24.22.1-bookworm-slim
-ARG RUNTIME_BASE_IMAGE=nginxinc/nginx-unprivileged:1.30.4-alpine
+ARG NODE_BASE_IMAGE=node:24.22.2-bookworm-slim
+ARG RUNTIME_BASE_IMAGE=nginxinc/nginx-unprivileged:1.30.6-alpine
 FROM ${NODE_BASE_IMAGE} AS build
 ARG RELEASE_REFRESH=0
 RUN echo "External dependency refresh: ${RELEASE_REFRESH}" && apt-get update && apt-get install -y --no-install-recommends git ca-certificates openssl python3 make g++ && rm -rf /var/lib/apt/lists/*
@@ -23,6 +23,11 @@ RUN node scripts/artifact-sbom.mjs frontend
 RUN cp apps/frontend/LICENSE apps/frontend/COPYING apps/frontend/COPYING.LESSER apps/frontend/NOTICE apps/frontend/dist/
 RUN mkdir -p apps/frontend/dist/licenses && cp apps/frontend/node_modules/@fontsource-variable/geist/LICENSE apps/frontend/dist/licenses/Geist-OFL-1.1.txt && cp apps/frontend/node_modules/@fontsource/open-sans/LICENSE apps/frontend/dist/licenses/Open-Sans-OFL-1.1.txt
 FROM ${RUNTIME_BASE_IMAGE} AS production
+ARG RELEASE_REFRESH=0
+# Pick up Alpine fixes published after the base image was built. A new
+# refresh epoch rebuilds this layer.
+USER root
+RUN echo "External dependency refresh: ${RELEASE_REFRESH}" && apk upgrade --no-cache
 COPY --chown=101:101 apps/frontend/nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=build --chown=101:101 /workspace/apps/frontend/dist /usr/share/nginx/html
 COPY --from=build --chown=101:101 /workspace/apps/frontend/SBOM.cdx.json /usr/share/regensburg/SBOM.cdx.json

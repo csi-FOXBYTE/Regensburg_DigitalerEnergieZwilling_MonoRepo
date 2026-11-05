@@ -78,7 +78,7 @@ Sicherheitsrelevante Konsequenzen:
 
 - Kein direkter Client-Zugriff auf interne Persistenz.
 - Keine direkte öffentliche Exponierung interner Services.
-- Öffentliche Schreibzugriffe werden als eigener Schutzpfad behandelt: Die externe Deployment-Plattform betreibt die globale APISIX-Policy für Altcha und Rate Limiting und führt den zugehörigen Betriebsnachweis außerhalb der DEZ-Repositories; das Backend übernimmt fachliche Validierung und Verifikation.
+- Öffentliche Schreibzugriffe werden als eigener Schutzpfad behandelt: APISIX begrenzt die Anfragerate, das Backend prüft die Altcha-Challenge selbst und übernimmt fachliche Validierung und Verifikation.
 
 Diese Sicht referenziert insbesondere TA-58 bis TA-64 sowie TA-102.
 

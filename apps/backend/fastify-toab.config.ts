@@ -1,8 +1,20 @@
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
-import { defineConfig, type FastifyToabConfigOptions } from "@csi-foxbyte/fastify-toab";
+import { defineConfig, type FastifyToabConfigOptions, type InferService } from "@csi-foxbyte/fastify-toab";
 import { Type } from "@sinclair/typebox";
+import { allowedCorsOrigins, createCorsOrigin } from "./src/lib/cors.js";
+import { requestErrorHandler } from "./src/errors/request-error-handler.js";
 import { routeErrorHandler } from "./src/errors/route-error-handler.js";
+import { installRequestGuards } from "./src/lib/request-guards.js";
+import { installNotFoundHandler } from "./src/errors/not-found.js";
+import { installFrameworkErrorHandlers } from "./src/errors/framework-errors.js";
+import { getAltcha, installAltchaGuard } from "./src/altcha/altcha.js";
+import databaseService from "./src/database/database.service.js";
+import { logEvent } from "./src/lib/pino.js";
+import {
+  backfillDeletionTokenExpiry,
+  deletionTokenTtlDays,
+} from "./src/submissions/deletion-token-expiry.js";
 
 // fastify-toab 0.2.0-rc.4's CLI reads the module namespace, not its default export.
 // Also export this setting by name so Pino's transport workers stay in node_modules.
@@ -41,10 +53,54 @@ export default defineConfig({
     ADMIN_CLIENT_BASE_URL: Type.String(),
     PORT: Type.Optional(Type.String()),
     NODE_ENV: Type.Optional(Type.String()),
-    KEYCLOAK_JWKS_URI: Type.String(),
+    // Comma-separated origins allowed in addition to the two client apps.
+    AUTH_CORS_ADDITIONAL_ORIGINS: Type.Optional(Type.String()),
+    // Required unless AUTH_INSECURE_DEV_DECODE is set. resolveAuthConfig() in
+    // auth.service.ts enforces them (and HTTPS) when the auth service starts.
+    KEYCLOAK_JWKS_URI: Type.Optional(Type.String()),
+    KEYCLOAK_ISSUER: Type.Optional(Type.String()),
+    AUTH_EXPECTED_AUDIENCE: Type.Optional(Type.String()),
+    // Local development only; rejected at startup outside development/test.
+    AUTH_INSECURE_DEV_DECODE: Type.Optional(Type.String()),
+    // Days until a new public deletion token stops allowing downloads (1 to
+    // 9999, which keeps the expiry a valid Date); unset (default) means no
+    // expiry. Expires only the link, never the data: enable it only together
+    // with a retention-deletion process and the same period, see
+    // issueDeletionToken in submissions.service.ts and the backend README.
+    SUBMISSION_DELETION_TOKEN_TTL_DAYS: Type.Optional(Type.String({ pattern: "^[1-9][0-9]{0,3}$" })),
+    // HMAC key for the Altcha challenges of the public writes (TA-51), at
+    // least 32 random characters. Required unless ALTCHA_DISABLED is set;
+    // resolveAltchaConfig() in src/altcha/altcha.ts enforces it at startup.
+    ALTCHA_HMAC_KEY: Type.Optional(Type.String()),
+    // Tests and local development only; rejected at startup outside
+    // development/test.
+    ALTCHA_DISABLED: Type.Optional(Type.String()),
   }),
   onRouteError: routeErrorHandler,
-  onReady: async (fastify) => {
+  // onReady runs after fastify.ready(), when error handlers are locked. API
+  // routes are registered after onPreStart and use this handler; plugin-owned
+  // routes registered before it (/health, CORS preflight) keep their own
+  // documented error schemas.
+  onPreStart: async (fastify) => {
+    fastify.setErrorHandler(requestErrorHandler);
+    installNotFoundHandler(fastify);
+    installFrameworkErrorHandlers(fastify);
+    // Before the API routes are registered, so they inherit the hooks and
+    // the body validator.
+    installRequestGuards(fastify);
+    // Also resolves the Altcha key, so a missing key fails at startup.
+    installAltchaGuard(fastify, getAltcha());
+    // Fail at startup instead of on the first cross-origin request.
+    allowedCorsOrigins();
+  },
+  onReady: async (fastify, { serviceRegistry }) => {
+    // Before listen, so a failure stops startup instead of leaving old
+    // download links without expiry.
+    const db = await serviceRegistry
+      .resolve()
+      .get<InferService<typeof databaseService>>(databaseService.name);
+    await backfillDeletionTokenExpiry(db, deletionTokenTtlDays(), logEvent);
+
     if (!fastify.hasDecorator("swagger")) return;
 
     // fastify-toab documents handlers without an output body as 204. Public
@@ -62,6 +118,19 @@ export default defineConfig({
     responses["201"] = { description: "Feedback created" };
   },
   fastify: () => ({
+    // Disabled in development by fastify-toab; elsewhere never reflect Origin.
+    cors: {
+      origin: createCorsOrigin(),
+      // fastify-toab's default list lacks X-Access-Token, which auth.service.ts
+      // accepts, and X-Altcha, which carries the public writes' Altcha solution.
+      allowedHeaders: ["Content-Type", "Authorization", "X-Access-Token", "X-Requested-With", "X-Altcha"],
+    },
+    // Off: behind APISIX every client shares the gateway's address, so one
+    // in-process counter would let a single client exhaust it for everyone.
+    // The gateway rate-limits per client (F-DYN-007).
+    rateLimit: {
+      enabled: false,
+    },
     underPressure: {
       exposeStatusRoute: "/health",
     },

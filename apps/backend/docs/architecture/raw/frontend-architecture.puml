@@ -18,6 +18,8 @@ rectangle "Externer Kacheldienst\n(TILES_URL)" as tiles
 rectangle "Backend-API\n(öffentlich)" as api_public
 rectangle "Backend-API\n(Admin)" as api_admin
 rectangle "Basiskartendienste\n(WMS/WMTS)" as basemap
+rectangle "Tracking-Adapter\n(nach Opt-in)" as tracking
+rectangle "Matomo-Webanalyse\n(optional)" as matomo
 
 public_build --> public_client
 admin_build --> admin_client
@@ -28,6 +30,9 @@ tiles_redirect --> tiles : HTTP-Weiterleitung
 public_client --> api_public
 admin_client --> api_admin
 public_client --> basemap
+public_client --> tracking : fachliche Ereignisse
+tracking --> apisix : Matomo-HTTP-Tracking-API
+apisix --> matomo : matomo.det.<domain>
 
 @enduml
 

@@ -1,7 +1,9 @@
 import { createMiddleware } from "@csi-foxbyte/fastify-toab";
+import type { FastifyRequest } from "fastify";
 import { getAuthService } from "../@internals/index.js";
 import type { AccessToken } from "../auth/auth.dto.js";
 import { AppError } from "../errors/app-error.js";
+import { recordRequestActor } from "../lib/request-logging.js";
 
 export type Action = "read" | "update" | "create" | "delete";
 export type Area = "config" | "feedback" | "submissions";
@@ -47,6 +49,18 @@ const ensurePermission = (
     });
 };
 
+const knownRoles = new Set<string>(Object.keys(rolePermissions));
+
+// Attributes the request in the request log. Only known role names are kept.
+export const recordTokenActor = (
+  request: FastifyRequest,
+  token: AccessToken,
+  resourceClientId?: string,
+): void => {
+  const tokenRoles = token.resource_access?.[resolveClientId(resourceClientId)]?.roles ?? [];
+  recordRequestActor(request, token.sub, tokenRoles.filter((role) => knownRoles.has(role)));
+};
+
 type PermissionMiddlewareOptions = {
   resourceClientId?: string;
 };
@@ -55,6 +69,7 @@ const createPermissionMiddleware = (permission: Permission, options: PermissionM
   createMiddleware(async ({ ctx, services, request }, next) => {
     const authService = await getAuthService(services);
     const token = await authService.verifyRequest(request);
+    recordTokenActor(request, token, options.resourceClientId);
 
     ensurePermission(token, permission, options.resourceClientId);
 

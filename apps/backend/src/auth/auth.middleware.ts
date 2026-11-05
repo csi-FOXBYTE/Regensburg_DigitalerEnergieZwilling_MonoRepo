@@ -1,5 +1,6 @@
 import { createMiddleware, ServiceContainer } from "@csi-foxbyte/fastify-toab";
 import { getAuthService, getDatabaseService } from "../@internals/index.js";
+import { recordTokenActor } from "../config/config.middleware.js";
 import { AppError } from "../errors/app-error.js";
 import type { User } from "../zenstack/models.js";
 import type { AccessToken } from "./auth.dto.js";
@@ -69,6 +70,7 @@ const createAuthMiddleware = (options: AuthMiddlewareOptions = {}) =>
   createMiddleware(async ({ ctx, services, request }, next) => {
     const authService = await getAuthService(services);
     const token = await authService.verifyRequest(request);
+    recordTokenActor(request, token, options.resourceClientId);
 
     ensureRequiredRoles(
       token,
