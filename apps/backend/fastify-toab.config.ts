@@ -10,6 +10,7 @@ import { installNotFoundHandler } from "./src/errors/not-found.js";
 import { installFrameworkErrorHandlers } from "./src/errors/framework-errors.js";
 import { getAltcha, installAltchaGuard } from "./src/altcha/altcha.js";
 import databaseService from "./src/database/database.service.js";
+import { logEvent } from "./src/lib/pino.js";
 import {
   backfillDeletionTokenExpiry,
   deletionTokenTtlDays,
@@ -98,7 +99,7 @@ export default defineConfig({
     const db = await serviceRegistry
       .resolve()
       .get<InferService<typeof databaseService>>(databaseService.name);
-    await backfillDeletionTokenExpiry(db, deletionTokenTtlDays(), fastify.log);
+    await backfillDeletionTokenExpiry(db, deletionTokenTtlDays(), logEvent);
 
     if (!fastify.hasDecorator("swagger")) return;
 

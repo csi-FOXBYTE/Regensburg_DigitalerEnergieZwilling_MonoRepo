@@ -355,6 +355,17 @@ it("logs the analytics state without tracker details and warns when it is invali
   );
 });
 
+it("logs the download expiry backfill with only its count", () => {
+  const output = capture();
+  const write = createPrivacyLogger({ base: undefined, level: "trace" }, output.stream);
+  write({ event: "deletion_expiry_backfill", count: 81, ids: [secret] } as never);
+  assert.doesNotMatch(output.lines.join(""), new RegExp(secret));
+  assert.deepEqual(
+    output.records().map(({ level, event, count, ...rest }) => ({ level, event, count, rest: Object.keys(rest) })),
+    [{ level: 30, event: "deletion_expiry_backfill", count: 81, rest: ["time"] }],
+  );
+});
+
 it("console forwarding drops arbitrary strings, objects, formatting arguments and errors", () => {
   const output = capture();
   const original = { log: console.log, info: console.info, warn: console.warn, error: console.error, debug: console.debug };

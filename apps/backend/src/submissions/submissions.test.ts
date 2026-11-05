@@ -282,7 +282,7 @@ describe("download expiry backfill for submissions without one", () => {
     );
     return { rows, db: { submission: { updateMany } } };
   };
-  const logger = () => ({ info: mock.fn((_obj: { count: number }, _msg: string) => {}) });
+  const logger = () => mock.fn((_event: { event: "deletion_expiry_backfill"; count: number }) => {});
 
   it("gives rows without expiry now + TTL in one conditional update and keeps existing expiries", async () => {
     const { rows, db } = fakeDb();
@@ -301,9 +301,9 @@ describe("download expiry backfill for submissions without one", () => {
       { id: "current", deletionTokenExpiresAt: existing },
     ]);
     // Logs only the count, never ids.
-    assert.equal(log.info.mock.calls.length, 1);
-    assert.deepEqual(log.info.mock.calls[0]?.arguments[0], { count: 2 });
-    assert.equal(JSON.stringify(log.info.mock.calls[0]?.arguments).includes("legacy"), false);
+    assert.equal(log.mock.calls.length, 1);
+    assert.deepEqual(log.mock.calls[0]?.arguments[0], { event: "deletion_expiry_backfill", count: 2 });
+    assert.equal(JSON.stringify(log.mock.calls[0]?.arguments).includes("legacy"), false);
   });
 
   it("changes nothing on a second run", async () => {
@@ -315,7 +315,7 @@ describe("download expiry backfill for submissions without one", () => {
     const later = new Date("2026-11-06T08:00:00.000Z");
     assert.equal(await backfillDeletionTokenExpiry(db, 30, log, later), 0);
     assert.deepEqual(rows, afterFirst);
-    assert.equal(log.info.mock.calls.length, 0);
+    assert.equal(log.mock.calls.length, 0);
   });
 
   it("does nothing without a configured TTL", async () => {
@@ -325,7 +325,7 @@ describe("download expiry backfill for submissions without one", () => {
     assert.equal(await backfillDeletionTokenExpiry(db, null, log, now), 0);
     assert.equal(db.submission.updateMany.mock.calls.length, 0);
     assert.equal(rows[0]?.deletionTokenExpiresAt, null);
-    assert.equal(log.info.mock.calls.length, 0);
+    assert.equal(log.mock.calls.length, 0);
   });
 
   it("runs on startup with the configured TTL before the server listens", async (t) => {
@@ -335,7 +335,7 @@ describe("download expiry backfill for submissions without one", () => {
       if (previous === undefined) delete process.env.SUBMISSION_DELETION_TOKEN_TTL_DAYS;
       else process.env.SUBMISSION_DELETION_TOKEN_TTL_DAYS = previous;
     });
-    const fastify = { hasDecorator: () => false, log: logger() };
+    const fastify = { hasDecorator: () => false };
     const startup = (db: object) =>
       config.onReady?.(fastify as never, {
         serviceRegistry: {

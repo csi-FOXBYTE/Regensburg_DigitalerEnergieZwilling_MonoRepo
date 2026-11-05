@@ -43,6 +43,7 @@ type LogEvent =
   | { event: "feedback_notification_failed" }
   | { event: "auth_key_set_unavailable" }
   | { event: "analytics_config"; state: "active" | "inactive" | "invalid" }
+  | { event: "deletion_expiry_backfill"; count: number }
   | { event: "server_listening" | "server_closed" };
 
 export type PrivacyLogger = (event: LogEvent) => void;
@@ -89,6 +90,9 @@ export function createPrivacyLogger(
     } else if (event.event === "analytics_config") {
       // Only whether web analytics is on, never the tracker URL or site ID.
       output[event.state === "invalid" ? "warn" : "info"]({ event: event.event, state: event.state });
+    } else if (event.event === "deletion_expiry_backfill") {
+      // Only the count: no ids or token hashes in the log.
+      output.info({ event: event.event, count: event.count });
     } else {
       output.info({ event: event.event });
     }

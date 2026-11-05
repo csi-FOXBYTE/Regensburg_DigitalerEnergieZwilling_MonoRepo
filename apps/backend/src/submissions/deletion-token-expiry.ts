@@ -29,7 +29,7 @@ type SubmissionExpiryDB = {
   };
 };
 
-type InfoLogger = { info(obj: { count: number }, msg: string): void };
+type BackfillLogger = (event: { event: "deletion_expiry_backfill"; count: number }) => void;
 
 // Submissions stored without an expiry (before the TTL existed, or while it
 // was unset) would keep a working download link forever. With a TTL
@@ -42,7 +42,7 @@ type InfoLogger = { info(obj: { count: number }, msg: string): void };
 export const backfillDeletionTokenExpiry = async (
   db: SubmissionExpiryDB,
   ttlDays: number | null,
-  log: InfoLogger,
+  log: BackfillLogger,
   now = new Date(),
 ) => {
   const deletionTokenExpiresAt = deletionTokenExpiry(ttlDays, now);
@@ -52,8 +52,6 @@ export const backfillDeletionTokenExpiry = async (
     where: { deletionTokenExpiresAt: null },
     data: { deletionTokenExpiresAt },
   });
-  // Only the count: no ids or token hashes in the log.
-  if (count > 0)
-    log.info({ count }, "Set download expiry on public deletion links without one");
+  if (count > 0) log({ event: "deletion_expiry_backfill", count });
   return count;
 };
