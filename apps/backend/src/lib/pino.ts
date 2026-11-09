@@ -43,7 +43,7 @@ export type LogEvent =
   | { event: "feedback_notification_failed" }
   | { event: "auth_key_set_unavailable" }
   | { event: "analytics_config"; state: "active" | "inactive" | "invalid" }
-  | { event: "deletion_expiry_backfill"; count: number }
+  | { event: "deletion_expiry_backfill" | "deletion_expiry_cleared"; count: number }
   // Only the names of missing or invalid variables (src/toab/run.ts).
   | { event: "env_invalid"; variables: string[] }
   | { event: "server_listening" | "server_closed" };
@@ -53,7 +53,7 @@ export type PrivacyLogger = (event: LogEvent) => void;
 const events = new Set<string>([
   "request_completed", "request_failed", "request_aborted", "request_timeout", "console_output",
   "feedback_notification_failed", "auth_key_set_unavailable", "analytics_config",
-  "deletion_expiry_backfill", "env_invalid", "server_listening", "server_closed",
+  "deletion_expiry_backfill", "deletion_expiry_cleared", "env_invalid", "server_listening", "server_closed",
 ] satisfies LogEvent["event"][]);
 
 const isLogEvent = (value: unknown): value is LogEvent =>
@@ -99,6 +99,7 @@ function eventRecord(event: LogEvent): Record<string, unknown> {
       // Only whether web analytics is on, never the tracker URL or site ID.
       return { event: event.event, state: event.state };
     case "deletion_expiry_backfill":
+    case "deletion_expiry_cleared":
       // Only the count: no ids or token hashes in the log.
       return { event: event.event, count: event.count };
     case "env_invalid":

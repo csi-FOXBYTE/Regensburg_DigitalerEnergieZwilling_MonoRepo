@@ -381,10 +381,14 @@ it("logs the download expiry backfill with only its count", () => {
   const output = capture();
   const write = createPrivacyLogger({ base: undefined, level: "trace" }, output.stream);
   write({ event: "deletion_expiry_backfill", count: 81, ids: [secret] } as never);
+  write({ event: "deletion_expiry_cleared", count: 12, ids: [secret] } as never);
   assert.doesNotMatch(output.lines.join(""), new RegExp(secret));
   assert.deepEqual(
     output.records().map(({ level, event, count, ...rest }) => ({ level, event, count, rest: Object.keys(rest) })),
-    [{ level: 30, event: "deletion_expiry_backfill", count: 81, rest: ["time"] }],
+    [
+      { level: 30, event: "deletion_expiry_backfill", count: 81, rest: ["time"] },
+      { level: 30, event: "deletion_expiry_cleared", count: 12, rest: ["time"] },
+    ],
   );
 });
 

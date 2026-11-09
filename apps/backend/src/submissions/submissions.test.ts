@@ -271,17 +271,20 @@ describe("download expiry backfill for submissions without one", () => {
       { id: "current", deletionTokenExpiresAt: existing as Date | null },
     ];
     const updateMany = mock.fn(
-      async (args: { where: { deletionTokenExpiresAt: null }; data: { deletionTokenExpiresAt: Date } }) => {
-        const matching = rows.filter(
-          (row) => row.deletionTokenExpiresAt === args.where.deletionTokenExpiresAt,
-        );
+      async (args: {
+        where: { deletionTokenExpiresAt: null | { not: null } };
+        data: { deletionTokenExpiresAt: Date | null };
+      }) => {
+        const clearing = args.where.deletionTokenExpiresAt !== null;
+        const matching = rows.filter((row) => (row.deletionTokenExpiresAt !== null) === clearing);
         for (const row of matching) row.deletionTokenExpiresAt = args.data.deletionTokenExpiresAt;
         return { count: matching.length };
       },
     );
     return { rows, db: { submission: { updateMany } } };
   };
-  const logger = () => mock.fn((_event: { event: "deletion_expiry_backfill"; count: number }) => {});
+  const logger = () =>
+    mock.fn((_event: { event: "deletion_expiry_backfill" | "deletion_expiry_cleared"; count: number }) => {});
 
   it("gives rows without expiry now + TTL in one conditional update and keeps existing expiries", async () => {
     const { rows, db } = fakeDb();
@@ -317,14 +320,22 @@ describe("download expiry backfill for submissions without one", () => {
     assert.equal(log.mock.calls.length, 0);
   });
 
-  it("does nothing without a configured TTL", async () => {
+  it("clears stored expiries without a configured TTL, so every link downloads again", async () => {
     const { rows, db } = fakeDb();
     const log = logger();
 
-    assert.equal(await backfillDeletionTokenExpiry(db, null, log, now), 0);
-    assert.equal(db.submission.updateMany.mock.calls.length, 0);
-    assert.equal(rows[0]?.deletionTokenExpiresAt, null);
-    assert.equal(log.mock.calls.length, 0);
+    assert.equal(await backfillDeletionTokenExpiry(db, null, log, now), 1);
+    assert.deepEqual(db.submission.updateMany.mock.calls[0]?.arguments[0], {
+      where: { deletionTokenExpiresAt: { not: null } },
+      data: { deletionTokenExpiresAt: null },
+    });
+    assert.equal(rows.every((row) => row.deletionTokenExpiresAt === null), true);
+    assert.deepEqual(log.mock.calls[0]?.arguments[0], { event: "deletion_expiry_cleared", count: 1 });
+
+    // A second start finds nothing to clear and logs nothing.
+    const again = logger();
+    assert.equal(await backfillDeletionTokenExpiry(db, null, again, now), 0);
+    assert.equal(again.mock.calls.length, 0);
   });
 
   it("runs on startup with the configured TTL before the server listens", async (t) => {
@@ -357,7 +368,8 @@ describe("download expiry backfill for submissions without one", () => {
     delete process.env.SUBMISSION_DELETION_TOKEN_TTL_DAYS;
     const unset = fakeDb();
     await startup(unset.db);
-    assert.equal(unset.db.submission.updateMany.mock.calls.length, 0);
+    assert.equal(unset.db.submission.updateMany.mock.calls.length, 1);
+    assert.equal(unset.rows.every((row) => row.deletionTokenExpiresAt === null), true);
   });
 });
 
