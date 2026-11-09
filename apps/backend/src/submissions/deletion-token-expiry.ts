@@ -11,8 +11,8 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 // retention control: stored submissions stay until a retention-deletion
 // process removes them (none exists yet; its rules for accepted submissions
 // are a decision for the city and its data protection officer). The deployment
-// add-on enables it (30 days) before that process exists, to limit how long a
-// leaked download link works; align it with the retention period once defined.
+// add-on leaves it unset by default, so the download has no expiry; whoever
+// sets it must also adjust the privacy notice, which promises no expiry.
 export const deletionTokenTtlDays = (
   value = process.env.SUBMISSION_DELETION_TOKEN_TTL_DAYS,
 ): number | null => (value ? Number(value) : null);
@@ -22,23 +22,28 @@ export const deletionTokenExpiry = (ttlDays: number | null, now: Date) =>
 
 type SubmissionExpiryDB = {
   submission: {
-    updateMany(args: {
-      where: { deletionTokenExpiresAt: null };
-      data: { deletionTokenExpiresAt: Date };
-    }): Promise<{ count: number }>;
+    updateMany(
+      args:
+        | { where: { deletionTokenExpiresAt: null }; data: { deletionTokenExpiresAt: Date } }
+        | { where: { deletionTokenExpiresAt: { not: null } }; data: { deletionTokenExpiresAt: null } },
+    ): Promise<{ count: number }>;
   };
 };
 
-type BackfillLogger = (event: { event: "deletion_expiry_backfill"; count: number }) => void;
+type BackfillLogger = (event: {
+  event: "deletion_expiry_backfill" | "deletion_expiry_cleared";
+  count: number;
+}) => void;
 
-// Submissions stored without an expiry (before the TTL existed, or while it
-// was unset) would keep a working download link forever. With a TTL
-// configured, give them one counted from now, not from their creation, so
-// citizens holding an older PDF keep the full period. Without a TTL nothing
-// changes ("unset = no expiry"). Existing expiries are never touched, so the
-// step cannot shorten or extend one. A single conditional UPDATE is
-// idempotent and safe for concurrent replicas: PostgreSQL re-checks
-// `IS NULL` on rows another replica updated first, so they are skipped.
+// Brings the stored download expiries in line with the configuration at
+// startup. With a TTL configured, submissions without an expiry (stored before
+// the TTL existed, or while it was unset) get one counted from now, not from
+// their creation, so citizens holding an older PDF keep the full period;
+// existing expiries are never touched, so this cannot shorten or extend one.
+// Without a TTL ("unset = no expiry") stored expiries are cleared, so links
+// issued while a TTL was set download again. Each branch is a single
+// conditional UPDATE: idempotent and safe for concurrent replicas, because
+// PostgreSQL re-checks the condition on rows another replica updated first.
 export const backfillDeletionTokenExpiry = async (
   db: SubmissionExpiryDB,
   ttlDays: number | null,
@@ -46,7 +51,14 @@ export const backfillDeletionTokenExpiry = async (
   now = new Date(),
 ) => {
   const deletionTokenExpiresAt = deletionTokenExpiry(ttlDays, now);
-  if (deletionTokenExpiresAt === null) return 0;
+  if (deletionTokenExpiresAt === null) {
+    const { count } = await db.submission.updateMany({
+      where: { deletionTokenExpiresAt: { not: null } },
+      data: { deletionTokenExpiresAt: null },
+    });
+    if (count > 0) log({ event: "deletion_expiry_cleared", count });
+    return count;
+  }
 
   const { count } = await db.submission.updateMany({
     where: { deletionTokenExpiresAt: null },
