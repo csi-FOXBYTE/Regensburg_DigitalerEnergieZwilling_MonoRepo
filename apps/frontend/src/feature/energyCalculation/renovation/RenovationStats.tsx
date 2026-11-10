@@ -256,7 +256,8 @@ export default function RenovationStats({
   const effClasses = useStore($energyEfficiencyClasses);
   const before = useStore($currentEnergyState);
   const after = useStore($renovatedEnergyState);
-  const energyCarrierOptions = useStore($config).heat.primaryEnergyCarriers;
+  const heatConfig = useStore($config).heat;
+  const energyCarrierOptions = heatConfig.primaryEnergyCarriers;
   const classIndex = new Map(
     Array.from(effClasses.keys()).map((cls, i) => [cls, i]),
   );
@@ -273,8 +274,16 @@ export default function RenovationStats({
   };
   const beforeCarrierLabel = getEnergyCarrierLabel(before.energyCarrierType);
   const afterCarrierLabel = getEnergyCarrierLabel(after.energyCarrierType);
+  // A fully electric system after renovation has no carrier heating demand
+  // (it shows up under "Heizenergie (elektrisch)"), so naming the new carrier
+  // here would suggest the electric demand drops to 0.
+  const isRenovatedSystemOnlyElectrical =
+    (heatConfig.electricalRatio.find(
+      (ratio) => ratio.key === after.heatingSystemType,
+    )?.value ?? 0) >= 1;
   const carrierLabel =
-    before.energyCarrierType === after.energyCarrierType
+    before.energyCarrierType === after.energyCarrierType ||
+    isRenovatedSystemOnlyElectrical
       ? beforeCarrierLabel
       : `${beforeCarrierLabel} → ${afterCarrierLabel}`;
   const energyDemandUnit = tCommon('units.kilowattHoursPerSquareMeterPerYear');
