@@ -240,7 +240,7 @@ Die Nebenzielgruppe umfasst Mitarbeitende der Stadtverwaltung / Fachpersonal (z.
 Für den internen Client sind drei Rollen vorgesehen:
 
 - `manager` (Verwalter): Zugriff auf eingereichte Gebäudedaten und deren Bearbeitung; kein Zugriff auf Systempflege.
-- `maintainer` (Systempfleger): Zugriff auf Systempflege; kein Zugriff auf eingereichte Gebäudedaten.
+- `maintainer` (Systempfleger): Zugriff auf Systempflege und die Mail-Vorlage für Feedback-Benachrichtigungen; kein Zugriff auf eingereichte Gebäudedaten.
 - `admin` (Administrator): voller Zugriff auf den internen Client.
 
 ### Ausgangslage / Datenproblem

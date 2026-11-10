@@ -14,6 +14,7 @@ export type Submission = $ModelResult<$Schema, "Submission">;
 export type SubmissionChangeHistoryEntry = $ModelResult<$Schema, "SubmissionChangeHistoryEntry">;
 export type DeletionAuditEvent = $ModelResult<$Schema, "DeletionAuditEvent">;
 export type Feedback = $ModelResult<$Schema, "Feedback">;
+export type FeedbackMailTemplate = $ModelResult<$Schema, "FeedbackMailTemplate">;
 export type WithTimestamps = $TypeDefResult<$Schema, "WithTimestamps">;
 export type Base = $TypeDefResult<$Schema, "Base">;
 export const BuildingDataSource = $schema.enums.BuildingDataSource.values;

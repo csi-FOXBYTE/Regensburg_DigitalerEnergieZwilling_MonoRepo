@@ -147,3 +147,11 @@ model Feedback with Base {
   @@index([createdAt, id])
   @@index([category, id])
 }
+
+// Single row (id = 1, enforced by a CHECK constraint in the migration) holding
+// the HTML template of the feedback notification mail, maintained in the admin
+// area. No row means the bundled templates/feedback_submitted.hbs is used.
+model FeedbackMailTemplate with WithTimestamps {
+  id   Int    @id @default(1)
+  html String
+}
