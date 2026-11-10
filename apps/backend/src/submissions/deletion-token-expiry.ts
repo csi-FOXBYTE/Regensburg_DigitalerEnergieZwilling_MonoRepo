@@ -25,7 +25,7 @@ type SubmissionExpiryDB = {
     updateMany(
       args:
         | { where: { deletionTokenExpiresAt: null }; data: { deletionTokenExpiresAt: Date } }
-        | { where: { deletionTokenExpiresAt: { not: null } }; data: { deletionTokenExpiresAt: null } },
+        | { where: { NOT: { deletionTokenExpiresAt: null } }; data: { deletionTokenExpiresAt: null } },
     ): Promise<{ count: number }>;
   };
 };
@@ -52,8 +52,10 @@ export const backfillDeletionTokenExpiry = async (
 ) => {
   const deletionTokenExpiresAt = deletionTokenExpiry(ttlDays, now);
   if (deletionTokenExpiresAt === null) {
+    // `NOT: { field: null }`, not `{ field: { not: null } }`: ZenStack compiles
+    // the latter to `NOT field = NULL`, which matches no row in SQL.
     const { count } = await db.submission.updateMany({
-      where: { deletionTokenExpiresAt: { not: null } },
+      where: { NOT: { deletionTokenExpiresAt: null } },
       data: { deletionTokenExpiresAt: null },
     });
     if (count > 0) log({ event: "deletion_expiry_cleared", count });

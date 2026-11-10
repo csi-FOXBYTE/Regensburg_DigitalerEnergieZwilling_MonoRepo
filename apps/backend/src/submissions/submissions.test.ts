@@ -272,10 +272,10 @@ describe("download expiry backfill for submissions without one", () => {
     ];
     const updateMany = mock.fn(
       async (args: {
-        where: { deletionTokenExpiresAt: null | { not: null } };
+        where: { deletionTokenExpiresAt: null } | { NOT: { deletionTokenExpiresAt: null } };
         data: { deletionTokenExpiresAt: Date | null };
       }) => {
-        const clearing = args.where.deletionTokenExpiresAt !== null;
+        const clearing = "NOT" in args.where;
         const matching = rows.filter((row) => (row.deletionTokenExpiresAt !== null) === clearing);
         for (const row of matching) row.deletionTokenExpiresAt = args.data.deletionTokenExpiresAt;
         return { count: matching.length };
@@ -326,7 +326,7 @@ describe("download expiry backfill for submissions without one", () => {
 
     assert.equal(await backfillDeletionTokenExpiry(db, null, log, now), 1);
     assert.deepEqual(db.submission.updateMany.mock.calls[0]?.arguments[0], {
-      where: { deletionTokenExpiresAt: { not: null } },
+      where: { NOT: { deletionTokenExpiresAt: null } },
       data: { deletionTokenExpiresAt: null },
     });
     assert.equal(rows.every((row) => row.deletionTokenExpiresAt === null), true);
