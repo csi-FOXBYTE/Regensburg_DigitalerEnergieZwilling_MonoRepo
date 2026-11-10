@@ -2,7 +2,8 @@ type UserWithRoles = {
   resource_access?: Record<string, { roles: string[] }>;
 };
 
-// Mirrors the backend's config.middleware.ts read permissions.
+// Mirrors the backend's config.middleware.ts read permissions (mailTemplate:read
+// for the mail template page).
 const PAGES = [
   {
     label: "Dashboard",
@@ -21,6 +22,12 @@ const PAGES = [
     path: "/config",
     roles: ["admin", "maintainer"],
     routeIds: ["/_with_header/config/"],
+  },
+  {
+    label: "Mail-Vorlage",
+    path: "/mail-template",
+    roles: ["admin", "maintainer"],
+    routeIds: ["/_with_header/mail-template/"],
   },
 ] as const;
 

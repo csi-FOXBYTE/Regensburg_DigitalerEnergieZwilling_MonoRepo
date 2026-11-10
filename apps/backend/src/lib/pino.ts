@@ -41,6 +41,9 @@ export type LogEvent =
     }
   | { event: "console_output"; level: ConsoleLevel; errorCode?: ErrorCategory }
   | { event: "feedback_notification_failed" }
+  // The stored feedback mail template could not be loaded or rendered; the
+  // bundled default was used instead (src/mailTemplate/mailTemplate.service.ts).
+  | { event: "feedback_mail_template_load_failed" | "feedback_mail_template_fallback" }
   | { event: "auth_key_set_unavailable" }
   | { event: "analytics_config"; state: "active" | "inactive" | "invalid" }
   | { event: "deletion_expiry_backfill" | "deletion_expiry_cleared"; count: number }
@@ -52,7 +55,8 @@ export type PrivacyLogger = (event: LogEvent) => void;
 
 const events = new Set<string>([
   "request_completed", "request_failed", "request_aborted", "request_timeout", "console_output",
-  "feedback_notification_failed", "auth_key_set_unavailable", "analytics_config",
+  "feedback_notification_failed", "feedback_mail_template_load_failed", "feedback_mail_template_fallback",
+  "auth_key_set_unavailable", "analytics_config",
   "deletion_expiry_backfill", "deletion_expiry_cleared", "env_invalid", "server_listening", "server_closed",
 ] satisfies LogEvent["event"][]);
 
@@ -66,6 +70,8 @@ function levelOf(event: LogEvent): Level {
     case "request_failed": return (event.statusCode ?? 500) >= 500 ? "error" : "warn";
     case "feedback_notification_failed":
     case "auth_key_set_unavailable": return "error";
+    case "feedback_mail_template_load_failed":
+    case "feedback_mail_template_fallback": return "warn";
     case "analytics_config": return event.state === "invalid" ? "warn" : "info";
     case "env_invalid": return "fatal";
     default: return "info";

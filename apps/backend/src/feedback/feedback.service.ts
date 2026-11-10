@@ -1,8 +1,11 @@
 import { createService } from "../toab/index.js";
 import { z } from "zod";
-import { getDatabaseService, getMailService } from "../@internals/index.js";
+import {
+  getDatabaseService,
+  getMailService,
+  getMailTemplateService,
+} from "../@internals/index.js";
 import { logEvent } from "../lib/pino.js";
-import { renderFeedbackSubmitted } from "../mail/mail.templates.js";
 import {
   FeedbackCategory,
   type FeedbackCategory as FeedbackCategoryValue,
@@ -125,11 +128,12 @@ export const deleteFeedbackById = async (db: DB, feedbackId: string) => {
 const feedbackService = createService("feedback", async ({ services }) => {
   const db = await getDatabaseService(services);
   const mail = await getMailService(services);
+  const mailTemplates = await getMailTemplateService(services);
   const from = process.env.MAIL_FROM;
   const to = process.env.FEEDBACK_MAIL_TO;
   const notify = mail.isConfigured && from && to
     ? async (feedback: SavedFeedback) => {
-        const content = await renderFeedbackSubmitted(feedback);
+        const content = await mailTemplates.renderFeedbackNotification(feedback);
         await mail.send({
           from,
           to,

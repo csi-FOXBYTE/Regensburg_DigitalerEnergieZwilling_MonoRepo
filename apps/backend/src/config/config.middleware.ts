@@ -6,7 +6,7 @@ import { AppError } from "../errors/app-error.js";
 import { recordRequestActor } from "../lib/request-logging.js";
 
 export type Action = "read" | "update" | "create" | "delete";
-export type Area = "config" | "feedback" | "submissions";
+export type Area = "config" | "feedback" | "mailTemplate" | "submissions";
 export type Permission = `${Area}:${Action}`;
 export type Role = "admin" | "manager" | "maintainer";
 
@@ -15,6 +15,7 @@ const rolePermissions: Record<Role, Permission[]> = {
     "submissions:read", "submissions:create", "submissions:update", "submissions:delete",
     "config:read", "config:create", "config:update", "config:delete",
     "feedback:read", "feedback:delete",
+    "mailTemplate:read", "mailTemplate:update",
   ],
   manager: [
     "submissions:read", "submissions:create", "submissions:update", "submissions:delete",
@@ -22,6 +23,7 @@ const rolePermissions: Record<Role, Permission[]> = {
   maintainer: [
     "config:read", "config:create", "config:update", "config:delete",
     "feedback:read", "feedback:delete",
+    "mailTemplate:read", "mailTemplate:update",
   ],
 };
 

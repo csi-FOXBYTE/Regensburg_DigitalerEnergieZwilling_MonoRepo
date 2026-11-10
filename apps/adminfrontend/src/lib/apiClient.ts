@@ -1,3 +1,9 @@
+export type ApiError = Error & { status: number; detail?: string };
+
+export function isApiError(error: unknown): error is ApiError {
+  return error instanceof Error && "status" in error;
+}
+
 let _baseUrl = "";
 let _getToken: (() => string | null) | null = null;
 
@@ -28,8 +34,13 @@ export const apiClient = async <T>(
   });
 
   if (!response.ok) {
-    const error = new Error(`HTTP ${response.status}: ${response.statusText}`) as Error & { status: number };
+    const error = new Error(`HTTP ${response.status}: ${response.statusText}`) as ApiError;
     error.status = response.status;
+    // The backend's AppError body carries a message, e.g. why a mail template
+    // was rejected. Missing or non-JSON bodies leave it undefined.
+    const body: unknown = await response.json().catch(() => undefined);
+    if (body && typeof body === "object" && "message" in body && typeof body.message === "string")
+      error.detail = body.message;
     throw error;
   }
 

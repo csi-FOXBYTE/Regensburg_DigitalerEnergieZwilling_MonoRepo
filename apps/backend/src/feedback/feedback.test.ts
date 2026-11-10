@@ -14,6 +14,7 @@ import feedbackPublicController from "../feedbackPublic/feedbackPublic.controlle
 import { AppError } from "../errors/app-error.js";
 import { routeErrorHandler } from "../errors/route-error-handler.js";
 import type { MailMessage } from "../mail/mail.service.js";
+import mailTemplateServiceDefinition from "../mailTemplate/mailTemplate.service.js";
 import feedbackServiceDefinition from "./feedback.service.js";
 import {
   FeedbackNotFoundError,
@@ -106,12 +107,18 @@ describe("feedback service", () => {
     process.env.MAIL_FROM = "noreply@example.invalid";
     process.env.FEEDBACK_MAIL_TO = "feedback@example.invalid";
     const saved = { ...storedFeedback, emailAddress: "anna@example.de" };
-    const db = { feedback: { create: async () => saved } };
+    let storedTemplate: { html: string } | null = null;
+    const db = {
+      feedback: { create: async () => saved },
+      feedbackMailTemplate: { findUnique: async () => storedTemplate },
+    };
     const send = mock.fn(async (_message: MailMessage) => {});
     const services: ServiceContainer = {
       get: async <T>(name: string) => {
         if (name === "database") return db as T;
         if (name === "mail") return { isConfigured: true, send } as T;
+        if (name === "mailTemplate")
+          return (await mailTemplateServiceDefinition.factory({ services } as never)) as T;
         throw new Error(`Unexpected service: ${name}`);
       },
     };
@@ -125,10 +132,19 @@ describe("feedback service", () => {
     assert.match(message?.html ?? "", /Fehlermeldung/);
     assert.ok(message?.text.includes(saved.message));
 
+    // A template maintained in the admin area replaces the bundled default.
+    storedTemplate = { html: "<p>Eigene Vorlage: {{category}} – {{message}}</p>" };
+    await service.create({ category: "bug", message: saved.message });
+    assert.equal(
+      send.mock.calls[1]?.arguments[0].html,
+      `<p>Eigene Vorlage: Fehlermeldung – ${saved.message}</p>`,
+    );
+    storedTemplate = null;
+
     delete process.env.FEEDBACK_MAIL_TO;
     const disabledService = await feedbackServiceDefinition.factory({ services } as never);
     assert.equal(await disabledService.create({ category: "bug", message: saved.message }), saved);
-    assert.equal(send.mock.callCount(), 1);
+    assert.equal(send.mock.callCount(), 2);
   });
 
   it("notifies with the saved record only after persistence succeeds", async () => {

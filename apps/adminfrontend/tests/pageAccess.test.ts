@@ -8,9 +8,9 @@ const userWithRoles = (...roles: string[]) => ({
 
 describe("page access follows backend permissions", () => {
   for (const [role, expected] of [
-    ["admin", ["/dashboard", "/maintenance", "/config"]],
+    ["admin", ["/dashboard", "/maintenance", "/config", "/mail-template"]],
     ["manager", ["/dashboard", "/maintenance"]],
-    ["maintainer", ["/config"]],
+    ["maintainer", ["/config", "/mail-template"]],
   ] as const) {
     it(`shows the allowed pages and landing destination for ${role}`, () => {
       assert.deepEqual(
@@ -25,7 +25,7 @@ describe("page access follows backend permissions", () => {
       getAvailablePages(userWithRoles("maintainer", "manager", "manager")).map(
         (page) => page.path,
       ),
-      ["/dashboard", "/maintenance", "/config"],
+      ["/dashboard", "/maintenance", "/config", "/mail-template"],
     );
   });
 
@@ -63,6 +63,10 @@ describe("page access follows backend permissions", () => {
     assert.equal(
       getPageForMatches([{ routeId: "/_with_header/dashboard/" }]),
       "/dashboard",
+    );
+    assert.equal(
+      getPageForMatches([{ routeId: "/_with_header/mail-template/" }]),
+      "/mail-template",
     );
   });
 
